@@ -1,3 +1,5 @@
+#ifndef AST_HPP
+#define AST_HPP
 #include <iostream>
 #include <vector>
 #include <llvm/Value.h>
@@ -11,16 +13,16 @@ typedef std::vector<NStatement*> StatementList;
 typedef std::vector<NExpression*> ExpressionList;
 typedef std::vector<NVariableDeclaration*> VariableList;
 
-class Node {
+class AstNode {
 public:
-    virtual ~Node() {}
+    virtual ~AstNode() {}
     virtual llvm::Value* codeGen(CodeGenContext& context) {return 0; }
 };
 
-class NExpression : public Node {
+class NExpression : public AstNode {
 };
 
-class NStatement : public Node {
+class NStatement : public AstNode {
 };
 
 class NInteger : public NExpression {
@@ -111,3 +113,5 @@ public:
         type(type), id(id), arguments(arguments), block(block) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
+
+#endif

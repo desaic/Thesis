@@ -1,5 +1,5 @@
 %{
-    #include "node.h"
+    #include "Ast.h"
     NBlock *programBlock; /* the top level root node of our final AST */
     #include <stdio.h>
     extern int yylex();
@@ -8,7 +8,7 @@
 
 /* Represents the many different ways we can access our data */
 %union {
-    Node *node;
+    AstNode *node;
     NBlock *block;
     NExpression *expr;
     NStatement *stmt;
