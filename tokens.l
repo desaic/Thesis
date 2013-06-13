@@ -1,10 +1,8 @@
 %{
 #include <string>
-#include "node.h"
+#include "Ast.h"
 #include "parser.hpp"
 #define TOKEN(t) (yylval.token = t)
-extern "C" int yywrap() { }
-
 /* Update location each time a rule is matched. */
 #define YY_USER_ACTION *yylloc += yyleng;
 %}
