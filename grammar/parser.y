@@ -5,7 +5,7 @@
 %error-verbose
 
 %{
-#include "ParserWrapper.h"
+#include "ParserWrapper.hpp"
 #include <stdio.h>
 
 #undef yylex
@@ -29,33 +29,7 @@ void yyerror(UtSourceRange* range, PrsWrapParser* parser, const char* msg)
 %}
 
 %{
-#include "TempStructures.h"
-#include "OpenFL/Ir/Exps.h"
-#include "OpenFL/Ir/Inst.h"
-#include "OpenFL/Ir/Stmts.h"
-#include "OpenFL/Ir/Var.h"
-#include "OpenFL/Ir/VarDecl.h"
-#include "OpenFL/Ir/Program.h"
-#include "OpenFL/Ir/ProgramInst.h"
-#include "OpenFL/Ir/FuncParam.h"
-#include "OpenFL/Ir/FuncPrototype.h"
-#include "OpenFL/Ir/Function.h"
-#include "OpenFL/Ir/Fablet.h"
-#include "OpenFL/Ir/Struct.h"
-#include "OpenFL/Ir/EntryFunction.h"
-#include "OpenFL/Ir/ElemAccess.h"
-#include "OpenFL/Operators/Info.h"
-#include "OpenFL/Utility/SourcePos.h"
-#include "OpenFL/Utility/Types.h"
-%}
-
-%{
-#include "OpenFL/Parser/WrapParser.h"
-%}
-
-
-%{
-    #include "Ast.h"
+    #include "Ast.hpp"
     NBlock *programBlock; /* the top level root node of our final AST */
     #include <stdio.h>
     extern int yylex();

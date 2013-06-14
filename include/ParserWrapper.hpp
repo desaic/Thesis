@@ -16,5 +16,6 @@ public:
   
 private:
   LexWrapper _lex;
+  const char * _filename;
 };
 #endif
