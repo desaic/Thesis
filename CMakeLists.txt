@@ -18,6 +18,7 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
   message(STATUS "Debug build")
   add_definitions(-DNDEBUG)
   set(CMAKE_CXX_FLAGS_DEBUG ${DEBUG_FLAGS}) 
+  add_executable
 else(CMAKE_BUILD_TYPE MATCHES "Release")
   message(STATUS "Release build")
   add_definitions(-DDEBUG)
