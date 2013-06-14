@@ -1,4 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
+set(CXX_SOURCES
+  src/LexWrapper.cpp
+  src/ParserWrapper.cpp
+  src/codegen.cpp
+  src/parser.cpp
+  src/tokens.cpp
+)
+message(STATUS "${CXX_SOURCES}")
 project(PhysLang)
 find_package(LLVM)
 include(AddLLVM)
@@ -13,7 +21,6 @@ link_directories( ${LLVM_LIBRARY_DIRS} )
 llvm_map_components_to_libraries(REQ_LLVM_LIBRARIES jit native)
 
 include_directories("include")
-AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/src CXX_SOURCES)
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
   message(STATUS "Debug build")
   add_definitions(-DNDEBUG)
@@ -24,5 +31,6 @@ else(CMAKE_BUILD_TYPE MATCHES "Release")
   set(CMAKE_CXX_FLAGS_RELEASE ${RELEASE_FLAGS}) 
 endif()
 
-add_executable(phc ${CXX_SOURCES})
+add_executable(phc 
+  ${CXX_SOURCES})
 target_link_libraries(phc "${REQ_LLVM_LIBRARIES}")
