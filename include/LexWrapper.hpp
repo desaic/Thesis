@@ -22,8 +22,8 @@ typedef int Token;      // We use "int" instead of "enum yytokentype"
 class LexWrapper
 {
 public:
-  LexWrapper::LexWrapper(ParserWrapper* parser);
-   Token Lex(YYSTYPE *yylval, YYLTYPE *yylloc, void *parser);
+  LexWrapper(ParserWrapper* parser);
+  Token Lex(YYSTYPE *yylval, YYLTYPE *yylloc, void *parser);
 private:
   ParserWrapper * _parser;
 };

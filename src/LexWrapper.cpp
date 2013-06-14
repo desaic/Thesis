@@ -1,5 +1,6 @@
 #include "LexWrapper.hpp"
 #include "ParserWrapper.hpp"
+#include "Ast.hpp"
 #include "parser.hpp"
 
 int yyFlexLexer::yywrap() { return 1; }
