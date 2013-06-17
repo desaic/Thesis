@@ -19,7 +19,7 @@ typedef int Token;      // We use "int" instead of "enum yytokentype"
 #include <FlexLexer.h>
 #endif
 
-class LexWrapper
+class LexWrapper: public yyFlexLexer
 {
 public:
   LexWrapper(ParserWrapper* parser);

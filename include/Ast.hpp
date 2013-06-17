@@ -39,6 +39,19 @@ public:
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
+class NFloat: public NExpression {
+public:
+  float value;
+    NFloat(float value) : value(value) { }
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+/*
+class NString: public NExpression{
+public:
+  std::string * value;
+
+};
+*/
 class NIdentifier : public NExpression {
 public:
     std::string name;

@@ -1,10 +1,19 @@
 %{
 #include <string>
 #include "Ast.hpp"
-#define TOKEN(t) (yylval.token = t)
+#include "LexWrapper.hpp"
+#include "parser.hpp"
+#define TOKEN(t) (yylval->token = t)
 /* Update location each time a rule is matched. */
 #define YY_USER_ACTION *yylloc += yyleng;
 %}
+
+%option c++
+%option yyclass="LexWrapper"
+
+%x COMMENT
+
+
 digit           [[:digit:]]
 id              [[:alpha:]_][_[:alnum:]]*
 line_comment    "//"[^\n]*
@@ -14,12 +23,39 @@ string          \"(\\.|[^\\"])*\"
 integer         {digit}+
 double          ({digit}+(((\.{digit}+)?[Ee][+-]?{digit}+)|(\.{digit}*)))|(\.{digit}+)
 float           {double}f
+
 %%
 
-{id}            { yylval->strVal = strdup(yytext); return ID; }
+"int"                   { return TOKEN(INT); }
+"float"                 { return TOKEN(FLOAT); }
+"double"                { return TOKEN(DOUBLE); }
+
+"="                     return TOKEN(ASSIGN);
+"=="                    return TOKEN(EQ);
+"!="                    return TOKEN(NEQ);
+"<"                     return TOKEN(LT);
+"<="                    return TOKEN(LEQ);
+">"                     return TOKEN(GT);
+">="                    return TOKEN(GEQ);
+"+"                     return TOKEN(ADD);
+"-"                     return TOKEN(SUB);
+"*"                     return TOKEN(MUL);
+"/"                     return TOKEN(DIV);
+
+ /* Punctuation */
+"("             { return '('; }
+")"             { return ')'; }
+";"             { return ';'; }
+","             { return ','; }
+"."             { return '.'; }
+"{"             { return '{'; }
+"}"             { return '}'; }
+"["             { return '['; }
+"]"             { return ']'; }
+
+{id}            { yylval->string = new std::string(yytext,yyleng); return ID; }
 {string}        { 
-                  yylval->strVal = strdup(yytext+1);  
-                  yylval->strVal[strlen(yylval->strVal)-1]='\0'; 
+                  yylval->string = new std::string(yytext,yyleng-2);
                   return STRLITERAL; 
                 }
 {integer}       { yylval->intVal = atoi(yytext); return INTLITERAL; }
@@ -37,26 +73,21 @@ float           {double}f
                 
 [ \t\n]                 ;
 
-"="                     return TOKEN(TEQUAL);
-"=="                    return TOKEN(TCEQ);
-"!="                    return TOKEN(TCNE);
-"<"                     return TOKEN(TCLT);
-"<="                    return TOKEN(TCLE);
-">"                     return TOKEN(TCGT);
-">="                    return TOKEN(TCGE);
-"("                     return TOKEN(TLPAREN);
-")"                     return TOKEN(TRPAREN);
-"{"                     return TOKEN(TLBRACE);
-"}"                     return TOKEN(TRBRACE);
-"."                     return TOKEN(TDOT);
-","                     return TOKEN(TCOMMA);
-"+"                     return TOKEN(TPLUS);
-"-"                     return TOKEN(TMINUS);
-"*"                     return TOKEN(TMUL);
-"/"                     return TOKEN(TDIV);
-.                       printf("Unknown token!\n"); yyterminate();
+
+ /* Comments */
+{line_comment}  { yylloc->Skip(); }
+"/*"            { BEGIN(COMMENT); yylloc->Skip(); }
+
+ /* Whitespace */
+{space}         { yylloc->Skip(); }
+\n+             { yylloc->Newline(yyleng); yylloc->Skip(); }
+
+ /* Comments */
+<COMMENT>{
+"*/"            { BEGIN(INITIAL); yylloc->Skip(); }
+"*"             { yylloc->Skip(); }
+[^*\n]+         { yylloc->Skip(); }
+\n+             { yylloc->Newline(yyleng); yylloc->Skip(); }
+}
 
 %%
-
-
-

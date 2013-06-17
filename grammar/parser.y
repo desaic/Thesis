@@ -46,6 +46,9 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
     std::vector<NVariableDeclaration*> *varvec;
     std::vector<NExpression*> *exprvec;
     std::string *string;
+    int intVal;
+    float floatVal;
+    double doubleVal;
     int token;
 }
 
@@ -53,10 +56,14 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
    match our tokens.l lex file. We also define the node type
    they represent.
  */
-%token <string> TIDENTIFIER TINTEGER TDOUBLE
-%token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL
-%token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
-%token <token> TPLUS TMINUS TMUL TDIV
+%token <string> ID STRLITERAL
+%token <intVal> INTLITERAL
+%token <doubleVal> DOUBLELITERAL
+%token <floatVal> FLOATLITERAL
+%token INT DOUBLE FLOAT ASSIGN
+%token <token> EQ NEQ LT LEQ GT GEQ
+%token <token> ADD SUB MUL DIV
+
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -64,7 +71,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
    calling an (NIdentifier*). It makes the compiler happy.
  */
 %type <ident> ident
-%type <expr> numeric expr 
+%type <expr> LiteralExp expr 
 %type <varvec> func_decl_args
 %type <exprvec> call_args
 %type <block> program stmts block
@@ -72,8 +79,15 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <token> comparison
 
 /* Operator precedence for mathematical operators */
-%left TPLUS TMINUS
-%left TMUL TDIV
+%left '.'
+%right ASSIGN ADDASN SUBASN
+%left OR
+%left AND
+%left XOR
+%left NEQ EQ
+%left LT LEQ GT GEQ 
+%left ADD SUB NOT
+%left MUL DIV MOD
 
 %start program
 
@@ -90,45 +104,46 @@ stmt : var_decl | func_decl
      | expr { $$ = new NExpressionStatement(*$1); }
      ;
 
-block : TLBRACE stmts TRBRACE { $$ = $2; }
-      | TLBRACE TRBRACE { $$ = new NBlock(); }
+block : '{' stmts '}' { $$ = $2; }
+      | '{' '}' { $$ = new NBlock(); }
       ;
 
 var_decl : ident ident { $$ = new NVariableDeclaration(*$1, *$2); }
-         | ident ident TEQUAL expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+         | ident ident ASSIGN expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
          ;
         
-func_decl : ident ident TLPAREN func_decl_args TRPAREN block 
+func_decl : ident ident '(' func_decl_args ')' block 
             { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
           ;
     
 func_decl_args : /*blank*/  { $$ = new VariableList(); }
           | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-          | func_decl_args TCOMMA var_decl { $1->push_back($<var_decl>3); }
+          | func_decl_args ',' var_decl { $1->push_back($<var_decl>3); }
           ;
 
-ident : TIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
+ident : ID { $$ = new NIdentifier(*$1); delete $1; }
       ;
 
-numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
-        | TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
+LiteralExp : INTLITERAL { $$ = new NInteger($1); }
+        | DOUBLELITERAL { $$ = new NDouble($1); }
+        | FLOATLITERAL { $$ = new NFloat($1); }
         ;
     
-expr : ident TEQUAL expr { $$ = new NAssignment(*$<ident>1, *$3); }
-     | ident TLPAREN call_args TRPAREN { $$ = new NMethodCall(*$1, *$3); delete $3; }
+expr : ident ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
+     | ident '(' call_args ')' { $$ = new NMethodCall(*$1, *$3); delete $3; }
      | ident { $<ident>$ = $1; }
-     | numeric
+     | LiteralExp
      | expr comparison expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
-     | TLPAREN expr TRPAREN { $$ = $2; }
+     | '(' expr ')' { $$ = $2; }
      ;
     
 call_args : /*blank*/  { $$ = new ExpressionList(); }
           | expr { $$ = new ExpressionList(); $$->push_back($1); }
-          | call_args TCOMMA expr  { $1->push_back($3); }
+          | call_args ',' expr  { $1->push_back($3); }
           ;
 
-comparison : TCEQ | TCNE | TCLT | TCLE | TCGT | TCGE 
-           | TPLUS | TMINUS | TMUL | TDIV
+comparison : EQ | NEQ | LT | LEQ | GT | GEQ 
+           | ADD | SUB | MUL | DIV
            ;
 
 %%

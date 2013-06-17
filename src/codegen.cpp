@@ -67,6 +67,12 @@ Value* NDouble::codeGen(CodeGenContext& context)
 	return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
 }
 
+Value* NFloat::codeGen(CodeGenContext& context)
+{
+  std::cout << "Creating float: " << value << std::endl;
+  return ConstantFP::get(Type::getFloatTy(getGlobalContext()), value);
+}
+
 Value* NIdentifier::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating identifier reference: " << name << std::endl;
@@ -98,10 +104,10 @@ Value* NBinaryOperator::codeGen(CodeGenContext& context)
 	std::cout << "Creating binary operation " << op << std::endl;
 	Instruction::BinaryOps instr;
 	switch (op) {
-		case TPLUS: 	instr = Instruction::Add; goto math;
-		case TMINUS: 	instr = Instruction::Sub; goto math;
-		case TMUL: 		instr = Instruction::Mul; goto math;
-		case TDIV: 		instr = Instruction::SDiv; goto math;
+		case ADD: 	instr = Instruction::Add; goto math;
+		case SUB: 	instr = Instruction::Sub; goto math;
+		case MUL: 		instr = Instruction::Mul; goto math;
+		case DIV: 		instr = Instruction::SDiv; goto math;
 				
 		/* TODO comparison */
 	}
