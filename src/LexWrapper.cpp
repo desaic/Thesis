@@ -5,6 +5,6 @@
 
 int yyFlexLexer::yywrap() { return 1; }
 
-LexWrapper::LexWrapper(ParserWrapper* parser) : _parser(parser)
+LexWrapper::LexWrapper(ParserWrapper* parser) :yyFlexLexer(0,0), _parser(parser)
 {
 }
