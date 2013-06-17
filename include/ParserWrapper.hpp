@@ -8,7 +8,7 @@ public:
   ParserWrapper();
   ~ParserWrapper();
   
-  LexWrapper * getLex(){
+  LexWrapper * GetLex(){
     return &_lex;
   }
   

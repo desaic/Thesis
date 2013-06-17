@@ -9,11 +9,11 @@
 #include <stdio.h>
 
 #undef yylex
-#define yylex parser->GetLexer()->Lex
+#define yylex parser->GetLex()->Lex
 
-void yyerror(UtSourceRange* range, PrsWrapParser* parser, const char* msg)
+void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 {
-    parser->Log()->WriteWhere(UtLog::UT_ERROR, range->GetStart(), msg);
+    std::cout<<"Error: "<<msg<<"\n";
 }
 
 /* Combine first and last locations if possible.  Otherwise the location
@@ -32,7 +32,6 @@ void yyerror(UtSourceRange* range, PrsWrapParser* parser, const char* msg)
     #include "Ast.hpp"
     NBlock *programBlock; /* the top level root node of our final AST */
     #include <stdio.h>
-    extern int yylex();
     void yyerror(const char *s) { printf("ERROR: %s\n", s); }
 %}
 

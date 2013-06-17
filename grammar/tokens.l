@@ -1,7 +1,6 @@
 %{
 #include <string>
-#include "Ast.h"
-#include "parser.hpp"
+#include "Ast.hpp"
 #define TOKEN(t) (yylval.token = t)
 /* Update location each time a rule is matched. */
 #define YY_USER_ACTION *yylloc += yyleng;
