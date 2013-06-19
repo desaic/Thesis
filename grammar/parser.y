@@ -73,11 +73,11 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
  */
 %type <ident> ident
 %type <expr> LiteralExp expr 
+%type <expr> BinExpr
 %type <varvec> func_decl_args
 %type <exprvec> call_args
 %type <block> program stmts block
 %type <stmt> stmt var_decl func_decl
-%type <token> comparison
 %type <type> BuiltinType Type
 /* Operator precedence for mathematical operators */
 %left '.'
@@ -89,7 +89,6 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %left LT LEQ GT GEQ 
 %left ADD SUB NOT
 %left MUL DIV MOD
-
 %start program
 
 %%
@@ -101,12 +100,13 @@ stmts : { $$ = new NBlock();}
       | stmt stmts {$$=$2; $$->statements.push_front($1); }
       ;
 
-stmt : var_decl | func_decl
-     | expr { $$ = new NExpressionStatement(*$1); }
+stmt : var_decl ';'
+     | func_decl
+     | expr ';'{ $$ = new NExpressionStatement(*$1); }
      ;
 
 block : '{' stmts '}' { $$ = $2; }
-      | '{' '}' { $$ = new NBlock(); }
+//      | '{' '}' { $$ = new NBlock(); }
       ;
 
 var_decl : Type ident { $$ = new NVariableDeclaration(*$1, *$2); }
@@ -134,20 +134,23 @@ expr : ident ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
      | ident '(' call_args ')' { $$ = new NMethodCall(*$1, *$3); delete $3; }
      | ident { $<ident>$ = $1; }
      | LiteralExp
-     | expr comparison expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+     | BinExpr
      | '(' expr ')' { $$ = $2; }
      ;
-    
+BinExpr : expr ADD expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr SUB expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr MUL expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr DIV expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr EQ expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr NEQ expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr LT expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr LEQ expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr GT expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | expr GEQ expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
 call_args : /*blank*/  { $$ = new ExpressionList(); }
           | expr { $$ = new ExpressionList(); $$->push_front($1); }
           | expr ',' call_args { $$=$3; $$->push_front($1); }
           ;
-
-
-comparison : EQ | NEQ | LT | LEQ | GT | GEQ 
-           | ADD | SUB | MUL | DIV
-           ;
-
 
 Type : BuiltinType  /*Default action $$=$1*/
      | ID           {$$ = new StructType($1); delete $1;}
