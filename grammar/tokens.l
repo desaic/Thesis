@@ -13,7 +13,6 @@
 
 %x COMMENT
 
-
 digit           [[:digit:]]
 id              [[:alpha:]_][_[:alnum:]]*
 line_comment    "//"[^\n]*
@@ -25,10 +24,10 @@ double          ({digit}+(((\.{digit}+)?[Ee][+-]?{digit}+)|(\.{digit}*)))|(\.{di
 float           {double}f
 
 %%
-
-"int"                   { return TOKEN(INT); }
-"float"                 { return TOKEN(FLOAT); }
+"void"                  { return TOKEN(VOID); }
 "double"                { return TOKEN(DOUBLE); }
+"float"                 { return TOKEN(FLOAT); }
+"int"                   { return TOKEN(INT); }
 
 "="                     return TOKEN(ASSIGN);
 "=="                    return TOKEN(EQ);

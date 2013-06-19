@@ -5,6 +5,7 @@ set(CXX_SOURCES
   src/codegen.cpp
   src/parser.cpp
   src/tokens.cpp
+  src/Type.cpp
   src/main.cpp
 )
 

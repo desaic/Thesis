@@ -1,17 +1,18 @@
 #ifndef AST_HPP
 #define AST_HPP
+#include <deque>
 #include <iostream>
 #include <vector>
 #include <llvm/Value.h>
-
+#include <Type.hpp>
 class CodeGenContext;
 class NStatement;
 class NExpression;
 class NVariableDeclaration;
 
-typedef std::vector<NStatement*> StatementList;
-typedef std::vector<NExpression*> ExpressionList;
-typedef std::vector<NVariableDeclaration*> VariableList;
+typedef std::deque<NStatement*> StatementList;
+typedef std::deque<NExpression*> ExpressionList;
+typedef std::deque<NVariableDeclaration*> VariableList;
 
 class AstNode {
 public:
@@ -20,6 +21,14 @@ public:
 };
 
 class NExpression : public AstNode {
+public:
+  AstType * type;
+  NExpression():type(0){}
+  virtual ~NExpression(){
+    if(type!= 0){
+      delete type;
+    }
+  }
 };
 
 class NStatement : public AstNode {
@@ -27,8 +36,8 @@ class NStatement : public AstNode {
 
 class NInteger : public NExpression {
 public:
-    long long value;
-    NInteger(long long value) : value(value) { }
+    int value;
+    NInteger(int value) : value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
@@ -105,26 +114,44 @@ public:
 
 class NVariableDeclaration : public NStatement {
 public:
-    const NIdentifier& type;
-    NIdentifier& id;
-    NExpression *assignmentExpr;
-    NVariableDeclaration(const NIdentifier& type, NIdentifier& id) :
-        type(type), id(id),assignmentExpr(0) { }
-    NVariableDeclaration(const NIdentifier& type, NIdentifier& id, NExpression *assignmentExpr) :
-        type(type), id(id), assignmentExpr(assignmentExpr) { }
-    virtual llvm::Value* codeGen(CodeGenContext& context);
+  AstType * type;
+  NIdentifier& id;
+  NExpression *assignmentExpr;
+  NVariableDeclaration(AstType * _type, NIdentifier& id) :
+      type(_type), id(id), assignmentExpr(0)
+  {
+  }
+  NVariableDeclaration(AstType * _type, NIdentifier& id,
+      NExpression *assignmentExpr) :
+      type(_type), id(id), assignmentExpr(assignmentExpr)
+  {
+  }
+  virtual llvm::Value* codeGen(CodeGenContext& context);
+  virtual ~NVariableDeclaration()
+  {
+    if (type != 0) {
+      delete type;
+    }
+  }
 };
 
 class NFunctionDeclaration : public NStatement {
 public:
-    const NIdentifier& type;
+  AstType * type;
     const NIdentifier& id;
     VariableList arguments;
     NBlock& block;
-    NFunctionDeclaration(const NIdentifier& type, const NIdentifier& id, 
-            const VariableList& arguments, NBlock& block) :
-        type(type), id(id), arguments(arguments), block(block) { }
+    NFunctionDeclaration(AstType * _type, const NIdentifier& id,
+        const VariableList& arguments, NBlock& block) :
+          type(_type),id(id), arguments(arguments), block(block) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
+  virtual ~NFunctionDeclaration()
+  {
+    if (type != 0) {
+      delete type;
+    }
+  }
+
 };
 
 #endif

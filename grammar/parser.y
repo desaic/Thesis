@@ -46,6 +46,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
     std::vector<NVariableDeclaration*> *varvec;
     std::vector<NExpression*> *exprvec;
     std::string *string;
+    AstType * type;
     int intVal;
     float floatVal;
     double doubleVal;
@@ -60,7 +61,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token <intVal> INTLITERAL
 %token <doubleVal> DOUBLELITERAL
 %token <floatVal> FLOATLITERAL
-%token INT DOUBLE FLOAT ASSIGN
+%token VOID DOUBLE FLOAT INT ASSIGN
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
 
@@ -77,7 +78,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <block> program stmts block
 %type <stmt> stmt var_decl func_decl
 %type <token> comparison
-
+%type <type> BuiltinType Type
 /* Operator precedence for mathematical operators */
 %left '.'
 %right ASSIGN ADDASN SUBASN
@@ -96,8 +97,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 program : stmts { programBlock = $1; }
         ;
         
-stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
-      | stmts stmt { $1->statements.push_back($<stmt>2); }
+stmts : { $$ = new NBlock();}
+      | stmt stmts {$$=$2; $$->statements.push_front($1); }
       ;
 
 stmt : var_decl | func_decl
@@ -108,17 +109,17 @@ block : '{' stmts '}' { $$ = $2; }
       | '{' '}' { $$ = new NBlock(); }
       ;
 
-var_decl : ident ident { $$ = new NVariableDeclaration(*$1, *$2); }
-         | ident ident ASSIGN expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+var_decl : Type ident { $$ = new NVariableDeclaration(*$1, *$2); }
+         | Type ident ASSIGN expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
          ;
         
-func_decl : ident ident '(' func_decl_args ')' block 
+func_decl : Type ident '(' func_decl_args ')' block 
             { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
           ;
     
 func_decl_args : /*blank*/  { $$ = new VariableList(); }
-          | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-          | func_decl_args ',' var_decl { $1->push_back($<var_decl>3); }
+          | var_decl { $$ = new VariableList(); $$->push_front($1); }
+          | var_decl ',' func_decl_args   { $$=$3; $$->push_front($1); }
           ;
 
 ident : ID { $$ = new NIdentifier(*$1); delete $1; }
@@ -138,12 +139,23 @@ expr : ident ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
      ;
     
 call_args : /*blank*/  { $$ = new ExpressionList(); }
-          | expr { $$ = new ExpressionList(); $$->push_back($1); }
-          | call_args ',' expr  { $1->push_back($3); }
+          | expr { $$ = new ExpressionList(); $$->push_front($1); }
+          | expr ',' call_args { $$=$3; $$->push_front($1); }
           ;
+
 
 comparison : EQ | NEQ | LT | LEQ | GT | GEQ 
            | ADD | SUB | MUL | DIV
            ;
 
+
+Type : BuiltinType  /*Default action $$=$1*/
+     | ID           {$$ = new StructType($1); delete $1;}
+     ;
+
+BuiltinType : INT      {$$ = new AstType(AstType::AST_INT);}
+            | FLOAT    {$$ = new AstType(AstType::AST_FLOAT);}
+            | DOUBLE   {$$ = new AstType(AstType::AST_DOUBLE);}
+            | VOID     {$$ = new AstType(AstType::AST_VOID);}
+            ;
 %%

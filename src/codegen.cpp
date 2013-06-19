@@ -42,15 +42,24 @@ GenericValue CodeGenContext::runCode() {
 }
 
 /* Returns an LLVM type based on the identifier */
-static Type *typeOf(const NIdentifier& type) 
+static Type *typeOf(const AstType& type)
 {
-	if (type.name.compare("int") == 0) {
-		return Type::getInt64Ty(getGlobalContext());
-	}
-	else if (type.name.compare("double") == 0) {
-		return Type::getDoubleTy(getGlobalContext());
-	}
-	return Type::getVoidTy(getGlobalContext());
+  switch(type.typeId){
+  case AstType::AST_VOID:
+    return Type::getVoidTy(getGlobalContext());
+    break;
+  case AstType::AST_FLOAT:
+      return Type::getFloatTy(getGlobalContext());
+      break;
+  case AstType::AST_DOUBLE:
+      return Type::getDoubleTy(getGlobalContext());
+      break;
+  case AstType::AST_INT:
+      return Type::getInt32Ty(getGlobalContext());
+      break;
+  //case struct todo
+  }
+  return Type::getVoidTy(getGlobalContext());
 }
 
 /* -- Code Generation -- */
@@ -58,7 +67,7 @@ static Type *typeOf(const NIdentifier& type)
 Value* NInteger::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating integer: " << value << std::endl;
-	return ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true);
+	return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), value, true);
 }
 
 Value* NDouble::codeGen(CodeGenContext& context)
@@ -104,16 +113,22 @@ Value* NBinaryOperator::codeGen(CodeGenContext& context)
 	std::cout << "Creating binary operation " << op << std::endl;
 	Instruction::BinaryOps instr;
 	switch (op) {
-		case ADD: 	instr = Instruction::Add; goto math;
-		case SUB: 	instr = Instruction::Sub; goto math;
-		case MUL: 		instr = Instruction::Mul; goto math;
-		case DIV: 		instr = Instruction::SDiv; goto math;
-				
+		case ADD:
+		  instr = Instruction::Add;
+		  break;
+		case SUB:
+		  instr = Instruction::Sub;
+		  break;
+		case MUL:
+		  instr = Instruction::Mul;
+		  break;
+		case DIV:
+		  instr = Instruction::SDiv;
+		  break;
 		/* TODO comparison */
+		default:
+		  return NULL;
 	}
-
-	return NULL;
-math:
 	return BinaryOperator::Create(instr, lhs.codeGen(context), 
 		rhs.codeGen(context), "", context.currentBlock());
 }
@@ -148,9 +163,8 @@ Value* NExpressionStatement::codeGen(CodeGenContext& context)
 
 Value* NVariableDeclaration::codeGen(CodeGenContext& context)
 {
-	std::cout << "Creating variable declaration " << type.name << " " << id.name << std::endl;
-		
-	AllocaInst *alloc = new AllocaInst(typeOf(type), id.name.c_str(), context.currentBlock());
+	std::cout << "Creating variable declaration " << type->typeId << std::endl;
+	AllocaInst *alloc = new AllocaInst(typeOf(*type), id.name.c_str(), context.currentBlock());
 	context.locals()[id.name] = alloc;
 	if (assignmentExpr != NULL) {
 		NAssignment assn(id, *assignmentExpr);
@@ -164,9 +178,9 @@ Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 	vector< Type*> argTypes;
 	VariableList::const_iterator it;
 	for (it = arguments.begin(); it != arguments.end(); it++) {
-		argTypes.push_back(typeOf((**it).type));
+		argTypes.push_back(typeOf (*(**it).type));
 	}
-	FunctionType *ftype = FunctionType::get(typeOf(type), argTypes, false);
+	FunctionType *ftype = FunctionType::get(typeOf(*type), argTypes, false);
 	Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, id.name.c_str(), context.module);
 	BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
 
