@@ -43,8 +43,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
     NStatement *stmt;
     NIdentifier *ident;
     NVariableDeclaration *var_decl;
-    std::vector<NVariableDeclaration*> *varvec;
-    std::vector<NExpression*> *exprvec;
+    std::deque<NVariableDeclaration*> *varvec;
+    std::deque<NExpression*> *exprvec;
     std::string *string;
     AstType * type;
     int intVal;
@@ -77,7 +77,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <varvec> func_decl_args
 %type <exprvec> call_args
 %type <block> program stmts block
-%type <stmt> stmt var_decl func_decl
+%type <var_decl> var_decl
+%type <stmt> stmt func_decl
 %type <type> BuiltinType Type
 /* Operator precedence for mathematical operators */
 %left '.'
@@ -100,7 +101,7 @@ stmts : { $$ = new NBlock();}
       | stmt stmts {$$=$2; $$->statements.push_front($1); }
       ;
 
-stmt : var_decl ';'
+stmt : var_decl ';' {$$ = $1;}
      | func_decl
      | expr ';'{ $$ = new NExpressionStatement(*$1); }
      ;
@@ -109,12 +110,12 @@ block : '{' stmts '}' { $$ = $2; }
 //      | '{' '}' { $$ = new NBlock(); }
       ;
 
-var_decl : Type ident { $$ = new NVariableDeclaration(*$1, *$2); }
-         | Type ident ASSIGN expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+var_decl : Type ident { $$ = new NVariableDeclaration($1, *$2); }
+         | Type ident ASSIGN expr { $$ = new NVariableDeclaration($1, *$2, $4); }
          ;
         
 func_decl : Type ident '(' func_decl_args ')' block 
-            { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
+            { $$ = new NFunctionDeclaration($1, *$2, *$4, *$6); delete $4; }
           ;
     
 func_decl_args : /*blank*/  { $$ = new VariableList(); }

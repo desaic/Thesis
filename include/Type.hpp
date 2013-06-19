@@ -7,6 +7,7 @@
 
 #ifndef TYPE_HPP_
 #define TYPE_HPP_
+#include <string>
 class AstType
 {
 public:
@@ -32,8 +33,8 @@ class StructType: public AstType
 {
 public:
   std::string name;
-  StructType():typeId(AST_UNIMP){}
-  StructType(const std::string& _name):
-    typeId(AST_UNIMP),name(_name){}
+  StructType():AstType(AST_UNIMP){}
+  StructType(std::string * _name):
+    AstType(AST_UNIMP),name(*_name){}
 };
 #endif /* TYPE_HPP_ */
