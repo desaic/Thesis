@@ -43,4 +43,7 @@ endif()
 
 add_executable(phc 
   ${CXX_SOURCES})
+target_link_libraries(phc LLVMAsmParser
+			LLVMBitReader
+			LLVMLinker)
 target_link_libraries(phc ${REQ_LLVM_LIBRARIES})

@@ -1,3 +1,5 @@
+#ifndef CODEGEN_HPP
+#define CODEGEN_HPP
 #include <stack>
 #include <llvm/Module.h>
 #include <llvm/Function.h>
@@ -20,7 +22,9 @@
 using namespace llvm;
 
 class NBlock;
-
+namespace llvm{
+  class Linker;
+}
 class CodeGenBlock {
 public:
     BasicBlock *block;
@@ -33,7 +37,9 @@ class CodeGenContext {
 
 public:
     Module *module;
-    CodeGenContext():mainFunction(0) { module = new Module("main", getGlobalContext()); }
+    Module * libs;
+    llvm::Linker * linker;
+    CodeGenContext();
     
     void generateCode(NBlock& root);
     GenericValue runCode();
@@ -41,4 +47,7 @@ public:
     BasicBlock *currentBlock() { return blocks.top()->block; }
     void pushBlock(BasicBlock *block) { blocks.push(new CodeGenBlock()); blocks.top()->block = block; }
     void popBlock() { CodeGenBlock *top = blocks.top(); blocks.pop(); delete top; }
+
+    void saveLLVMIR(const char * filename);
 };
+#endif

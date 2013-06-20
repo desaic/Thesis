@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 
     CodeGenContext context;
     context.generateCode(*programBlock);
-    context.runCode();
-    
+    //context.runCode();
+    context.saveLLVMIR("a.ll");
     return 0;
 }
 
