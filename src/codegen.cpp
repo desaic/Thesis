@@ -178,6 +178,7 @@ Value* NBinaryOperator::codeGen(CodeGenContext& context)
 		default:
 		  return NULL;
 	}
+
 	return BinaryOperator::Create(instr, lhs.codeGen(context), 
 		rhs.codeGen(context), "", context.currentBlock());
 }
