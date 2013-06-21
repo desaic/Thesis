@@ -22,13 +22,24 @@ int main(int argc, char **argv)
       std::cout<<"Cannot open file "<<filename<<"\n";
       return 0;
     }
-    parser.Parse(stream, filename);
-    std::cout << programBlock << std::endl;
-
+    int status = parser.Parse(stream, filename);
     CodeGenContext context;
-    context.generateCode(*programBlock);
-    //context.runCode();
-    context.saveLLVMIR("a.ll");
+    switch(status){
+    case 0:
+      std::cout<<"Status: Syntax checked.\n";
+      std::cout << programBlock << std::endl;
+      context.generateCode(*programBlock);
+      //context.runCode();
+      context.saveLLVMIR("a.ll");
+      break;
+    case 1:
+      std::cout<<"Error: Syntax.\n";
+      break;
+    case 2:
+      std::cout<<"Error:Memory exhausted during parsing.\n";
+      break;
+    }
+
     return 0;
 }
 

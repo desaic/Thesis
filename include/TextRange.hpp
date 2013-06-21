@@ -28,7 +28,7 @@ public:
     {
     }
 
-    TextPos():mLine(1), mColumn(1) { }
+    TextPos():mFilename("undef"),mLine(1), mColumn(1){ }
 
 private:
     const char* mFilename;

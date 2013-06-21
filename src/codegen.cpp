@@ -71,10 +71,10 @@ void CodeGenContext::generateCode(NBlock& root)
 	/* Print the bytecode in a human-readable format 
 	   to see if our program compiled properly
 	 */
-	std::cout << "Code is generated.\n";
-	PassManager pm;
-	pm.add(createPrintModulePass(&outs()));
-	pm.run(*module);
+	//std::cout << "Code is generated.\n";
+	//PassManager pm;
+	//pm.add(createPrintModulePass(&outs()));
+	//pm.run(*module);
 }
 
 /* Executes the AST by running the main function */
@@ -144,6 +144,7 @@ Value* NMethodCall::codeGen(CodeGenContext& context)
 	Function *function = context.module->getFunction(id.name.c_str());
 	if (function == NULL) {
 		std::cerr << "no such function " << id.name << std::endl;
+		return NULL;
 	}
 	std::vector<Value*> args;
 	ExpressionList::const_iterator it;

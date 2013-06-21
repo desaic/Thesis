@@ -70,8 +70,6 @@ float           {double}f
                   return DOUBLELITERAL; 
                 }
                 
-[ \t\n]                 ;
-
 
  /* Comments */
 {line_comment}  { yylloc->Skip(); }

@@ -6,7 +6,12 @@
 int yyparse(ParserWrapper *);
 
 ParserWrapper::ParserWrapper():
-  _lex(this),_filename(0)
+  _lex(this),_filename("undef")
+{
+}
+
+ParserWrapper::ParserWrapper(const char * filename):
+  _lex(this),_filename(filename)
 {
 }
 

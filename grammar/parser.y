@@ -5,8 +5,11 @@
 %error-verbose
 
 %{
+/**C declarations*/
 #include "ParserWrapper.hpp"
 #include <stdio.h>
+#include "Ast.hpp"
+NBlock *programBlock; /* the top level root node of our final AST */
 
 #undef yylex
 #define yylex parser->GetLex()->Lex
@@ -14,6 +17,10 @@
 void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 {
     std::cout<<"Error: "<<msg<<"\n";
+    const TextPos& pos = range->GetStart();
+    const TextPos& pos1 = range->GetEnd();
+    std::cout<<"Between Line "<<pos.GetLine()<<" Column "<<pos.GetColumn()<<"\n";
+    std::cout<<"And Line "<<pos1.GetLine()<<" Column "<<pos1.GetColumn()<<"\n";
 }
 
 /* Combine first and last locations if possible.  Otherwise the location
@@ -25,16 +32,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
         else                                                            \
             (Current).Follow( YYRHSLOC(Rhs, 0) );                       \
     while (0)
-
 %}
-
-%{
-    #include "Ast.hpp"
-    NBlock *programBlock; /* the top level root node of our final AST */
-    #include <stdio.h>
-    void yyerror(const char *s) { printf("ERROR: %s\n", s); }
-%}
-
+/**Bison declarations*/
 /* Represents the many different ways we can access our data */
 %union {
     AstNode *node;
@@ -53,9 +52,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
     int token;
 }
 
-/* Define our terminal symbols (tokens). This should
-   match our tokens.l lex file. We also define the node type
-   they represent.
+/* Define our terminal symbols
  */
 %token <string> ID STRLITERAL
 %token <intVal> INTLITERAL
@@ -64,13 +61,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token VOID DOUBLE FLOAT INT ASSIGN
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
-
-
-/* Define the type of node our nonterminal symbols represent.
-   The types refer to the %union declaration above. Ex: when
-   we call an ident (defined by union type ident) we are really
-   calling an (NIdentifier*). It makes the compiler happy.
- */
+/**Non-terminals*/
 %type <ident> ident
 %type <expr> LiteralExp expr 
 %type <expr> BinExpr
@@ -80,7 +71,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <var_decl> var_decl
 %type <stmt> stmt func_decl
 %type <type> BuiltinType Type
-/* Operator precedence for mathematical operators */
+
+/* Operator precedence*/
 %left '.'
 %right ASSIGN ADDASN SUBASN
 %left OR
@@ -90,9 +82,14 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %left LT LEQ GT GEQ 
 %left ADD SUB NOT
 %left MUL DIV MOD
+/*start state*/
 %start program
+%initial-action {
+    @$ = TextRange(parser->GetFilename());
+}
 
 %%
+/**Grammar Rules*/
 
 program : stmts { programBlock = $1; }
         ;
@@ -163,3 +160,4 @@ BuiltinType : INT      {$$ = new AstType(AstType::AST_INT);}
             | VOID     {$$ = new AstType(AstType::AST_VOID);}
             ;
 %%
+/**Additional c code*/
