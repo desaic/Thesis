@@ -9,6 +9,7 @@
 #include "ParserWrapper.hpp"
 #include <stdio.h>
 #include "Ast.hpp"
+#include "NReturn.hpp"
 NBlock *programBlock; /* the top level root node of our final AST */
 
 #undef yylex
@@ -58,7 +59,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token <intVal> INTLITERAL
 %token <doubleVal> DOUBLELITERAL
 %token <floatVal> FLOATLITERAL
-%token VOID DOUBLE FLOAT INT ASSIGN
+%token VOID DOUBLE FLOAT INT ASSIGN RETURN
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
 /**Non-terminals*/
@@ -69,7 +70,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <exprvec> call_args
 %type <block> program stmts block
 %type <var_decl> var_decl
-%type <stmt> stmt func_decl
+%type <stmt> stmt func_decl ReturnStmt
 %type <type> BuiltinType Type
 
 /* Operator precedence*/
@@ -101,6 +102,7 @@ stmts : { $$ = new NBlock();}
 stmt : var_decl ';' {$$ = $1;}
      | func_decl
      | expr ';'{ $$ = new NExpressionStatement(*$1); }
+     | ReturnStmt ';'
      ;
 
 block : '{' stmts '}' { $$ = $2; }
@@ -120,6 +122,11 @@ func_decl_args : /*blank*/  { $$ = new VariableList(); }
           | var_decl ',' func_decl_args   { $$=$3; $$->push_front($1); }
           ;
 
+ReturnStmt
+    : RETURN expr        { $$ = new NReturn($2); }
+    | RETURN            { $$ = new NReturn(NULL); }
+    ;
+          
 ident : ID { $$ = new NIdentifier(*$1); delete $1; }
       ;
 

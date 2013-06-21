@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CXX_SOURCES
   src/LexWrapper.cpp
   src/ParserWrapper.cpp
+  src/AstNode.cpp
+  src/NExpression.cpp
+  src/NReturn.cpp
   src/codegen.cpp
   src/parser.cpp
   src/tokens.cpp

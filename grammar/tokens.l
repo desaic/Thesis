@@ -28,6 +28,7 @@ float           {double}f
 "double"                { return TOKEN(DOUBLE); }
 "float"                 { return TOKEN(FLOAT); }
 "int"                   { return TOKEN(INT); }
+"return"                { return TOKEN(RETURN); }
 
 "="                     return TOKEN(ASSIGN);
 "=="                    return TOKEN(EQ);

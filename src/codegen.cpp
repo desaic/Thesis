@@ -10,6 +10,7 @@ using namespace std;
 #include <string.h>
 #include <stdlib.h>
 const char * PHC_ROOT_ENV="PHC_ROOT";
+using namespace llvm;
 CodeGenContext::CodeGenContext():mainFunction(0)
 {
   module = new Module("main", getGlobalContext());
@@ -239,7 +240,6 @@ Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 	}
 	
 	block.codeGen(context);
-	ReturnInst::Create(getGlobalContext(), bblock);
 
 	context.popBlock();
 	std::cout << "Creating function: " << id.name << std::endl;

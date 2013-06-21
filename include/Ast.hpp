@@ -4,32 +4,16 @@
 #include <iostream>
 #include <vector>
 #include <llvm/Value.h>
-#include <Type.hpp>
+#include "AstNode.hpp"
+#include "NExpression.hpp"
+#include "Type.hpp"
 class CodeGenContext;
 class NStatement;
-class NExpression;
 class NVariableDeclaration;
 
 typedef std::deque<NStatement*> StatementList;
 typedef std::deque<NExpression*> ExpressionList;
 typedef std::deque<NVariableDeclaration*> VariableList;
-
-class AstNode {
-public:
-    virtual ~AstNode() {}
-    virtual llvm::Value* codeGen(CodeGenContext& context) {return 0; }
-};
-
-class NExpression : public AstNode {
-public:
-  AstType * type;
-  NExpression():type(0){}
-  virtual ~NExpression(){
-    if(type!= 0){
-      delete type;
-    }
-  }
-};
 
 class NStatement : public AstNode {
 };
