@@ -9,6 +9,7 @@ set(CXX_SOURCES
   src/parser.cpp
   src/tokens.cpp
   src/Type.cpp
+  src/NBinaryOp.cpp
   src/main.cpp
 )
 

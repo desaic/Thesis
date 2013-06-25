@@ -89,26 +89,6 @@ GenericValue CodeGenContext::runCode() {
 	return v;
 }
 
-/* Returns an LLVM type based on the identifier */
-static Type *typeOf(const AstType& type)
-{
-  switch(type.typeId){
-  case AstType::AST_VOID:
-    return Type::getVoidTy(getGlobalContext());
-    break;
-  case AstType::AST_FLOAT:
-      return Type::getFloatTy(getGlobalContext());
-      break;
-  case AstType::AST_DOUBLE:
-      return Type::getDoubleTy(getGlobalContext());
-      break;
-  case AstType::AST_INT:
-      return Type::getInt32Ty(getGlobalContext());
-      break;
-  //case struct todo
-  }
-  return Type::getVoidTy(getGlobalContext());
-}
 
 /* -- Code Generation -- */
 
@@ -157,32 +137,6 @@ Value* NMethodCall::codeGen(CodeGenContext& context)
 	return call;
 }
 
-Value* NBinaryOperator::codeGen(CodeGenContext& context)
-{
-	std::cout << "Creating binary operation " << op << std::endl;
-	Instruction::BinaryOps instr;
-	switch (op) {
-		case ADD:
-		  instr = Instruction::Add;
-		  break;
-		case SUB:
-		  instr = Instruction::Sub;
-		  break;
-		case MUL:
-		  instr = Instruction::Mul;
-		  break;
-		case DIV:
-		  instr = Instruction::SDiv;
-		  break;
-		/* TODO comparison */
-		default:
-		  return NULL;
-	}
-
-	return BinaryOperator::Create(instr, lhs.codeGen(context), 
-		rhs.codeGen(context), "", context.currentBlock());
-}
-
 Value* NAssignment::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating assignment for " << lhs.name << std::endl;
@@ -214,7 +168,7 @@ Value* NExpressionStatement::codeGen(CodeGenContext& context)
 Value* NVariableDeclaration::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating variable declaration " << type->typeId << std::endl;
-	AllocaInst *alloc = new AllocaInst(typeOf(*type), id.name.c_str(), context.currentBlock());
+	AllocaInst *alloc = new AllocaInst(type->getLLVMType(), id.name.c_str(), context.currentBlock());
 	context.locals()[id.name] = alloc;
 	if (assignmentExpr != NULL) {
 		NAssignment assn(id, *assignmentExpr);
@@ -228,9 +182,9 @@ Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 	vector< Type*> argTypes;
 	VariableList::const_iterator it;
 	for (it = arguments.begin(); it != arguments.end(); it++) {
-		argTypes.push_back(typeOf (*(**it).type));
+		argTypes.push_back((**it).type->getLLVMType());
 	}
-	FunctionType *ftype = FunctionType::get(typeOf(*type), argTypes, false);
+	FunctionType *ftype = FunctionType::get(type->getLLVMType(), argTypes, false);
 	Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, id.name.c_str(), context.module);
 	BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
 

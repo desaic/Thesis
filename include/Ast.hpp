@@ -62,15 +62,7 @@ public:
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
-class NBinaryOperator : public NExpression {
-public:
-    NExpression& lhs;
-    NExpression& rhs;
-    int op;
-    NBinaryOperator(NExpression& _lhs, int op, NExpression& _rhs) :
-        lhs(_lhs), rhs(_rhs), op(op) { }
-    virtual llvm::Value* codeGen(CodeGenContext& context);
-};
+
 
 class NAssignment : public NExpression {
 public:

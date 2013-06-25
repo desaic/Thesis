@@ -8,6 +8,11 @@
 #ifndef TYPE_HPP_
 #define TYPE_HPP_
 #include <string>
+namespace llvm{
+class Type;
+};
+///@brief a class representing primitive types,
+///arrays, and structs
 class AstType
 {
 public:
@@ -23,9 +28,11 @@ public:
   AstType(int _id);
   AstType(const AstType & ty);
   AstType & operator=(const AstType& ty);
+  int getId()const;
   void set(int id);
   int typeId;
   virtual ~AstType();
+  llvm::Type * getLLVMType() const ;
 };
 
 ///@brief not implemented
@@ -37,4 +44,5 @@ public:
   StructType(std::string * _name):
     AstType(AST_UNIMP),name(*_name){}
 };
+
 #endif /* TYPE_HPP_ */
