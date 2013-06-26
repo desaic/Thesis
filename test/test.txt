@@ -1,6 +1,6 @@
 /** a test program */
-float num1 = 1.5f;
-float num2 = num1*0.1f*0.5f;
+float num1 = 1.5;
+float num2 = num1*0.1*0.5;
 
 int do_math(int a) 
 { 

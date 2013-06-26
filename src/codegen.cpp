@@ -139,10 +139,10 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 	Symbol leftSymbol = context.locals()[lhs.name];
 	Value * castInst = NULL;
 	if(leftSymbol.node->type.getId() != rhs.type.getId()){
-	  castInst = cast(&(leftSymbol.node->type), &(rhs.type),rhs.codeGen(context));
+	  castInst = cast(&(rhs.type), &(leftSymbol.node->type), rhs.codeGen(context));
 	  if(castInst == NULL){
-	    std::cout<<"Error: no known conversion from type "<<leftSymbol.node->type.getId()
-	        <<" to "<<rhs.type.getId()<<"\n";
+	    std::cout<<"Error: no known conversion from type "<<rhs.type.getId()
+	        <<" to "<<leftSymbol.node->type.getId()<<"\n";
 	    delete castInst;
 	    return NULL;
 	  }
