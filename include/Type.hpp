@@ -13,7 +13,8 @@ class Type;
 class Value;
 };
 ///@brief a class representing primitive types,
-///arrays, and structs
+///arrays, and structs.
+///By default, @typeId is AST_INVALID;
 class AstType
 {
 public:
@@ -33,6 +34,7 @@ public:
   void set(int id);
   virtual ~AstType();
   llvm::Type * getLLVMType() const ;
+  std::string toString()const;
 private:
   int typeId;
 };

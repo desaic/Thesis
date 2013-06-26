@@ -42,10 +42,11 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 
 
 NFunctionDeclaration::NFunctionDeclaration(const AstType & _type,
-    const NIdentifier& id, const VariableList& arguments, NBlock& block) :
+    NIdentifier& id, const VariableList& arguments, NBlock& block) :
     NStatement(_type), id(id), arguments(arguments), block(block)
 {
   symbol.addLocalSymbol(id.name, this);
+  id.updateType();
 }
 
 NFunctionDeclaration:: ~NFunctionDeclaration()

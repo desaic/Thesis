@@ -12,6 +12,27 @@
 #include <llvm/Value.h>
 #include <llvm/InstrTypes.h>
 #include <llvm/Instructions.h>
+
+std::string AstType::toString()const
+{
+  switch(typeId){
+  case AST_INT:
+    return "int";
+  case AST_INT64:
+    return "int64";
+  case AST_FLOAT:
+    return "float";
+  case AST_DOUBLE:
+    return "double";
+  case AST_VOID:
+    return "void";
+  case AST_INVALID:
+    return "invalidType";
+  default:
+    return "undefType";
+  }
+}
+
 llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S)
 {
   llvm::Value * castInst = NULL;
@@ -70,7 +91,7 @@ void AstType::set(int id)
 }
 
 AstType::AstType():
-typeId(AST_VOID)
+typeId(AST_INVALID)
 {}
 
 AstType::AstType(int _id):

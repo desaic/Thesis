@@ -17,6 +17,7 @@ NVariableDeclaration::NVariableDeclaration(const AstType & _type, NIdentifier& i
 NStatement(_type), id(id), assignmentExpr(0)
 {
   addSymbol();
+  id.updateType();
 }
 
 NVariableDeclaration::NVariableDeclaration(const AstType &_type, NIdentifier& id,
@@ -24,6 +25,7 @@ NVariableDeclaration::NVariableDeclaration(const AstType &_type, NIdentifier& id
 NStatement(_type), id(id), assignmentExpr(assignmentExpr)
 {
   addSymbol();
+  id.updateType();
 }
 
 llvm::Value*

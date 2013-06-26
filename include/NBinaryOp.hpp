@@ -11,10 +11,10 @@
 #include "NExpression.hpp"
 class NBinaryOp : public NExpression {
 public:
-    NExpression& lhs;
-    NExpression& rhs;
+    NExpression* lhs;
+    NExpression* rhs;
     int op;
-    NBinaryOp(NExpression& _lhs, int op, NExpression& _rhs);
+    NBinaryOp(NExpression *_lhs, int op, NExpression* _rhs);
   virtual const AstType & getType();
   virtual ~NBinaryOp();
     virtual llvm::Value* codeGen(CodeGenContext& context);

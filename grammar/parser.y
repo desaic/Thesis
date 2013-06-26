@@ -141,16 +141,16 @@ expr : ident ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
      | BinExpr
      | '(' expr ')' { $$ = $2; }
      ;
-BinExpr : expr ADD expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr SUB expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr MUL expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr DIV expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr EQ expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr NEQ expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr LT expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr LEQ expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr GT expr { $$ = new NBinaryOp(*$1, $2, *$3); }
-        | expr GEQ expr { $$ = new NBinaryOp(*$1, $2, *$3); }
+BinExpr : expr ADD expr { $$ = new NBinaryOp($1, $2, $3); }
+        | expr SUB expr { $$ = new NBinaryOp($1, $2, $3); }
+        | expr MUL expr { $$ = new NBinaryOp($1, $2, $3); }
+        | expr DIV expr { $$ = new NBinaryOp($1, $2, $3); }
+        | expr EQ expr { $$ = new NBinaryOp ($1, $2, $3); }
+        | expr NEQ expr { $$ = new NBinaryOp($1, $2, $3); }
+        | expr LT expr { $$ = new NBinaryOp ($1, $2, $3); }
+        | expr LEQ expr { $$ = new NBinaryOp($1, $2, $3); }
+        | expr GT expr { $$ = new NBinaryOp ($1, $2, $3); }
+        | expr GEQ expr { $$ = new NBinaryOp($1, $2, $3); }
 call_args : /*blank*/  { $$ = new ExpressionList(); }
           | expr { $$ = new ExpressionList(); $$->push_front($1); }
           | expr ',' call_args { $$=$3; $$->push_front($1); }
