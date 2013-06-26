@@ -1,6 +1,7 @@
 #ifndef CODEGEN_HPP
 #define CODEGEN_HPP
-#include <stack>
+#include <vector>
+
 #include <llvm/Module.h>
 #include <llvm/Function.h>
 #include <llvm/Type.h>
@@ -20,32 +21,59 @@
 #include <llvm/Support/raw_ostream.h>
 
 class NBlock;
-namespace llvm{
-  class Linker;
+class AstNode;
+namespace llvm
+{
+class Linker;
 }
-class CodeGenBlock {
-public:
-  llvm::BasicBlock *block;
-    std::map<std::string, llvm::Value*> locals;
+
+struct Symbol{
+  Symbol():node(0),value(0){}
+  Symbol(AstNode * n, llvm::Value * v):node(n),value(v){}
+  AstNode * node;
+  llvm::Value * value;
 };
 
-class CodeGenContext {
-    std::stack<CodeGenBlock *> blocks;
-    llvm::Function *mainFunction;
+class CodeGenBlock
+{
+public:
+  llvm::BasicBlock *block;
+  std::map<std::string, Symbol> locals;
+};
+
+class CodeGenContext
+{
+  std::vector<CodeGenBlock *> blocks;
+  llvm::Function *mainFunction;
 
 public:
-    llvm::Module *module;
-    llvm::Module * libs;
-    llvm::Linker * linker;
-    CodeGenContext();
-    
-    void generateCode(NBlock& root);
-    llvm::GenericValue runCode();
-    std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
-    llvm::BasicBlock *currentBlock() { return blocks.top()->block; }
-    void pushBlock(llvm::BasicBlock *block) { blocks.push(new CodeGenBlock()); blocks.top()->block = block; }
-    void popBlock() { CodeGenBlock *top = blocks.top(); blocks.pop(); delete top; }
+  llvm::Module *module;
+  llvm::Module * libs;
+  llvm::Linker * linker;
+  CodeGenContext();
 
-    void saveLLVMIR(const char * filename);
+  void generateCode(NBlock& root);
+  llvm::GenericValue runCode();
+  std::map<std::string, Symbol>& locals()
+  {
+    return blocks.back()->locals;
+  }
+  llvm::BasicBlock *currentBlock()
+  {
+    return blocks.back()->block;
+  }
+  void pushBlock(llvm::BasicBlock *block)
+  {
+    blocks.push_back(new CodeGenBlock());
+    blocks.back()->block = block;
+  }
+  void popBlock()
+  {
+    CodeGenBlock *top = blocks.back();
+    blocks.back();
+    delete top;
+  }
+
+  void saveLLVMIR(const char * filename);
 };
 #endif

@@ -11,6 +11,7 @@
 #include "Ast.hpp"
 #include "NBinaryOp.hpp"
 #include "NReturn.hpp"
+#include "NVariableDeclaration.hpp"
 NBlock *programBlock; /* the top level root node of our final AST */
 
 #undef yylex
@@ -27,13 +28,10 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 
 /* Combine first and last locations if possible.  Otherwise the location
    follows the previous location. */
-#define YYLLOC_DEFAULT(Current, Rhs, N)                                 \
-    do                                                                  \
-        if (N)                                                          \
-            (Current).Combine( YYRHSLOC(Rhs, 1), YYRHSLOC(Rhs, N) );    \
-        else                                                            \
-            (Current).Follow( YYRHSLOC(Rhs, 0) );                       \
-    while (0)
+#define YYLLOC_DEFAULT(Current, Rhs, N)                             \
+        N?                                                          \
+            (Current).Combine( YYRHSLOC(Rhs, 1), YYRHSLOC(Rhs, N) ):\
+            (Current).Follow( YYRHSLOC(Rhs, 0) )    
 %}
 /**Bison declarations*/
 /* Represents the many different ways we can access our data */
@@ -110,8 +108,8 @@ block : '{' stmts '}' { $$ = $2; }
 //      | '{' '}' { $$ = new NBlock(); }
       ;
 
-var_decl : Type ident { $$ = new NVariableDeclaration($1, *$2); }
-         | Type ident ASSIGN expr { $$ = new NVariableDeclaration($1, *$2, $4); }
+var_decl : Type ident { $$ = new NVariableDeclaration(*$1, *$2); delete $1;}
+         | Type ident ASSIGN expr { $$ = new NVariableDeclaration(*$1, *$2, $4); delete $1;}
          ;
         
 func_decl : Type ident '(' func_decl_args ')' block 

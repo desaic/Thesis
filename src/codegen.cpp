@@ -1,4 +1,5 @@
 #include "Ast.hpp"
+#include "NVariableDeclaration.hpp"
 #include "codegen.h"
 #include "parser.hpp"
 #include <llvm/Support/IRReader.h>
@@ -117,7 +118,8 @@ Value* NIdentifier::codeGen(CodeGenContext& context)
 		std::cerr << "undeclared variable " << name << std::endl;
 		return NULL;
 	}
-	return new LoadInst(context.locals()[name], "", false, context.currentBlock());
+	return new LoadInst(context.locals()[name].value,
+	    "", false, context.currentBlock());
 }
 
 Value* NMethodCall::codeGen(CodeGenContext& context)
@@ -144,7 +146,8 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 		std::cerr << "undeclared variable " << lhs.name << std::endl;
 		return NULL;
 	}
-	return new StoreInst(rhs.codeGen(context), context.locals()[lhs.name], false, context.currentBlock());
+	return new StoreInst(rhs.codeGen(context),
+	    context.locals()[lhs.name].value, false, context.currentBlock());
 }
 
 Value* NBlock::codeGen(CodeGenContext& context)
@@ -163,18 +166,6 @@ Value* NExpressionStatement::codeGen(CodeGenContext& context)
 {
 	std::cout << "Generating code for " << typeid(expression).name() << std::endl;
 	return expression.codeGen(context);
-}
-
-Value* NVariableDeclaration::codeGen(CodeGenContext& context)
-{
-	std::cout << "Creating variable declaration " << type->typeId << std::endl;
-	AllocaInst *alloc = new AllocaInst(type->getLLVMType(), id.name.c_str(), context.currentBlock());
-	context.locals()[id.name] = alloc;
-	if (assignmentExpr != NULL) {
-		NAssignment assn(id, *assignmentExpr);
-		assn.codeGen(context);
-	}
-	return alloc;
 }
 
 Value* NFunctionDeclaration::codeGen(CodeGenContext& context)

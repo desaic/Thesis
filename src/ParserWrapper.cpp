@@ -24,7 +24,8 @@ ParserWrapper::Parse(std::istream *stream, const char *filename)
 {
     _lex.switch_streams(stream, 0);
     _filename = filename;
-
+    //The global scope.
+    AstNode::symbol.incScope();
     int status = yyparse(this);
 
     return status;

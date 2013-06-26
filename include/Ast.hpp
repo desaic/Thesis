@@ -21,21 +21,27 @@ class NStatement : public AstNode {
 class NInteger : public NExpression {
 public:
     int value;
-    NInteger(int value) : value(value) { }
+  NInteger(int value) :
+    NExpression(AstType(AstType::AST_INT)),
+    value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 class NDouble : public NExpression {
 public:
     double value;
-    NDouble(double value) : value(value) { }
+    NDouble(double value) :
+      NExpression(AstType(AstType::AST_DOUBLE)),
+      value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 class NFloat: public NExpression {
 public:
   float value;
-    NFloat(float value) : value(value) { }
+    NFloat(float value) :
+      NExpression(AstType(AstType::AST_FLOAT)),
+      value(value) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 /*
@@ -48,6 +54,7 @@ public:
 class NIdentifier : public NExpression {
 public:
     std::string name;
+    const AstType * getType();
     NIdentifier(const std::string& name) : name(name) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
@@ -88,28 +95,6 @@ public:
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
-class NVariableDeclaration : public NStatement {
-public:
-  AstType * type;
-  NIdentifier& id;
-  NExpression *assignmentExpr;
-  NVariableDeclaration(AstType * _type, NIdentifier& id) :
-      type(_type), id(id), assignmentExpr(0)
-  {
-  }
-  NVariableDeclaration(AstType * _type, NIdentifier& id,
-      NExpression *assignmentExpr) :
-      type(_type), id(id), assignmentExpr(assignmentExpr)
-  {
-  }
-  virtual llvm::Value* codeGen(CodeGenContext& context);
-  virtual ~NVariableDeclaration()
-  {
-    if (type != 0) {
-      delete type;
-    }
-  }
-};
 
 class NFunctionDeclaration : public NStatement {
 public:

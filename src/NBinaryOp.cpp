@@ -92,23 +92,44 @@ Value * cast(const AstType * src, const AstType * dst, Value * S)
   return castInst;
 }
 
-Value* NBinaryOp::codeGen(CodeGenContext& context)
+const AstType *
+NBinaryOp::getType()
 {
-  std::cout << "Creating binary operation " << op << std::endl;
+  if(type!=0){
+    return type;
+  }
   std::vector<const AstType *> args(2);
   args[0] = lhs.getType();
   args[1] = rhs.getType();
-  AstType * type = getCommonType(args);
+  if(args[0]==0 || args[1]==0){
+    std::cout<<"Error: Unknow operand types\n";
+    return type;
+  }
+  type = getCommonType(args);
+  return type;
+}
+
+Value* NBinaryOp::codeGen(CodeGenContext& context)
+{
+  std::cout << "Creating binary operation " << op << std::endl;
+  getType();
+  if(type==0){
+    std::cout<<"Error: Binary op type undefined\n";
+    return NULL;
+  }
   Value * vals[2];
   Value * operands[2];
   vals[0] = lhs.codeGen(context);
   vals[1] = rhs.codeGen(context);
+  const AstType * types[2];
+  types[0] = lhs.getType();
+  types[1] = rhs.getType();
   for(size_t ii = 0;ii<2;ii++){
-    if(args[ii]->getId()!=type->getId()){
-      operands[ii] = cast(args[ii],type, vals[ii]);
+    if(types[ii]->getId()!=type->getId()){
+      operands[ii] = cast(types[ii],type, vals[ii]);
     }
   }
-  delete type;
+  
   int instr=-1;
   switch (op) {
   case ADD:
@@ -165,7 +186,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
   }
   if(instr==-1){
     std::cout << "Error: Unknown operator" << op << " for types "
-          << args[0]->getId() << " and " << args[1]->getId() << "\n";
+          << types[0]->getId() << " and " << types[1]->getId() << "\n";
       return NULL;
   }
   return BinaryOperator::Create((Instruction::BinaryOps)instr, operands[0],
