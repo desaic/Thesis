@@ -6,3 +6,9 @@
  */
 
 #include "NStatement.hpp"
+NStatement::NStatement()
+{}
+
+NStatement::NStatement(const AstType & _type):
+AstNode(_type)
+{}

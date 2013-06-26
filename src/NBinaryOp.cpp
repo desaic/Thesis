@@ -57,55 +57,20 @@ NBinaryOp::NBinaryOp(NExpression& _lhs, int op, NExpression& _rhs) :
         lhs(_lhs), rhs(_rhs), op(op)
 {}
 
-Value * cast(const AstType * src, const AstType * dst, Value * S)
-{
-  Value * castInst = NULL;
-  Type * targetTy = dst->getLLVMType();
-  switch(src->getId()){
-  case AstType::AST_INT:
-  case AstType::AST_INT64:
-    switch(dst->getId()){
-    case AstType::AST_INT:
-    case AstType::AST_INT64:
-      castInst = CastInst::CreateIntegerCast(S, targetTy, true);
-      break;
-    case AstType::AST_FLOAT:
-    case AstType::AST_DOUBLE:
-      castInst = new SIToFPInst(S,targetTy);
-      break;
-    }
-    break;
-  case AstType::AST_FLOAT:
-  case AstType::AST_DOUBLE:
-    switch(dst->getId()){
-    case AstType::AST_FLOAT:
-    case AstType::AST_DOUBLE:
-      castInst = CastInst::CreateFPCast(S,targetTy);
-      break;
-    case AstType::AST_INT:
-    case AstType::AST_INT64:
-      castInst = new FPToSIInst(S,targetTy);
-      break;
-    }
-    break;
-  }
-  return castInst;
-}
-
-const AstType *
+const AstType &
 NBinaryOp::getType()
 {
-  if(type!=0){
+  if(type.getId()!=AstType::AST_INVALID){
     return type;
   }
   std::vector<const AstType *> args(2);
-  args[0] = lhs.getType();
-  args[1] = rhs.getType();
+  args[0] = &lhs.getType();
+  args[1] = &rhs.getType();
   if(args[0]==0 || args[1]==0){
     std::cout<<"Error: Unknow operand types\n";
     return type;
   }
-  type = getCommonType(args);
+  type = *getCommonType(args);
   return type;
 }
 
@@ -113,7 +78,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
 {
   std::cout << "Creating binary operation " << op << std::endl;
   getType();
-  if(type==0){
+  if(type.getId() == AstType::AST_INVALID){
     std::cout<<"Error: Binary op type undefined\n";
     return NULL;
   }
@@ -122,18 +87,18 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
   vals[0] = lhs.codeGen(context);
   vals[1] = rhs.codeGen(context);
   const AstType * types[2];
-  types[0] = lhs.getType();
-  types[1] = rhs.getType();
+  types[0] = &lhs.getType();
+  types[1] = &rhs.getType();
   for(size_t ii = 0;ii<2;ii++){
-    if(types[ii]->getId()!=type->getId()){
-      operands[ii] = cast(types[ii],type, vals[ii]);
+    if(types[ii]->getId()!=type.getId()){
+      operands[ii] = cast(types[ii],&type, vals[ii]);
     }
   }
   
   int instr=-1;
   switch (op) {
   case ADD:
-    switch (type->getId()) {
+    switch (type.getId()) {
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
       instr = Instruction::FAdd;
@@ -145,7 +110,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
     }
     break;
   case SUB:
-    switch (type->getId()) {
+    switch (type.getId()) {
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
       instr = Instruction::FSub;
@@ -157,7 +122,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
     }
     break;
   case MUL:
-    switch (type->getId()) {
+    switch (type.getId()) {
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
       instr = Instruction::FMul;
@@ -169,7 +134,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
     }
     break;
   case DIV:
-    switch (type->getId()) {
+    switch (type.getId()) {
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
       instr = Instruction::FDiv;

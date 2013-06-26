@@ -1,6 +1,6 @@
 /** a test program */
-float num1 = 1.5;
-float num2 = num1*0.1*0.5;
+float num1 = 1.5f;
+float num2 = num1*0.1f*0.5f;
 
 int do_math(int a) 
 { 
@@ -10,7 +10,7 @@ int do_math(int a)
 
 float fun(float input)
 {
- float ret = input*input * 3.1415;
+ float ret = input*input * 3.1415f;
  return ret;
 }
 

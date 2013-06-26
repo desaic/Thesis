@@ -15,7 +15,7 @@ public:
     NExpression& rhs;
     int op;
     NBinaryOp(NExpression& _lhs, int op, NExpression& _rhs);
-  virtual const AstType * getType();
+  virtual const AstType & getType();
   virtual ~NBinaryOp();
     virtual llvm::Value* codeGen(CodeGenContext& context);
 private:

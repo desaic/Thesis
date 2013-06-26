@@ -113,7 +113,7 @@ var_decl : Type ident { $$ = new NVariableDeclaration(*$1, *$2); delete $1;}
          ;
         
 func_decl : Type ident '(' func_decl_args ')' block 
-            { $$ = new NFunctionDeclaration($1, *$2, *$4, *$6); delete $4; }
+            { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $1; delete $4; }
           ;
     
 func_decl_args : /*blank*/  { $$ = new VariableList(); }

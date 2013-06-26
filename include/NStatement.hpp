@@ -11,6 +11,9 @@
 #include "AstNode.hpp"
 
 class NStatement : public AstNode {
+public:
+  NStatement();
+  NStatement(const AstType & _type);
 };
 
 #endif /* NSTATEMENT_HPP_ */

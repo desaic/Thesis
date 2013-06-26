@@ -18,11 +18,10 @@ typedef std::deque<NVariableDeclaration*> VariableList;
 
 class NFunctionDeclaration : public NStatement {
 public:
-  AstType * type;
   const NIdentifier& id;
   VariableList arguments;
   NBlock& block;
-  NFunctionDeclaration(AstType * _type, const NIdentifier& id,
+  NFunctionDeclaration(const AstType & _type, const NIdentifier& id,
       const VariableList& arguments, NBlock& block);
   virtual llvm::Value* codeGen(CodeGenContext& context);
   virtual ~NFunctionDeclaration();

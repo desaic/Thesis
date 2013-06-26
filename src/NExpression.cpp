@@ -6,31 +6,17 @@
  */
 
 #include "NExpression.hpp"
-
-const AstType *
-NExpression::getType() const
-{
-  return type;
-}
-
 NExpression::NExpression(const AstType & _type)
-  :type(new AstType(_type))
+  :AstNode(_type)
 {
 }
 
 NExpression::NExpression(const NExpression&expr)
-:type(new AstType(*(expr.getType())))
-{
-}
+:AstNode(expr.getType())
+{}
 
-NExpression::NExpression() :
-    type(0)
-{
+NExpression::NExpression(){
 }
 
 NExpression::~NExpression()
-{
-  if (type != 0) {
-    delete type;
-  }
-}
+{}

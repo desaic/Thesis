@@ -14,14 +14,14 @@ void NVariableDeclaration::addSymbol()
 }
 
 NVariableDeclaration::NVariableDeclaration(const AstType & _type, NIdentifier& id) :
-type(new AstType(_type)), id(id), assignmentExpr(0)
+NStatement(_type), id(id), assignmentExpr(0)
 {
   addSymbol();
 }
 
 NVariableDeclaration::NVariableDeclaration(const AstType &_type, NIdentifier& id,
     NExpression *assignmentExpr) :
-type(new AstType(_type)), id(id), assignmentExpr(assignmentExpr)
+NStatement(_type), id(id), assignmentExpr(assignmentExpr)
 {
   addSymbol();
 }
@@ -29,9 +29,9 @@ type(new AstType(_type)), id(id), assignmentExpr(assignmentExpr)
 llvm::Value*
 NVariableDeclaration::codeGen(CodeGenContext& context)
 {
-  std::cout << "Creating variable declaration " << type->typeId << std::endl;
+  std::cout << "Creating variable declaration " << type.getId() << "\n";
   llvm::AllocaInst *alloc =
-      new llvm::AllocaInst(type->getLLVMType(), id.name.c_str(), context.currentBlock());
+      new llvm::AllocaInst(type.getLLVMType(), id.name.c_str(), context.currentBlock());
   context.locals()[id.name] = Symbol(this,alloc);
   if (assignmentExpr != NULL) {
     NAssignment assn(id, *assignmentExpr);
@@ -42,9 +42,4 @@ NVariableDeclaration::codeGen(CodeGenContext& context)
 
 
 NVariableDeclaration::~NVariableDeclaration()
-{
-  if(type != NULL) {
-    delete type;
-    type = 0;
-  }
-}
+{}

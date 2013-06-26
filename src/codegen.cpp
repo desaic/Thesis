@@ -135,8 +135,22 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 		std::cerr << "undeclared variable " << lhs.name << std::endl;
 		return NULL;
 	}
-	return new StoreInst(rhs.codeGen(context),
-	    context.locals()[lhs.name].value, false, context.currentBlock());
+
+	Symbol leftSymbol = context.locals()[lhs.name];
+	Value * castInst = NULL;
+	if(leftSymbol.node->type.getId() != rhs.type.getId()){
+	  castInst = cast(&(leftSymbol.node->type), &(rhs.type),rhs.codeGen(context));
+	  if(castInst == NULL){
+	    std::cout<<"Error: no known conversion from type "<<leftSymbol.node->type.getId()
+	        <<" to "<<rhs.type.getId()<<"\n";
+	    delete castInst;
+	    return NULL;
+	  }
+	}else{
+	  castInst = rhs.codeGen(context);
+	}
+  return new StoreInst(castInst, leftSymbol.value, false,
+      context.currentBlock());
 }
 
 Value* NExpressionStatement::codeGen(CodeGenContext& context)

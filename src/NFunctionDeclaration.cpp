@@ -18,10 +18,10 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
   std::vector< llvm::Type*> argTypes;
   VariableList::const_iterator it;
   for (it = arguments.begin(); it != arguments.end(); it++) {
-    argTypes.push_back((**it).type->getLLVMType());
+    argTypes.push_back((**it).type.getLLVMType());
   }
   llvm::FunctionType *ftype = llvm::FunctionType::get
-      (type->getLLVMType(), argTypes, false);
+      (type.getLLVMType(), argTypes, false);
   llvm::Function *function = llvm::Function::Create
       (ftype, llvm::GlobalValue::InternalLinkage, id.name.c_str(), context.module);
   llvm::BasicBlock *bblock = llvm::BasicBlock::Create
@@ -41,16 +41,12 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 }
 
 
-NFunctionDeclaration::NFunctionDeclaration(AstType * _type,
+NFunctionDeclaration::NFunctionDeclaration(const AstType & _type,
     const NIdentifier& id, const VariableList& arguments, NBlock& block) :
-    type(_type), id(id), arguments(arguments), block(block)
+    NStatement(_type), id(id), arguments(arguments), block(block)
 {
   symbol.addLocalSymbol(id.name, this);
 }
 
 NFunctionDeclaration:: ~NFunctionDeclaration()
-{
-  if (type != 0) {
-    delete type;
-  }
-}
+{}

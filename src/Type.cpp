@@ -9,6 +9,45 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/Type.h>
 #include <llvm/DerivedTypes.h>
+#include <llvm/Value.h>
+#include <llvm/InstrTypes.h>
+#include <llvm/Instructions.h>
+llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S)
+{
+  llvm::Value * castInst = NULL;
+  llvm::Type * targetTy = dst->getLLVMType();
+  switch(src->getId()){
+  case AstType::AST_INT:
+  case AstType::AST_INT64:
+    switch(dst->getId()){
+    case AstType::AST_INT:
+    case AstType::AST_INT64:
+      castInst = llvm::CastInst::CreateIntegerCast(S, targetTy, true);
+      break;
+    case AstType::AST_FLOAT:
+    case AstType::AST_DOUBLE:
+      castInst = new llvm::SIToFPInst(S,targetTy);
+      break;
+    }
+    break;
+  case AstType::AST_FLOAT:
+  case AstType::AST_DOUBLE:
+    switch(dst->getId()){
+    case AstType::AST_FLOAT:
+    case AstType::AST_DOUBLE:
+      castInst = llvm::CastInst::CreateFPCast(S,targetTy);
+      break;
+    case AstType::AST_INT:
+    case AstType::AST_INT64:
+      castInst = new llvm::FPToSIInst(S,targetTy);
+      break;
+    }
+    break;
+  }
+  return castInst;
+}
+
+
 int AstType::getId()const
 {
   return typeId;

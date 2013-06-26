@@ -16,7 +16,6 @@ class Value;
 }
 class NVariableDeclaration : public NStatement {
 public:
-  AstType * type;
   NIdentifier& id;
   NExpression *assignmentExpr;
 

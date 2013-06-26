@@ -10,6 +10,7 @@
 #include <string>
 namespace llvm{
 class Type;
+class Value;
 };
 ///@brief a class representing primitive types,
 ///arrays, and structs
@@ -22,7 +23,7 @@ public:
     AST_FLOAT,
     AST_INT,
     AST_INT64,
-    AST_UNIMP
+    AST_INVALID
   };
   AstType();
   AstType(int _id);
@@ -30,9 +31,10 @@ public:
   AstType & operator=(const AstType& ty);
   int getId()const;
   void set(int id);
-  int typeId;
   virtual ~AstType();
   llvm::Type * getLLVMType() const ;
+private:
+  int typeId;
 };
 
 ///@brief not implemented
@@ -40,9 +42,9 @@ class StructType: public AstType
 {
 public:
   std::string name;
-  StructType():AstType(AST_UNIMP){}
+  StructType():AstType(AST_INVALID){}
   StructType(std::string * _name):
-    AstType(AST_UNIMP),name(*_name){}
+    AstType(AST_INVALID),name(*_name){}
 };
-
+llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S);
 #endif /* TYPE_HPP_ */
