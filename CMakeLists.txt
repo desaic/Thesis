@@ -6,6 +6,7 @@ set(CXX_SOURCES
   src/ParserWrapper.cpp
   src/AstNode.cpp
   src/NBinaryOp.cpp
+  src/NBlock.cpp
   src/NExpression.cpp
   src/NIdentifier.cpp
   src/NFunctionDeclaration.cpp

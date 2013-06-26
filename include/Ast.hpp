@@ -7,10 +7,11 @@
 #include "AstNode.hpp"
 #include "NExpression.hpp"
 #include "NIdentifier.hpp"
+#include "NBlock.hpp"
 #include "NFunctionDeclaration.hpp"
 #include "Type.hpp"
 class CodeGenContext;
-typedef std::deque<NStatement*> StatementList;
+
 typedef std::deque<NExpression*> ExpressionList;
 
 
@@ -67,13 +68,6 @@ public:
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
-class NBlock : public NExpression {
-public:
-    StatementList statements;
-    NBlock() { }
-    virtual llvm::Value* codeGen(CodeGenContext& context);
-};
-
 class NExpressionStatement : public NStatement {
 public:
     NExpression& expression;
@@ -81,7 +75,5 @@ public:
         expression(expression) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
-
-
 
 #endif

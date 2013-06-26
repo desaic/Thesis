@@ -139,18 +139,6 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 	    context.locals()[lhs.name].value, false, context.currentBlock());
 }
 
-Value* NBlock::codeGen(CodeGenContext& context)
-{
-	StatementList::const_iterator it;
-	Value *last = NULL;
-	for (it = statements.begin(); it != statements.end(); it++) {
-		std::cout << "Generating code for " << typeid(**it).name() << std::endl;
-		last = (**it).codeGen(context);
-	}
-	std::cout << "Creating block" << std::endl;
-	return last;
-}
-
 Value* NExpressionStatement::codeGen(CodeGenContext& context)
 {
 	std::cout << "Generating code for " << typeid(expression).name() << std::endl;

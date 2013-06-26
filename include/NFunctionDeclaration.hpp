@@ -10,6 +10,9 @@
 
 #include "NStatement.hpp"
 #include <deque>
+
+class AstType;
+class NIdentifier;
 class NVariableDeclaration;
 typedef std::deque<NVariableDeclaration*> VariableList;
 

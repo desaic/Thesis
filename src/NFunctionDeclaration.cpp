@@ -7,6 +7,8 @@
 
 #include "NFunctionDeclaration.hpp"
 #include "NVariableDeclaration.hpp"
+#include "AstNode.hpp"
+#include "Type.hpp"
 #include <llvm/Function.h>
 #include <llvm/Type.h>
 #include <llvm/Value.h>
