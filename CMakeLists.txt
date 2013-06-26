@@ -7,8 +7,11 @@ set(CXX_SOURCES
   src/AstNode.cpp
   src/NBinaryOp.cpp
   src/NExpression.cpp
+  src/NIdentifier.cpp
+  src/NFunctionDeclaration.cpp
   src/NVariableDeclaration.cpp
   src/NReturn.cpp
+  src/NStatement.cpp
   src/SymbolTable.cpp
   src/Type.cpp
   src/codegen.cpp

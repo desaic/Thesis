@@ -8,15 +8,22 @@
 #include "NVariableDeclaration.hpp"
 #include <llvm/Value.h>
 #include <llvm/Instructions.h>
+void NVariableDeclaration::addSymbol()
+{
+  symbol.addLocalSymbol(id.name, this);
+}
+
 NVariableDeclaration::NVariableDeclaration(const AstType & _type, NIdentifier& id) :
 type(new AstType(_type)), id(id), assignmentExpr(0)
 {
+  addSymbol();
 }
 
 NVariableDeclaration::NVariableDeclaration(const AstType &_type, NIdentifier& id,
     NExpression *assignmentExpr) :
 type(new AstType(_type)), id(id), assignmentExpr(assignmentExpr)
 {
+  addSymbol();
 }
 
 llvm::Value*

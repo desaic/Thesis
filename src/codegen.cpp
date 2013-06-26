@@ -111,17 +111,6 @@ Value* NFloat::codeGen(CodeGenContext& context)
   return ConstantFP::get(Type::getFloatTy(getGlobalContext()), value);
 }
 
-Value* NIdentifier::codeGen(CodeGenContext& context)
-{
-	std::cout << "Creating identifier reference: " << name << std::endl;
-	if (context.locals().find(name) == context.locals().end()) {
-		std::cerr << "undeclared variable " << name << std::endl;
-		return NULL;
-	}
-	return new LoadInst(context.locals()[name].value,
-	    "", false, context.currentBlock());
-}
-
 Value* NMethodCall::codeGen(CodeGenContext& context)
 {
 	Function *function = context.module->getFunction(id.name.c_str());
@@ -166,28 +155,4 @@ Value* NExpressionStatement::codeGen(CodeGenContext& context)
 {
 	std::cout << "Generating code for " << typeid(expression).name() << std::endl;
 	return expression.codeGen(context);
-}
-
-Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
-{
-	vector< Type*> argTypes;
-	VariableList::const_iterator it;
-	for (it = arguments.begin(); it != arguments.end(); it++) {
-		argTypes.push_back((**it).type->getLLVMType());
-	}
-	FunctionType *ftype = FunctionType::get(type->getLLVMType(), argTypes, false);
-	Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, id.name.c_str(), context.module);
-	BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
-
-	context.pushBlock(bblock);
-
-	for (it = arguments.begin(); it != arguments.end(); it++) {
-		(**it).codeGen(context);
-	}
-	
-	block.codeGen(context);
-
-	context.popBlock();
-	std::cout << "Creating function: " << id.name << std::endl;
-	return function;
 }

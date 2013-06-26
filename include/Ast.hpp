@@ -6,17 +6,13 @@
 #include <llvm/Value.h>
 #include "AstNode.hpp"
 #include "NExpression.hpp"
+#include "NIdentifier.hpp"
+#include "NFunctionDeclaration.hpp"
 #include "Type.hpp"
 class CodeGenContext;
-class NStatement;
-class NVariableDeclaration;
-
 typedef std::deque<NStatement*> StatementList;
 typedef std::deque<NExpression*> ExpressionList;
-typedef std::deque<NVariableDeclaration*> VariableList;
 
-class NStatement : public AstNode {
-};
 
 class NInteger : public NExpression {
 public:
@@ -51,13 +47,6 @@ public:
 
 };
 */
-class NIdentifier : public NExpression {
-public:
-    std::string name;
-    const AstType * getType();
-    NIdentifier(const std::string& name) : name(name) { }
-    virtual llvm::Value* codeGen(CodeGenContext& context);
-};
 
 class NMethodCall : public NExpression {
 public:
@@ -68,8 +57,6 @@ public:
     NMethodCall(const NIdentifier& id) : id(id) { }
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
-
-
 
 class NAssignment : public NExpression {
 public:
@@ -96,23 +83,5 @@ public:
 };
 
 
-class NFunctionDeclaration : public NStatement {
-public:
-  AstType * type;
-    const NIdentifier& id;
-    VariableList arguments;
-    NBlock& block;
-    NFunctionDeclaration(AstType * _type, const NIdentifier& id,
-        const VariableList& arguments, NBlock& block) :
-          type(_type),id(id), arguments(arguments), block(block) { }
-    virtual llvm::Value* codeGen(CodeGenContext& context);
-  virtual ~NFunctionDeclaration()
-  {
-    if (type != 0) {
-      delete type;
-    }
-  }
-
-};
 
 #endif

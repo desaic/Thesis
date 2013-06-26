@@ -25,5 +25,7 @@ public:
       NExpression *assignmentExpr);
   virtual llvm::Value* codeGen(CodeGenContext& context);
   virtual ~NVariableDeclaration();
+private:
+  void addSymbol();
 };
 #endif /* NVARIABLEDECLARATION_HPP_ */
