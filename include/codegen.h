@@ -29,7 +29,13 @@ class Linker;
 
 struct Symbol{
   Symbol():node(0),value(0){}
+  Symbol(const Symbol& ss):node(ss.node),value(ss.value){}
   Symbol(AstNode * n, llvm::Value * v):node(n),value(v){}
+  const Symbol& operator=(const Symbol & ss){
+    node =ss.node;value = ss.value;
+    return *this;
+  }
+
   AstNode * node;
   llvm::Value * value;
 };
@@ -39,6 +45,7 @@ class CodeGenBlock
 public:
   llvm::BasicBlock *block;
   std::map<std::string, Symbol> locals;
+
 };
 
 class CodeGenContext

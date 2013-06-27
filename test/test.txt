@@ -1,22 +1,19 @@
 /** a test program */
-float num1 = 1.5;
-float num2 = num1*0.1f*0.5f;
-
 int do_math(int a)
 { 
+  _Z5printi(a);
   int x = a * 5 + 3;
   return x;
 }
 
 float fun(float input)
 {
- float ret = input*input * 3.1415f;
+ _Z5printf(input);
+ float ret = input*input * 3.1415;
  return ret;
 }
 
 int b = do_math(10);
-float c = 1.2f;
 _Z5printi(b);
-_Z5printf(c);
 float a = fun(2.0f);
 _Z5printf(a);
