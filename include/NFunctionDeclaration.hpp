@@ -21,7 +21,7 @@ public:
   const NIdentifier& id;
   VariableList arguments;
   NBlock& block;
-  NFunctionDeclaration(const AstType & _type, NIdentifier& id,
+  NFunctionDeclaration(const AstType & _type,  NIdentifier& id,
       const VariableList& arguments, NBlock& block);
   virtual llvm::Value* codeGen(CodeGenContext& context);
   virtual ~NFunctionDeclaration();

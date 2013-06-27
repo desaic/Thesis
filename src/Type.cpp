@@ -12,7 +12,7 @@
 #include <llvm/Value.h>
 #include <llvm/InstrTypes.h>
 #include <llvm/Instructions.h>
-
+#include <iostream>
 std::string AstType::toString()const
 {
   switch(typeId){
@@ -33,37 +33,60 @@ std::string AstType::toString()const
   }
 }
 
-llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S)
+llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S,
+    llvm::BasicBlock *block)
 {
   llvm::Value * castInst = NULL;
   llvm::Type * targetTy = dst->getLLVMType();
   switch(src->getId()){
   case AstType::AST_INT:
-  case AstType::AST_INT64:
     switch(dst->getId()){
-    case AstType::AST_INT:
     case AstType::AST_INT64:
-      castInst = llvm::CastInst::CreateIntegerCast(S, targetTy, true);
+      castInst = new llvm::SExtInst(S, targetTy,"",block);
       break;
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
-      castInst = new llvm::SIToFPInst(S,targetTy);
+      castInst = new llvm::SIToFPInst(S,targetTy,"",block);
+      break;
+    }
+    break;
+  case AstType::AST_INT64:
+    switch (dst->getId()) {
+    case AstType::AST_INT:
+      castInst = new llvm::TruncInst(S, targetTy,"",block);
+      break;
+    case AstType::AST_FLOAT:
+    case AstType::AST_DOUBLE:
+      castInst = new llvm::SIToFPInst(S, targetTy,"",block);
       break;
     }
     break;
   case AstType::AST_FLOAT:
-  case AstType::AST_DOUBLE:
     switch(dst->getId()){
-    case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
-      castInst = llvm::CastInst::CreateFPCast(S,targetTy);
+      castInst = new llvm::FPExtInst(S,targetTy,"",block);
       break;
     case AstType::AST_INT:
     case AstType::AST_INT64:
-      castInst = new llvm::FPToSIInst(S,targetTy);
+      castInst = new llvm::FPToSIInst(S,targetTy,"",block);
       break;
     }
     break;
+  case AstType::AST_DOUBLE:
+    switch (dst->getId()) {
+    case AstType::AST_FLOAT:
+      castInst = new llvm::FPTruncInst(S, targetTy,"",block);
+      break;
+    case AstType::AST_INT:
+    case AstType::AST_INT64:
+      castInst = new llvm::FPToSIInst(S, targetTy,"",block);
+      break;
+    }
+    break;
+  }
+  std::cout<<"Status: Cast from "<<src->toString() <<" to "<< dst->toString()<<"\n";
+  if(castInst==0){
+    std::cout<<"Status: cast failed.\n";
   }
   return castInst;
 }

@@ -70,7 +70,7 @@ public:
   void popBlock()
   {
     CodeGenBlock *top = blocks.back();
-    blocks.back();
+    blocks.pop_back();
     delete top;
   }
 

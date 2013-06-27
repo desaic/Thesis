@@ -31,7 +31,8 @@ NStatement(_type), id(id), assignmentExpr(assignmentExpr)
 llvm::Value*
 NVariableDeclaration::codeGen(CodeGenContext& context)
 {
-  std::cout << "Creating variable declaration " << type.getId() << "\n";
+  std::cout << "Creating variable declaration " << type.toString() <<
+      " "<<id.name<<"\n";
   llvm::AllocaInst *alloc =
       new llvm::AllocaInst(type.getLLVMType(), id.name.c_str(), context.currentBlock());
   context.locals()[id.name] = Symbol(this,alloc);

@@ -9,6 +9,7 @@ set(CXX_SOURCES
   src/NBlock.cpp
   src/NExpression.cpp
   src/NIdentifier.cpp
+  src/NFunctionCall.cpp
   src/NFunctionDeclaration.cpp
   src/NVariableDeclaration.cpp
   src/NReturn.cpp

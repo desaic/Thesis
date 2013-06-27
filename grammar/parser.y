@@ -135,7 +135,7 @@ LiteralExp : INTLITERAL { $$ = new NInteger($1); }
         ;
     
 expr : ident ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
-     | ident '(' call_args ')' { $$ = new NMethodCall(*$1, *$3); delete $3; }
+     | ident '(' call_args ')' { $$ = new NFunctionCall(*$1, *$3); delete $3; }
      | ident { $<ident>$ = $1; }
      | LiteralExp
      | BinExpr

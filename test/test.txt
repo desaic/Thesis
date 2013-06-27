@@ -1,8 +1,8 @@
 /** a test program */
 float num1 = 1.5;
-float num2 = num1*0.1*0.5;
+float num2 = num1*0.1f*0.5f;
 
-int do_math(int a) 
+int do_math(int a)
 { 
   int x = a * 5 + 3;
   return x;
@@ -18,5 +18,5 @@ int b = do_math(10);
 float c = 1.2f;
 _Z5printi(b);
 _Z5printf(c);
-float a = fun(2);
+float a = fun(2.0f);
 _Z5printf(a);

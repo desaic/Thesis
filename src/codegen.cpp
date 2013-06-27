@@ -111,23 +111,6 @@ Value* NFloat::codeGen(CodeGenContext& context)
   return ConstantFP::get(Type::getFloatTy(getGlobalContext()), value);
 }
 
-Value* NMethodCall::codeGen(CodeGenContext& context)
-{
-	Function *function = context.module->getFunction(id.name.c_str());
-	if (function == NULL) {
-		std::cerr << "no such function " << id.name << std::endl;
-		return NULL;
-	}
-	std::vector<Value*> args;
-	ExpressionList::const_iterator it;
-	for (it = arguments.begin(); it != arguments.end(); it++) {
-		args.push_back((**it).codeGen(context));
-	}
-	CallInst *call = CallInst::Create(function, args, "", context.currentBlock());
-	std::cout << "Creating method call: " << id.name << std::endl;
-	return call;
-}
-
 Value* NAssignment::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating assignment for " << lhs.name << std::endl;
@@ -138,16 +121,15 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 
 	Symbol leftSymbol = context.locals()[lhs.name];
 	Value * castInst = NULL;
-	if(leftSymbol.node->type.getId() != rhs.type.getId()){
-	  castInst = cast(&(rhs.type), &(leftSymbol.node->type), rhs.codeGen(context));
+	castInst = rhs.codeGen(context);
+	if( leftSymbol.node->type.getId() != rhs.type.getId() ){
+	  castInst = cast(&(rhs.type), &(leftSymbol.node->type), castInst,context.currentBlock());
 	  if(castInst == NULL){
 	    std::cout<<"Error: no known conversion from type "<<rhs.type.toString()
 	        <<" to "<<leftSymbol.node->type.toString()<<"\n";
 	    delete castInst;
 	    return NULL;
 	  }
-	}else{
-	  castInst = rhs.codeGen(context);
 	}
   return new StoreInst(castInst, leftSymbol.value, false,
       context.currentBlock());

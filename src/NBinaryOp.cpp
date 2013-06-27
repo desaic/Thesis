@@ -55,23 +55,22 @@ NBinaryOp::~NBinaryOp()
 
 NBinaryOp::NBinaryOp(NExpression* _lhs, int op, NExpression* _rhs) :
         lhs(_lhs), rhs(_rhs), op(op)
-{}
+{updateType();}
 
-const AstType &
-NBinaryOp::getType()
+void
+NBinaryOp::updateType()
 {
   if(type.getId()!=AstType::AST_INVALID){
-    return type;
+    return;
   }
   std::vector<const AstType *> args(2);
   args[0] = &lhs->getType();
   args[1] = &rhs->getType();
   if(args[0]==0 || args[1]==0){
     std::cout<<"Error: Unknow operand types\n";
-    return type;
+    return;
   }
   type = *getCommonType(args);
-  return type;
 }
 
 Value* NBinaryOp::codeGen(CodeGenContext& context)
@@ -90,7 +89,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
   types[1] = &rhs->getType();
   for(size_t ii = 0;ii<2;ii++){
     if(types[ii]->getId()!=type.getId()){
-      vals[ii] = cast(types[ii],&type, vals[ii]);
+      vals[ii] = cast(types[ii],&type, vals[ii],context.currentBlock());
     }
   }
   

@@ -11,6 +11,7 @@
 namespace llvm{
 class Type;
 class Value;
+class BasicBlock;
 };
 ///@brief a class representing primitive types,
 ///arrays, and structs.
@@ -48,5 +49,8 @@ public:
   StructType(std::string * _name):
     AstType(AST_INVALID),name(*_name){}
 };
-llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S);
+
+bool needCast(const AstType * src, const AstType * dst);
+llvm::Value * cast(const AstType * src, const AstType * dst,
+    llvm::Value * S,llvm::BasicBlock *block);
 #endif /* TYPE_HPP_ */
