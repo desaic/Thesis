@@ -47,7 +47,7 @@ llvm::Value * castIntToBool(llvm::Value * S, llvm::BasicBlock *block)
 llvm::Value * castFPToBool(llvm::Value * S, llvm::BasicBlock *block)
 {
   llvm::Value * zero = llvm::ConstantFP::get(S->getType(), 0.0f);
-  llvm::Value * inst = new llvm::ICmpInst(*block, llvm::ICmpInst::FCMP_UNE, S,
+  llvm::Value * inst = new llvm::FCmpInst(*block, llvm::FCmpInst::FCMP_UNE, S,
       zero);
   return inst;
 }
