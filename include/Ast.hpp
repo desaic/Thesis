@@ -10,10 +10,7 @@
 #include "NFunctionCall.hpp"
 #include "NBlock.hpp"
 #include "NFunctionDeclaration.hpp"
-#include "Type.hpp"
 class CodeGenContext;
-
-
 
 class NInteger : public NExpression {
 public:

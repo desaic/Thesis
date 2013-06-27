@@ -50,6 +50,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
     float floatVal;
     double doubleVal;
     int token;
+    bool boolVal;
 }
 
 /* Define our terminal symbols
@@ -58,7 +59,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token <intVal> INTLITERAL
 %token <doubleVal> DOUBLELITERAL
 %token <floatVal> FLOATLITERAL
-%token VOID DOUBLE FLOAT INT ASSIGN RETURN
+%token <boolVal> BOOLLITERAL
+%token VOID DOUBLE FLOAT INT ASSIGN RETURN TRUE FALSE
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
 /**Non-terminals*/
@@ -132,6 +134,7 @@ ident : ID { $$ = new NIdentifier(*$1); delete $1; }
 LiteralExp : INTLITERAL { $$ = new NInteger($1); }
         | DOUBLELITERAL { $$ = new NDouble($1); }
         | FLOATLITERAL { $$ = new NFloat($1); }
+        | BOOLLITERAL {$$ = new NBool($1);}
         ;
     
 expr : ident ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }

@@ -4,6 +4,7 @@ set(CXX_SOURCES
   src/parser.cpp
   src/LexWrapper.cpp
   src/ParserWrapper.cpp
+  src/AstType.cpp
   src/AstNode.cpp
   src/NBinaryOp.cpp
   src/NBlock.cpp
@@ -15,7 +16,6 @@ set(CXX_SOURCES
   src/NReturn.cpp
   src/NStatement.cpp
   src/SymbolTable.cpp
-  src/Type.cpp
   src/codegen.cpp
   src/main.cpp
 )

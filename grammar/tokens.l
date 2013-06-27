@@ -29,6 +29,8 @@ float           {double}f
 "float"                 { return TOKEN(FLOAT); }
 "int"                   { return TOKEN(INT); }
 "return"                { return TOKEN(RETURN); }
+"true"                  { yylval->boolVal = true; return TOKEN(TRUE); }
+"false"                 { yylval->boolVal = false; return TOKEN(FALSE); }
 
 "="                     return TOKEN(ASSIGN);
 "=="                    return TOKEN(EQ);

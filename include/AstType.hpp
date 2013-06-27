@@ -5,8 +5,8 @@
  *      Author: desaic
  */
 
-#ifndef TYPE_HPP_
-#define TYPE_HPP_
+#ifndef AST_TYPE_HPP_
+#define AST_TYPE_HPP_
 #include <string>
 namespace llvm{
 class Type;
@@ -21,6 +21,7 @@ class AstType
 public:
   enum AstTypeEnum{
     AST_VOID = 0,
+    AST_BOOL,
     AST_DOUBLE,
     AST_FLOAT,
     AST_INT,

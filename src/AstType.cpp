@@ -5,7 +5,7 @@
  *      Author: desaic
  */
 
-#include "Type.hpp"
+#include "AstType.hpp"
 #include <llvm/LLVMContext.h>
 #include <llvm/Type.h>
 #include <llvm/DerivedTypes.h>

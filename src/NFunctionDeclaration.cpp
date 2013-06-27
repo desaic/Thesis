@@ -8,7 +8,7 @@
 #include "NFunctionDeclaration.hpp"
 #include "NVariableDeclaration.hpp"
 #include "AstNode.hpp"
-#include "Type.hpp"
+#include "AstType.hpp"
 #include <llvm/Function.h>
 #include <llvm/Type.h>
 #include <llvm/Value.h>
@@ -43,7 +43,7 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
     llvm::AllocaInst *alloc =
           new llvm::AllocaInst((*it)->type.getLLVMType(),
               "", context.currentBlock());
-    llvm::StoreInst * store = new llvm::StoreInst(&(*ai), alloc,context.currentBlock());
+    new llvm::StoreInst(&(*ai), alloc,context.currentBlock());
     context.locals()[(*it)->id.name] = Symbol((*it),alloc);
   }
 

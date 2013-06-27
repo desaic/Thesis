@@ -8,7 +8,7 @@
 #ifndef ASTNODE_HPP_
 #define ASTNODE_HPP_
 #include <llvm/Value.h>
-#include "Type.hpp"
+#include "AstType.hpp"
 #include "codegen.h"
 #include "TextRange.hpp"
 #include "SymbolTable.hpp"

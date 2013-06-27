@@ -10,7 +10,7 @@
 #include <llvm/InstrTypes.h>
 #include <llvm/Instructions.h>
 #include <llvm/Value.h>
-#include <Type.hpp>
+#include "AstType.hpp"
 #include <iostream>
 #include <vector>
 using namespace llvm;
@@ -22,14 +22,16 @@ using namespace llvm;
 int typeOrder(const int typeId)
 {
   switch(typeId){
-  case AstType::AST_INT:
+  case AstType::AST_BOOL:
     return 0;
-  case AstType::AST_INT64:
+  case AstType::AST_INT:
     return 1;
-  case AstType::AST_FLOAT:
+  case AstType::AST_INT64:
     return 2;
-  case AstType::AST_DOUBLE:
+  case AstType::AST_FLOAT:
     return 3;
+  case AstType::AST_DOUBLE:
+    return 4;
   default:
     return -1;
   }
