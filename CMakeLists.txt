@@ -6,6 +6,10 @@ set(CXX_SOURCES
   src/ParserWrapper.cpp
   src/AstType.cpp
   src/AstNode.cpp
+  src/primitive/NBool.cpp
+  src/primitive/NDouble.cpp
+  src/primitive/NFloat.cpp
+  src/primitive/NInteger.cpp
   src/NBinaryOp.cpp
   src/NBlock.cpp
   src/NExpression.cpp

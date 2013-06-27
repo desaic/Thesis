@@ -6,6 +6,10 @@
 #include <llvm/Value.h>
 #include "AstNode.hpp"
 #include "NExpression.hpp"
+#include "NBool.hpp"
+#include "NDouble.hpp"
+#include "NFloat.hpp"
+#include "NInteger.hpp"
 #include "NIdentifier.hpp"
 #include "NFunctionCall.hpp"
 #include "NBlock.hpp"
