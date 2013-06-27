@@ -1,0 +1,6 @@
+int a=5;
+int fun(int b){
+  int x = b*5;
+  return x;
+}
+_Z5printi(fun(a));
