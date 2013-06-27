@@ -22,21 +22,35 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
   }
   llvm::FunctionType *ftype = llvm::FunctionType::get
       (type.getLLVMType(), argTypes, false);
+
   llvm::Function *function = llvm::Function::Create
       (ftype, llvm::GlobalValue::InternalLinkage, id.name.c_str(), context.module);
-  llvm::BasicBlock *bblock = llvm::BasicBlock::Create
-      (llvm::getGlobalContext(), "entry", function, 0);
+  symbol.incScope();
+  it = arguments.begin();
+  for(llvm::Function::arg_iterator ai = function->arg_begin();
+      ai != function->arg_end();ai++,it++){
+    ai->setName((*it)->id.name);
+    symbol.addLocalSymbol((*it)->id.name, (*it));
+  }
 
+  llvm::BasicBlock *bblock = llvm::BasicBlock::Create
+      (llvm::getGlobalContext(), "entry", function);
   context.pushBlock(bblock);
 
-  for (it = arguments.begin(); it != arguments.end(); it++) {
-    (**it).codeGen(context);
+  it = arguments.begin();
+  for(llvm::Function::arg_iterator ai = function->arg_begin();
+        ai != function->arg_end();ai++,it++){
+    llvm::AllocaInst *alloc =
+          new llvm::AllocaInst((*it)->type.getLLVMType(),
+              "", context.currentBlock());
+    llvm::StoreInst * store = new llvm::StoreInst(&(*ai), alloc,context.currentBlock());
+    context.locals()[(*it)->id.name] = Symbol((*it),alloc);
   }
 
   block.codeGen(context);
-
   context.popBlock();
   std::cout << "Creating function: " << id.name << std::endl;
+  symbol.decScope();
   return function;
 }
 
