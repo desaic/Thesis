@@ -60,7 +60,8 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token <doubleVal> DOUBLELITERAL
 %token <floatVal> FLOATLITERAL
 %token <boolVal> BOOLLITERAL
-%token VOID DOUBLE FLOAT INT ASSIGN RETURN TRUE FALSE
+%token VOID BOOL DOUBLE FLOAT INT 
+%token ASSIGN RETURN TRUE FALSE
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
 /**Non-terminals*/
@@ -164,6 +165,7 @@ Type : BuiltinType  /*Default action $$=$1*/
      ;
 
 BuiltinType : INT      {$$ = new AstType(AstType::AST_INT);}
+            | BOOL    {$$ = new AstType(AstType::AST_BOOL);}
             | FLOAT    {$$ = new AstType(AstType::AST_FLOAT);}
             | DOUBLE   {$$ = new AstType(AstType::AST_DOUBLE);}
             | VOID     {$$ = new AstType(AstType::AST_VOID);}

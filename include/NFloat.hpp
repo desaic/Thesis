@@ -8,13 +8,13 @@
 #ifndef NFLOAT_HPP_
 #define NFLOAT_HPP_
 
-class NFloat: public NExpression {
+class NFloat: public NExpression
+{
 public:
   float value;
-    NFloat(float value) :
-      NExpression(AstType(AstType::AST_FLOAT)),
-      value(value) { }
-    virtual llvm::Value* codeGen(CodeGenContext& context);
+  NFloat(float value);
+  virtual llvm::Value* codeGen(CodeGenContext& context);
+  virtual ~NFloat();
 };
 
 #endif /* NFLOAT_HPP_ */

@@ -25,12 +25,14 @@ float           {double}f
 
 %%
 "void"                  { return TOKEN(VOID); }
+"bool"                  { return TOKEN(BOOL); }
 "double"                { return TOKEN(DOUBLE); }
 "float"                 { return TOKEN(FLOAT); }
 "int"                   { return TOKEN(INT); }
 "return"                { return TOKEN(RETURN); }
-"true"                  { yylval->boolVal = true; return TOKEN(TRUE); }
-"false"                 { yylval->boolVal = false; return TOKEN(FALSE); }
+
+"true"                  { yylval->boolVal = true; return TOKEN(BOOLLITERAL); }
+"false"                 { yylval->boolVal = false; return TOKEN(BOOLLITERAL); }
 
 "="                     return TOKEN(ASSIGN);
 "=="                    return TOKEN(EQ);

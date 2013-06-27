@@ -10,22 +10,25 @@
 #include <llvm/Type.h>
 #include <llvm/DerivedTypes.h>
 #include <llvm/Value.h>
+#include <llvm/Constants.h>
 #include <llvm/InstrTypes.h>
 #include <llvm/Instructions.h>
 #include <iostream>
-std::string AstType::toString()const
+std::string AstType::toString() const
 {
-  switch(typeId){
+  switch (typeId) {
+  case AST_VOID:
+    return "void";
+  case AST_BOOL:
+    return "bool";
+  case AST_DOUBLE:
+    return "double";
+  case AST_FLOAT:
+    return "float";
   case AST_INT:
     return "int";
   case AST_INT64:
     return "int64";
-  case AST_FLOAT:
-    return "float";
-  case AST_DOUBLE:
-    return "double";
-  case AST_VOID:
-    return "void";
   case AST_INVALID:
     return "invalidType";
   default:
@@ -33,66 +36,107 @@ std::string AstType::toString()const
   }
 }
 
+llvm::Value * castIntToBool(llvm::Value * S, llvm::BasicBlock *block)
+{
+  llvm::Value * zero = llvm::ConstantInt::get(S->getType(), 0);
+  llvm::Value * inst = new llvm::ICmpInst(*block, llvm::ICmpInst::ICMP_NE, S,
+      zero);
+  return inst;
+}
+
+llvm::Value * castFPToBool(llvm::Value * S, llvm::BasicBlock *block)
+{
+  llvm::Value * zero = llvm::ConstantFP::get(S->getType(), 0.0f);
+  llvm::Value * inst = new llvm::ICmpInst(*block, llvm::ICmpInst::FCMP_UNE, S,
+      zero);
+  return inst;
+}
+
 llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S,
     llvm::BasicBlock *block)
 {
   llvm::Value * castInst = NULL;
   llvm::Type * targetTy = dst->getLLVMType();
-  switch(src->getId()){
-  case AstType::AST_INT:
-    switch(dst->getId()){
+  switch (src->getId()) {
+  case AstType::AST_BOOL:
+    switch (dst->getId()) {
+    case AstType::AST_INT:
     case AstType::AST_INT64:
-      castInst = new llvm::SExtInst(S, targetTy,"",block);
+      castInst = new llvm::ZExtInst(S, targetTy, "", block);
       break;
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
-      castInst = new llvm::SIToFPInst(S,targetTy,"",block);
+      castInst = new llvm::UIToFPInst(S, targetTy, "", block);
+      break;
+    }
+    break;
+  case AstType::AST_INT:
+    switch (dst->getId()) {
+    case AstType::AST_BOOL:
+      castInst = castIntToBool(S, block);
+      break;
+    case AstType::AST_INT64:
+      castInst = new llvm::SExtInst(S, targetTy, "", block);
+      break;
+    case AstType::AST_FLOAT:
+    case AstType::AST_DOUBLE:
+      castInst = new llvm::SIToFPInst(S, targetTy, "", block);
       break;
     }
     break;
   case AstType::AST_INT64:
     switch (dst->getId()) {
+    case AstType::AST_BOOL:
+      castInst = castIntToBool(S, block);
+      break;
     case AstType::AST_INT:
-      castInst = new llvm::TruncInst(S, targetTy,"",block);
+      castInst = new llvm::TruncInst(S, targetTy, "", block);
       break;
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
-      castInst = new llvm::SIToFPInst(S, targetTy,"",block);
+      castInst = new llvm::SIToFPInst(S, targetTy, "", block);
       break;
     }
     break;
   case AstType::AST_FLOAT:
-    switch(dst->getId()){
+    switch (dst->getId()) {
+    case AstType::AST_BOOL:
+      castInst = castFPToBool(S, block);
+      break;
     case AstType::AST_DOUBLE:
-      castInst = new llvm::FPExtInst(S,targetTy,"",block);
+      castInst = new llvm::FPExtInst(S, targetTy, "", block);
       break;
     case AstType::AST_INT:
     case AstType::AST_INT64:
-      castInst = new llvm::FPToSIInst(S,targetTy,"",block);
+      castInst = new llvm::FPToSIInst(S, targetTy, "", block);
       break;
     }
     break;
   case AstType::AST_DOUBLE:
     switch (dst->getId()) {
+    case AstType::AST_BOOL:
+      castInst = castFPToBool(S, block);
+      break;
+
     case AstType::AST_FLOAT:
-      castInst = new llvm::FPTruncInst(S, targetTy,"",block);
+      castInst = new llvm::FPTruncInst(S, targetTy, "", block);
       break;
     case AstType::AST_INT:
     case AstType::AST_INT64:
-      castInst = new llvm::FPToSIInst(S, targetTy,"",block);
+      castInst = new llvm::FPToSIInst(S, targetTy, "", block);
       break;
     }
     break;
   }
-  std::cout<<"Status: Cast from "<<src->toString() <<" to "<< dst->toString()<<"\n";
-  if(castInst==0){
-    std::cout<<"Status: cast failed.\n";
+  std::cout << "Status: Cast from " << src->toString() << " to "
+      << dst->toString() << "\n";
+  if (castInst == 0) {
+    std::cout << "Status: cast failed.\n";
   }
   return castInst;
 }
 
-
-int AstType::getId()const
+int AstType::getId() const
 {
   return typeId;
 }
@@ -104,32 +148,38 @@ AstType::operator=(const AstType& ty)
   return *this;
 }
 
-AstType::AstType(const AstType & ty):
-typeId(ty.typeId)
-{}
+AstType::AstType(const AstType & ty) :
+    typeId(ty.typeId)
+{
+}
 
 void AstType::set(int id)
 {
   typeId = id;
 }
 
-AstType::AstType():
-typeId(AST_INVALID)
-{}
+AstType::AstType() :
+    typeId(AST_INVALID)
+{
+}
 
-AstType::AstType(int _id):
+AstType::AstType(int _id) :
     typeId(_id)
-{}
+{
+}
 
 AstType::~AstType()
-{}
+{
+}
 
-llvm::Type *AstType::getLLVMType()const
+llvm::Type *AstType::getLLVMType() const
 {
 
   switch (typeId) {
   case AstType::AST_VOID:
     return llvm::Type::getVoidTy(llvm::getGlobalContext());
+  case AstType::AST_BOOL:
+    return llvm::Type::getInt1Ty(llvm::getGlobalContext());
   case AstType::AST_FLOAT:
     return llvm::Type::getFloatTy(llvm::getGlobalContext());
   case AstType::AST_DOUBLE:

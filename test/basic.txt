@@ -4,3 +4,18 @@ int fun(int b){
   return x;
 }
 _Z5printi(fun(a));
+bool b = true;
+int c = b;
+_Z5printi(c);
+int d = 5;
+b = d;
+c = b;
+_Z5printi(c);
+d = 6;
+b = d;
+d = b;
+_Z5printi(d);
+b = false;
+d = b;
+_Z5printi(d);
+

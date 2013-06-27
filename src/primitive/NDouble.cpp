@@ -5,16 +5,23 @@
  *      Author: desaic
  */
 
+#include "NExpression.hpp"
 #include "NDouble.hpp"
+#include <llvm/Value.h>
+#include "codegen.h"
+#include <llvm/Type.h>
+#include <iostream>
 
-NDouble::NDouble()
+llvm::Value* NDouble::codeGen(CodeGenContext& context)
 {
-  // TODO Auto-generated constructor stub
-
+  std::cout << "Creating double: " << value << std::endl;
+  return llvm::ConstantFP::get(
+      llvm::Type::getDoubleTy(llvm::getGlobalContext()), value);
 }
+NDouble:: NDouble(double _value):
+      NExpression(AstType(AstType::AST_DOUBLE)),
+      value(_value) { }
 
 NDouble::~NDouble()
-{
-  // TODO Auto-generated destructor stub
-}
+{}
 

@@ -93,24 +93,6 @@ GenericValue CodeGenContext::runCode() {
 
 /* -- Code Generation -- */
 
-Value* NInteger::codeGen(CodeGenContext& context)
-{
-	std::cout << "Creating integer: " << value << std::endl;
-	return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), value, true);
-}
-
-Value* NDouble::codeGen(CodeGenContext& context)
-{
-	std::cout << "Creating double: " << value << std::endl;
-	return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
-}
-
-Value* NFloat::codeGen(CodeGenContext& context)
-{
-  std::cout << "Creating float: " << value << std::endl;
-  return ConstantFP::get(Type::getFloatTy(getGlobalContext()), value);
-}
-
 Value* NAssignment::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating assignment for " << lhs.name << std::endl;
