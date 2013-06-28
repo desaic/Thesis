@@ -91,7 +91,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
   types[1] = &rhs->getType();
   for(size_t ii = 0;ii<2;ii++){
     if(types[ii]->getId()!=type.getId()){
-      vals[ii] = cast(types[ii],&type, vals[ii],context.currentBlock());
+      vals[ii] = cast(types[ii],&type, vals[ii],context);
     }
   }
   
@@ -145,6 +145,7 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
       break;
     }
     break;
+
     /* TODO comparison */
   default:
     break;
@@ -154,6 +155,5 @@ Value* NBinaryOp::codeGen(CodeGenContext& context)
           << types[0]->toString() << " and " << types[1]->toString()<< "\n";
       return NULL;
   }
-  return BinaryOperator::Create((Instruction::BinaryOps)instr, vals[0],
-      vals[1], "", context.currentBlock());
+  return context.builder.CreateBinOp((Instruction::BinaryOps)instr, vals[0], vals[1], "");
 }

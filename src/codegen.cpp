@@ -12,7 +12,9 @@ using namespace std;
 #include <stdlib.h>
 const char * PHC_ROOT_ENV="PHC_ROOT";
 using namespace llvm;
-CodeGenContext::CodeGenContext():mainFunction(0)
+CodeGenContext::CodeGenContext():
+  mainFunction(0),
+  builder(getGlobalContext())
 {
   module = new Module("main", getGlobalContext());
   linker=new llvm::Linker("phc", module);
@@ -20,25 +22,25 @@ CodeGenContext::CodeGenContext():mainFunction(0)
   char * externLibDir=getenv(PHC_ROOT_ENV);
   if(externLibDir==0){
     std::cout<<"Need Enviroment Variable "<<PHC_ROOT_ENV<<"\n";
+    return;
   }
-  else{
-    std::cout<<"Parse print function\n";
-    SMDiagnostic Err;
-    std::string dir(externLibDir, strlen(externLibDir));
-    std::string filename("/extern/print.s");
-    filename = dir+filename;
-    libs = llvm::ParseIRFile(filename.c_str(),Err,getGlobalContext());
-    std::cout<<"Status: "<<Err.getMessage()<<"\n";
-    if(libs == 0){
-      std::cout<<"Error: cannot parse module "<<filename<<"\n";
-      return;
-    }
+  std::cout << "Parse print function\n";
+  SMDiagnostic Err;
+  std::string dir(externLibDir, strlen(externLibDir));
+  std::string filename("/extern/print.s");
+  filename = dir + filename;
+  libs = llvm::ParseIRFile(filename.c_str(), Err, getGlobalContext());
+  std::cout << "Status: " << Err.getMessage() << "\n";
+  if (libs == 0) {
+    std::cout << "Error: cannot parse module " << filename << "\n";
+    return;
+  }
 
-    std::cout<<"Link print function\n";
-    std::string errorMsg;
-    linker->LinkModules(module,libs,llvm::Linker::DestroySource,&errorMsg);
-    std::cout<<"Status: "<<errorMsg<<"\n";
-  }
+  std::cout << "Link print function\n";
+  std::string errorMsg;
+  linker->LinkModules(module, libs, llvm::Linker::DestroySource, &errorMsg);
+  std::cout << "Status: " << errorMsg << "\n";
+
 }
 
 void CodeGenContext::saveLLVMIR(const char * filename)
@@ -63,11 +65,10 @@ void CodeGenContext::generateCode(NBlock& root)
 	FunctionType *ftype = FunctionType::get(Type::getVoidTy(getGlobalContext()), argTypes, false);
 	mainFunction = Function::Create(ftype, GlobalValue::ExternalLinkage, "main", module);
 	BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", mainFunction, 0);
-	
 	/* Push a new variable/block context */
 	pushBlock(bblock);
 	root.codeGen(*this); /* emit bytecode for the toplevel block */
-	ReturnInst::Create(getGlobalContext(), bblock);
+	builder.CreateRetVoid();
 	popBlock();
 	
 	/* Print the bytecode in a human-readable format 
@@ -90,6 +91,36 @@ GenericValue CodeGenContext::runCode() {
 	return v;
 }
 
+std::map<std::string, Symbol>&
+CodeGenContext::locals()
+{
+  return blocks.back()->locals;
+}
+
+llvm::BasicBlock *
+CodeGenContext::currentBlock()
+{
+  return blocks.back()->block;
+}
+
+void
+CodeGenContext::pushBlock(llvm::BasicBlock *block)
+{
+  blocks.push_back(new CodeGenBlock());
+  blocks.back()->block = block;
+  builder.SetInsertPoint(block);
+}
+
+void
+CodeGenContext::popBlock()
+{
+  CodeGenBlock *top = blocks.back();
+  blocks.pop_back();
+  if (blocks.size() > 0) {
+    builder.SetInsertPoint(blocks.back()->block);
+  }
+  delete top;
+}
 
 /* -- Code Generation -- */
 
@@ -105,7 +136,7 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 	Value * castInst = NULL;
 	castInst = rhs.codeGen(context);
 	if( leftSymbol.node->type.getId() != rhs.type.getId() ){
-	  castInst = cast(&(rhs.type), &(leftSymbol.node->type), castInst,context.currentBlock());
+	  castInst = cast(&(rhs.type), &(leftSymbol.node->type), castInst,context);
 	  if(castInst == NULL){
 	    std::cout<<"Error: no known conversion from type "<<rhs.type.toString()
 	        <<" to "<<leftSymbol.node->type.toString()<<"\n";
@@ -113,8 +144,7 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 	    return NULL;
 	  }
 	}
-  return new StoreInst(castInst, leftSymbol.value, false,
-      context.currentBlock());
+  return context.builder.CreateStore(castInst, leftSymbol.value, false);
 }
 
 Value* NExpressionStatement::codeGen(CodeGenContext& context)

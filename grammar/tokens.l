@@ -45,7 +45,10 @@ float           {double}f
 "-"                     return TOKEN(SUB);
 "*"                     return TOKEN(MUL);
 "/"                     return TOKEN(DIV);
-
+"&&"                    { return TOKEN(AND); }
+"||"                    { return TOKEN(OR);  }
+"^"                     { return TOKEN(XOR); }
+"!"                     { return TOKEN(NOT); }
  /* Punctuation */
 "("             { return '('; }
 ")"             { return ')'; }

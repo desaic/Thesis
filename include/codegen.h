@@ -57,30 +57,15 @@ public:
   llvm::Module *module;
   llvm::Module * libs;
   llvm::Linker * linker;
+  llvm::IRBuilder<> builder;
   CodeGenContext();
 
   void generateCode(NBlock& root);
   llvm::GenericValue runCode();
-  std::map<std::string, Symbol>& locals()
-  {
-    return blocks.back()->locals;
-  }
-  llvm::BasicBlock *currentBlock()
-  {
-    return blocks.back()->block;
-  }
-  void pushBlock(llvm::BasicBlock *block)
-  {
-    blocks.push_back(new CodeGenBlock());
-    blocks.back()->block = block;
-  }
-  void popBlock()
-  {
-    CodeGenBlock *top = blocks.back();
-    blocks.pop_back();
-    delete top;
-  }
-
+  std::map<std::string, Symbol>& locals();
+  llvm::BasicBlock *currentBlock();
+  void pushBlock(llvm::BasicBlock *block);
+  void popBlock();
   void saveLLVMIR(const char * filename);
 };
 #endif

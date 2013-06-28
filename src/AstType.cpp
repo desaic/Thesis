@@ -6,6 +6,7 @@
  */
 
 #include "AstType.hpp"
+#include "codegen.h"
 #include <llvm/LLVMContext.h>
 #include <llvm/Type.h>
 #include <llvm/DerivedTypes.h>
@@ -14,6 +15,17 @@
 #include <llvm/InstrTypes.h>
 #include <llvm/Instructions.h>
 #include <iostream>
+
+bool AstType::isAnyInt()const
+{
+  return typeId == AST_INT || typeId == AST_INT64;
+}
+
+bool AstType::isAnyFloat()const
+{
+  return typeId == AST_FLOAT || typeId == AST_DOUBLE;
+}
+
 std::string AstType::toString() const
 {
   switch (typeId) {
@@ -36,100 +48,76 @@ std::string AstType::toString() const
   }
 }
 
-llvm::Value * castIntToBool(llvm::Value * S, llvm::BasicBlock *block)
+llvm::Value * castIntToBool(llvm::Value * S, CodeGenContext & context)
 {
   llvm::Value * zero = llvm::ConstantInt::get(S->getType(), 0);
-  llvm::Value * inst = new llvm::ICmpInst(*block, llvm::ICmpInst::ICMP_NE, S,
-      zero);
+  llvm::Value * inst = context.builder.CreateICmpNE(S, zero,"int2bool_cmp");
   return inst;
 }
 
-llvm::Value * castFPToBool(llvm::Value * S, llvm::BasicBlock *block)
+llvm::Value * castFPToBool(llvm::Value * S, CodeGenContext & context)
 {
   llvm::Value * zero = llvm::ConstantFP::get(S->getType(), 0.0f);
-  llvm::Value * inst = new llvm::FCmpInst(*block, llvm::FCmpInst::FCMP_UNE, S,
-      zero);
+  llvm::Value * inst = context.builder.CreateFCmpUNE(S, zero,"float2bool_cmp");
   return inst;
 }
 
 llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S,
-    llvm::BasicBlock *block)
+   CodeGenContext & context)
 {
   llvm::Value * castInst = NULL;
   llvm::Type * targetTy = dst->getLLVMType();
+  std::cout << "Status: Cast from " << src->toString() << " to "
+      << dst->toString() << "\n";
+
+  if(src->isAnyInt()){
+    if(dst->isAnyInt()){
+      return context.builder.CreateSExtOrTrunc(S, (llvm::IntegerType*)targetTy,"int2int");
+    }
+    if(dst->isAnyFloat()){
+      return context.builder.CreateSIToFP(S, targetTy,"int2float");
+    }
+  }
+
+  if (src->isAnyFloat()) {
+    if (dst->isAnyFloat()) {
+      return context.builder.CreateFPCast(S,targetTy,"float2float");
+    }
+    if (dst->isAnyInt()) {
+      return context.builder.CreateFPToSI(S,targetTy,"float2int");
+    }
+  }
+
   switch (src->getId()) {
   case AstType::AST_BOOL:
     switch (dst->getId()) {
     case AstType::AST_INT:
     case AstType::AST_INT64:
-      castInst = new llvm::ZExtInst(S, targetTy, "", block);
+      castInst = context.builder.CreateZExt(S,targetTy,"bool2int");
       break;
     case AstType::AST_FLOAT:
     case AstType::AST_DOUBLE:
-      castInst = new llvm::UIToFPInst(S, targetTy, "", block);
+      castInst = context.builder.CreateUIToFP(S, targetTy, "bool2float");
       break;
     }
     break;
   case AstType::AST_INT:
-    switch (dst->getId()) {
-    case AstType::AST_BOOL:
-      castInst = castIntToBool(S, block);
-      break;
-    case AstType::AST_INT64:
-      castInst = new llvm::SExtInst(S, targetTy, "", block);
-      break;
-    case AstType::AST_FLOAT:
-    case AstType::AST_DOUBLE:
-      castInst = new llvm::SIToFPInst(S, targetTy, "", block);
-      break;
-    }
-    break;
   case AstType::AST_INT64:
     switch (dst->getId()) {
     case AstType::AST_BOOL:
-      castInst = castIntToBool(S, block);
-      break;
-    case AstType::AST_INT:
-      castInst = new llvm::TruncInst(S, targetTy, "", block);
-      break;
-    case AstType::AST_FLOAT:
-    case AstType::AST_DOUBLE:
-      castInst = new llvm::SIToFPInst(S, targetTy, "", block);
+      castInst = castIntToBool(S, context);
       break;
     }
     break;
   case AstType::AST_FLOAT:
-    switch (dst->getId()) {
-    case AstType::AST_BOOL:
-      castInst = castFPToBool(S, block);
-      break;
-    case AstType::AST_DOUBLE:
-      castInst = new llvm::FPExtInst(S, targetTy, "", block);
-      break;
-    case AstType::AST_INT:
-    case AstType::AST_INT64:
-      castInst = new llvm::FPToSIInst(S, targetTy, "", block);
-      break;
-    }
-    break;
   case AstType::AST_DOUBLE:
     switch (dst->getId()) {
     case AstType::AST_BOOL:
-      castInst = castFPToBool(S, block);
-      break;
-
-    case AstType::AST_FLOAT:
-      castInst = new llvm::FPTruncInst(S, targetTy, "", block);
-      break;
-    case AstType::AST_INT:
-    case AstType::AST_INT64:
-      castInst = new llvm::FPToSIInst(S, targetTy, "", block);
+      castInst = castFPToBool(S, context);
       break;
     }
     break;
   }
-  std::cout << "Status: Cast from " << src->toString() << " to "
-      << dst->toString() << "\n";
   if (castInst == 0) {
     std::cout << "Status: cast failed.\n";
   }

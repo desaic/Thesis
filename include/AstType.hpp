@@ -13,6 +13,7 @@ class Type;
 class Value;
 class BasicBlock;
 };
+class CodeGenContext;
 ///@brief a class representing primitive types,
 ///arrays, and structs.
 ///By default, @typeId is AST_INVALID;
@@ -37,6 +38,8 @@ public:
   virtual ~AstType();
   llvm::Type * getLLVMType() const ;
   std::string toString()const;
+  bool isAnyInt()const;
+  bool isAnyFloat()const;
 private:
   int typeId;
 };
@@ -53,5 +56,5 @@ public:
 
 bool needCast(const AstType * src, const AstType * dst);
 llvm::Value * cast(const AstType * src, const AstType * dst,
-    llvm::Value * S,llvm::BasicBlock *block);
+    llvm::Value * S,CodeGenContext & context);
 #endif /* TYPE_HPP_ */

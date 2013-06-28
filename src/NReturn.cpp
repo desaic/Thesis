@@ -17,9 +17,7 @@ NReturn::codeGen(CodeGenContext& context)
     retInst = llvm::ReturnInst::Create(llvm::getGlobalContext());
   }else{
     std::cout<<"Return something\n";
-    retInst = llvm::ReturnInst::Create(
-        llvm::getGlobalContext(),expr->codeGen(context),
-        context.currentBlock());
+    retInst = context.builder.CreateRet(expr->codeGen(context));
   }
   return retInst;
 }

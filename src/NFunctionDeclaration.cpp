@@ -41,9 +41,8 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
   for(llvm::Function::arg_iterator ai = function->arg_begin();
         ai != function->arg_end();ai++,it++){
     llvm::AllocaInst *alloc =
-          new llvm::AllocaInst((*it)->type.getLLVMType(),
-              "", context.currentBlock());
-    new llvm::StoreInst(&(*ai), alloc,context.currentBlock());
+          context.builder.CreateAlloca((*it)->type.getLLVMType());
+    context.builder.CreateStore(&(*ai), alloc);
     context.locals()[(*it)->id.name] = Symbol((*it),alloc);
   }
 

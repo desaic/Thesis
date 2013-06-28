@@ -24,7 +24,7 @@ NFunctionCall::codeGen(CodeGenContext& context)
   for (it = arguments.begin(); it != arguments.end(); it++) {
     args.push_back((**it).codeGen(context));
   }
-  llvm::CallInst *call = llvm::CallInst::Create(function, args, "", context.currentBlock());
+  llvm::CallInst *call = context.builder.CreateCall(function, args, "");
   std::cout << "Creating method call: " << id.name << std::endl;
   return call;
 }
