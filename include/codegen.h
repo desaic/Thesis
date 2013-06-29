@@ -62,6 +62,7 @@ public:
 
   void generateCode(NBlock& root);
   llvm::GenericValue runCode();
+  Symbol findSymbol(const std::string & name);
   std::map<std::string, Symbol>& locals();
   llvm::BasicBlock *currentBlock();
   void pushBlock(llvm::BasicBlock *block);

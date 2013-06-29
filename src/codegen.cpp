@@ -12,6 +12,19 @@ using namespace std;
 #include <stdlib.h>
 const char * PHC_ROOT_ENV="PHC_ROOT";
 using namespace llvm;
+
+Symbol
+CodeGenContext::findSymbol(const std::string & name)
+{
+  for(int ii = (int)blocks.size()-1; ii>=0; ii--){
+    std::map<std::string, Symbol> & vars = blocks[ii]->locals;
+    if(vars.find(name) != vars.end()){
+      return vars[name];
+    }
+  }
+  return Symbol();
+}
+
 CodeGenContext::CodeGenContext():
   mainFunction(0),
   builder(getGlobalContext())
