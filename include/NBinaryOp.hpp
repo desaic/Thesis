@@ -11,15 +11,20 @@
 #include "NExpression.hpp"
 class NBinaryOp : public NExpression {
 public:
-    NExpression* lhs;
-    NExpression* rhs;
-    int op;
-    NBinaryOp(NExpression *_lhs, int op, NExpression* _rhs);
+  NExpression* lhs;
+  NExpression* rhs;
+  int op;
+  NBinaryOp(NExpression *_lhs, int op, NExpression* _rhs);
   virtual void updateType();
   virtual ~NBinaryOp();
-    virtual llvm::Value* codeGen(CodeGenContext& context);
+  virtual llvm::Value* codeGen(CodeGenContext& context);
 private:
-
+  bool isArithmetic();
+  llvm::Value * genBinOp(
+      llvm::Value * vals[], const AstType * types[],CodeGenContext& context);
+  llvm::Value * genCmpInst(
+      const AstType & operandTy,llvm::Value * vals[],CodeGenContext& context);
+  bool isComparison();
 };
 #endif /* NBINARYOP_HPP_ */
 

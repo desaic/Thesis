@@ -1,0 +1,27 @@
+int a = 1;
+int b = 2;
+bool c = a+1>=b+1;
+int ans = c;
+_Z5printi(ans);
+
+c = a+1 == b;
+ans = c;
+_Z5printi(ans);
+
+float fa = 2.71;
+float fb = 3.14;
+c = fa>fb;
+ans = c;
+_Z5printi(ans);
+
+c = fa<fb;
+ans = c;
+_Z5printi(ans);
+
+c = fa!=fb;
+ans = c;
+_Z5printi(ans);
+
+c = (fa!=fb)!=(fa>fb);
+ans = c;
+_Z5printi(ans);
