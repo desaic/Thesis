@@ -34,6 +34,9 @@ float           {double}f
 "true"                  { yylval->boolVal = true; return TOKEN(BOOLLITERAL); }
 "false"                 { yylval->boolVal = false; return TOKEN(BOOLLITERAL); }
 
+"if"                    { return TOKEN(IF); }
+"else"                  { return TOKEN(ELSE); }
+
 "="                     return TOKEN(ASSIGN);
 "=="                    return TOKEN(EQ);
 "!="                    return TOKEN(NEQ);

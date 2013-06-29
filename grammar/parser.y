@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "Ast.hpp"
 #include "NBinaryOp.hpp"
+#include "NIfStatement.hpp"
 #include "NReturn.hpp"
 #include "NVariableDeclaration.hpp"
 NBlock *programBlock; /* the top level root node of our final AST */
@@ -64,6 +65,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token ASSIGN RETURN TRUE FALSE
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
+%token <token> IF ELSE
 /**Non-terminals*/
 %type <ident> ident
 %type <expr> LiteralExp expr 
@@ -72,7 +74,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <exprvec> call_args
 %type <block> program stmts block
 %type <var_decl> var_decl
-%type <stmt> stmt func_decl ReturnStmt
+%type <stmt> stmt func_decl ReturnStmt IfStmt
 %type <type> BuiltinType Type
 
 /* Operator precedence*/
@@ -105,8 +107,13 @@ stmt : var_decl ';' {$$ = $1;}
      | func_decl
      | expr ';'{ $$ = new NExpressionStatement(*$1); }
      | ReturnStmt ';'
+     | IfStmt
      ;
 
+IfStmt : IF '(' expr ')' block            {$$ = new NIfStatement($3, $5);}
+       | IF '(' expr ')' block ELSE block {$$ = new NIfStatement($3, $5, $7);}
+      
+     
 block : '{' stmts '}' { $$ = $2; }
 //      | '{' '}' { $$ = new NBlock(); }
       ;
