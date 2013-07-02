@@ -113,11 +113,11 @@ stmt : var_decl ';' {$$ = $1;}
      ;
 
 ForLoop : FOR '(' expr ';'  expr ';' expr ')' block {$$ = new NFor($3,$5 ,$7,$9);}
-     
+
 IfStmt : IF '(' expr ')' block            {$$ = new NIfStatement($3, $5);}
        | IF '(' expr ')' block ELSE block {$$ = new NIfStatement($3, $5, $7);}
-      
-     
+
+
 block : '{' stmts '}' { $$ = $2; }
 //      | '{' '}' { $$ = new NBlock(); }
       ;
