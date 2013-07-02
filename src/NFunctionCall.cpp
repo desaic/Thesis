@@ -42,7 +42,7 @@ NFunctionCall::NFunctionCall(const NIdentifier& id) : id(id)
 
 void NFunctionCall::updateType()
 {
-  AstNode * declaration = symbol.find(id.name);
+  AstNode * declaration = symbol.findFun(id.name);
 
   if(declaration==NULL){
     std::cout<<"Error: function "<<id.name<<"undeclared\n";
@@ -51,7 +51,7 @@ void NFunctionCall::updateType()
 
   NFunctionDeclaration * func =dynamic_cast<NFunctionDeclaration*> (declaration);
   if(func == 0){
-    std::cout<<"Error: " << id.name<<"is not a function\n";
+    std::cout<<"Error: " << id.name<<"is not a function. Should not happen.\n";
     return;
   }
   type = func->getType();

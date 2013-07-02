@@ -10,7 +10,7 @@
 #include <llvm/Instructions.h>
 void NVariableDeclaration::addSymbol()
 {
-  symbol.addLocalSymbol(id.name, this);
+  symbol.addLocalVar(id.name, this);
 }
 
 NVariableDeclaration::NVariableDeclaration(const AstType & _type, NIdentifier& id) :

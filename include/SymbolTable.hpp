@@ -14,11 +14,17 @@ class AstNode;
 typedef std::map<std::string, AstNode * > SymbolMap;
 struct SymbolTable
 {
-  std::vector<SymbolMap> symbol;
+  std::vector<SymbolMap> vars;
+  std::vector<SymbolMap> funs;
+  std::vector<SymbolMap> structs;
   void incScope();
   void decScope();
-  AstNode * find(const std::string & name);
-  void addLocalSymbol(const std::string & name, AstNode * node);
+  AstNode * findVar(const std::string & name);
+  AstNode * findFun(const std::string & name);
+  AstNode * findStruct(const std::string & name);
+  void addLocalVar(const std::string & name, AstNode * node);
+  void addLocalFun(const std::string & name, AstNode * node);
+  void addLocalStruct(const std::string & name, AstNode * node);
 };
 
 #endif /* SYMBOLTABLE_HPP_ */

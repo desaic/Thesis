@@ -30,7 +30,7 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
   for(llvm::Function::arg_iterator ai = function->arg_begin();
       ai != function->arg_end();ai++,it++){
     ai->setName((*it)->id.name);
-    symbol.addLocalSymbol((*it)->id.name, (*it));
+    symbol.addLocalVar((*it)->id.name, (*it));
   }
 
   llvm::BasicBlock *bblock = llvm::BasicBlock::Create
@@ -58,7 +58,7 @@ NFunctionDeclaration::NFunctionDeclaration(const AstType & _type,
     NIdentifier& id, const VariableList& arguments, NBlock& block) :
     NStatement(_type), id(id), arguments(arguments), block(block)
 {
-  symbol.addLocalSymbol(id.name, this);
+  symbol.addLocalFun(id.name, this);
   id.updateType();
 }
 

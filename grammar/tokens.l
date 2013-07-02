@@ -37,6 +37,7 @@ float           {double}f
 "if"                    { return TOKEN(IF); }
 "else"                  { return TOKEN(ELSE); }
 "for"                   { return TOKEN(FOR); }
+"struct"                { return TOKEN(STRUCT);}
 
 "="                     return TOKEN(ASSIGN);
 "=="                    return TOKEN(EQ);
