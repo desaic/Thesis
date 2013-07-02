@@ -54,7 +54,7 @@ public:
     AstType(AST_INVALID),name(*_name){}
 };
 
-bool needCast(const AstType * src, const AstType * dst);
+bool canCast(const AstType * src, const AstType * dst);
 llvm::Value * cast(const AstType * src, const AstType * dst,
     llvm::Value * S,CodeGenContext & context);
 #endif /* TYPE_HPP_ */

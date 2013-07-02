@@ -62,6 +62,12 @@ llvm::Value * castFPToBool(llvm::Value * S, CodeGenContext & context)
   return inst;
 }
 
+bool canCast(const AstType * src, const AstType * dst)
+{
+  //unimplemented
+  return true;
+}
+
 llvm::Value * cast(const AstType * src, const AstType * dst, llvm::Value * S,
    CodeGenContext & context)
 {

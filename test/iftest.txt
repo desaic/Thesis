@@ -4,8 +4,8 @@ if (a > 0){
 }
 
 int b = 0-100;
-if(b>0){
-  _Z5printi(0);
-}else{
+if(b){
   _Z5printi(1);
+}else{
+  _Z5printi(0);
 }

@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "Ast.hpp"
 #include "NBinaryOp.hpp"
+#include "NFor.hpp"
 #include "NIfStatement.hpp"
 #include "NReturn.hpp"
 #include "NVariableDeclaration.hpp"
@@ -65,7 +66,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token ASSIGN RETURN TRUE FALSE
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
-%token <token> IF ELSE
+%token <token> IF ELSE FOR
 /**Non-terminals*/
 %type <ident> ident
 %type <expr> LiteralExp expr 
@@ -74,7 +75,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %type <exprvec> call_args
 %type <block> program stmts block
 %type <var_decl> var_decl
-%type <stmt> stmt func_decl ReturnStmt IfStmt
+%type <stmt> stmt func_decl ReturnStmt IfStmt ForLoop
 %type <type> BuiltinType Type
 
 /* Operator precedence*/
@@ -108,8 +109,11 @@ stmt : var_decl ';' {$$ = $1;}
      | expr ';'{ $$ = new NExpressionStatement(*$1); }
      | ReturnStmt ';'
      | IfStmt
+     | ForLoop
      ;
 
+ForLoop : FOR '(' expr ';'  expr ';' expr ')' block {$$ = new NFor($3,$5 ,$7,$9);}
+     
 IfStmt : IF '(' expr ')' block            {$$ = new NIfStatement($3, $5);}
        | IF '(' expr ')' block ELSE block {$$ = new NIfStatement($3, $5, $7);}
       

@@ -15,6 +15,7 @@ set(CXX_SOURCES
   src/NExpression.cpp
   src/NIdentifier.cpp
   src/NIfStatement.cpp
+  src/NFor.cpp
   src/NFunctionCall.cpp
   src/NFunctionDeclaration.cpp
   src/NVariableDeclaration.cpp
