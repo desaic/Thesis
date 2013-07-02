@@ -5,9 +5,14 @@
  *      Author: desaic
  */
 
+#include "NStatement.hpp"
+#include "Ast.hpp"
 #include "NVariableDeclaration.hpp"
+#include "NIdentifier.hpp"
+
 #include <llvm/Value.h>
 #include <llvm/Instructions.h>
+#include <iostream>
 void NVariableDeclaration::addSymbol()
 {
   symbol.addLocalVar(id.name, this);

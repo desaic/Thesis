@@ -5,14 +5,19 @@
  *      Author: desaic
  */
 
+#include "NBlock.hpp"
 #include "NFunctionDeclaration.hpp"
+#include "NIdentifier.hpp"
 #include "NVariableDeclaration.hpp"
 #include "AstNode.hpp"
 #include "AstType.hpp"
+#include "VariableList.hpp"
 #include <llvm/Function.h>
 #include <llvm/Type.h>
 #include <llvm/Value.h>
+#include <iostream>
 #include <vector>
+
 llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 {
   std::vector< llvm::Type*> argTypes;

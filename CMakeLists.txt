@@ -21,6 +21,7 @@ set(CXX_SOURCES
   src/NVariableDeclaration.cpp
   src/NReturn.cpp
   src/NStatement.cpp
+  src/NStructDeclaration.cpp
   src/SymbolTable.cpp
   src/codegen.cpp
   src/main.cpp

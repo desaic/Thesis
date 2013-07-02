@@ -66,7 +66,7 @@ void yyerror(TextRange* range, ParserWrapper* parser, const char* msg)
 %token ASSIGN RETURN TRUE FALSE
 %token <token> EQ NEQ LT LEQ GT GEQ
 %token <token> ADD SUB MUL DIV
-%token <token> IF ELSE FOR
+%token <token> IF ELSE FOR STRUCT
 /**Non-terminals*/
 %type <ident> ident
 %type <expr> LiteralExp expr 

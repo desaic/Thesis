@@ -4,8 +4,16 @@
  *  Created on: Jul 2, 2013
  *      Author: desaic
  */
-
+#include "NStatement.hpp"
+#include "NIdentifier.hpp"
 #include "NStructDeclaration.hpp"
+#include "codegen.h"
+#include <iostream>
+llvm::Value*
+NStructDeclaration::codeGen(CodeGenContext& context)
+{
+  return NULL;
+}
 
 std::string
 NStructDeclaration::getName()
@@ -16,15 +24,15 @@ NStructDeclaration::getName()
 NStructDeclaration *
 NStructDeclaration::FindOrCreate(const NIdentifier & id)
 {
-  Symbol ss = symbol.findStruct(id.name);
-  if(ss.value == NULL){
-    NStructDeclaration * structNode =new NStructDeclaration(id.name);
+  AstNode * node = symbol.findStruct(id.name);
+  NStructDeclaration * structNode = dynamic_cast<NStructDeclaration*>(node);
+  if(structNode == NULL){
+    node =new NStructDeclaration(id.name);
     symbol.addLocalStruct(id.name, structNode );
     return structNode;
   }
-  NStructDeclaration * structNode = dynamic_cast<NStructDeclaration*>(ss.value);
   if(structNode == 0){
-    std::cout<<"Error: Struct symbols contain a non-struct.\n";
+    std::cout<<"Error: unknown struct "<<  id.name<<".\n";
   }
   return structNode;
 }

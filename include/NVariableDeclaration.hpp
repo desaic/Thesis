@@ -7,9 +7,11 @@
 
 #ifndef NVARIABLEDECLARATION_HPP_
 #define NVARIABLEDECLARATION_HPP_
-
-#include "Ast.hpp"
-
+class NStatement;
+class CodeGenContext;
+class NIdentifier;
+class AstType;
+class NExpression;
 namespace llvm
 {
 class Value;

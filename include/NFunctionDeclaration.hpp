@@ -9,12 +9,9 @@
 #define NFUNCTIONDECLARATION_HPP_
 
 #include "NStatement.hpp"
-#include <deque>
-
+#include "VariableList.hpp"
 class AstType;
 class NIdentifier;
-class NVariableDeclaration;
-typedef std::deque<NVariableDeclaration*> VariableList;
 
 class NFunctionDeclaration : public NStatement {
 public:
