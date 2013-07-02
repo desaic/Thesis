@@ -140,12 +140,13 @@ CodeGenContext::popBlock()
 Value* NAssignment::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating assignment for " << lhs.name << std::endl;
-	if (context.locals().find(lhs.name) == context.locals().end()) {
+	Symbol leftSymbol = context.findSymbol(lhs.name);
+	if (leftSymbol.node==0) {
 		std::cerr << "undeclared variable " << lhs.name << std::endl;
 		return NULL;
 	}
 
-	Symbol leftSymbol = context.findSymbol(lhs.name);
+
 	Value * castInst = NULL;
 	castInst = rhs.codeGen(context);
 	if( leftSymbol.node->type.getId() != rhs.type.getId() ){
