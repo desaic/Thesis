@@ -145,7 +145,7 @@ Value* NAssignment::codeGen(CodeGenContext& context)
 		return NULL;
 	}
 
-	Symbol leftSymbol = context.locals()[lhs.name];
+	Symbol leftSymbol = context.findSymbol(lhs.name);
 	Value * castInst = NULL;
 	castInst = rhs.codeGen(context);
 	if( leftSymbol.node->type.getId() != rhs.type.getId() ){

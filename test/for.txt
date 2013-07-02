@@ -1,3 +1,4 @@
-for(int ii = 0;ii<10;ii++){
+int ii ;
+for( ii = 0; ii<10; ii=ii+1){
   _Z5printi(ii);
 }
