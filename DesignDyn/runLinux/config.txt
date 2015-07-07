@@ -1,0 +1,11 @@
+#test true
+#meshfile ../cube2k.txt
+#meshfile /home/desaic/workspace/data/fem/cube.txt
+#meshfile /home/desaic/workspace/data/fem/george_2k.txt
+#meshfile /home/desaic/workspace/data/fem/bar.txt
+refine 0 
+#render false
+#stepper grad
+#stepper newton
+stepper newtonDyn
+nSteps 10000
