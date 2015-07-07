@@ -68,7 +68,8 @@ std::vector<Vector3f> MaterialQuad::getForce(Element* ele, ElementMesh * mesh)
 
 MatrixXf MaterialQuad::getStiffness(Element* ele, ElementMesh * mesh)
 {
-  int ndof = 3* ele->nV();
+  int dim = mesh->dim ;
+  int ndof = dim * ele->nV();
   Eigen::MatrixXf K = Eigen::MatrixXf::Zero(ndof, ndof);
 
   for(unsigned int ii = 0; ii<q->x.size();ii++){
@@ -85,23 +86,23 @@ MatrixXf MaterialQuad::getStiffness(Element* ele, ElementMesh * mesh)
 
 Eigen::MatrixXf stiffness(int qi, const MaterialQuad * mat, Element* ele, ElementMesh * mesh)
 {
-  int nquad = (int)mat->q->x.size();
-  int ndof = 3*ele->nV();
+  int dim = mesh->dim;
+  int ndof = dim * ele->nV();
   Vector3f p = mat->q->x[qi];
 
   Eigen::MatrixXf K = Eigen::MatrixXf::Zero(ndof, ndof);
   Matrix3f F = ele->defGrad(p,mesh->X,mesh->x);
   
-  for(int ii = 0;ii<8;ii++){
-    for(int jj = 0;jj<3;jj++){
+  for(int ii = 0;ii<ele->nV();ii++){
+    for(int jj = 0;jj<dim;jj++){
       Matrix3f dF;
       dF.setRow(jj, mat->gradN[ii][qi]);
       Matrix3f dP = mat->e[ii]->getdPdx(F,dF);
-      for(int vv = 0;vv<8;vv++){
+      for(int vv = 0; vv<ele->nV(); vv++){
         Vector3f dfdxi = dP*mat->gradN[vv][qi];
-        int col = 3*ii+jj;
-        for(int kk = 0;kk<3;kk++){
-          K(3*vv+kk, col) = dfdxi[kk];
+        int col = dim*ii+jj;
+        for(int kk = 0; kk<dim; kk++){
+          K(dim*vv+kk, col) = dfdxi[kk];
         }
       }
     }

@@ -10,7 +10,6 @@ class ElementHex:public Element
 public:
   ElementHex();
   ElementHex(const ElementHex & e);
-  int nV() const override{ return 8; }
 
   int nF() const override{ return 6; }
 

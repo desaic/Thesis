@@ -151,7 +151,7 @@ void ElementMesh::computeMass()
 {
   mass.resize(x.size(), 0);
   for(unsigned int ii =0 ; ii<e.size(); ii++){
-    float size = X[e[ii]->at(7)][0] - X[e[ii]->at(0)][0];
+    float size = X[ e[ii]->at(e[ii]->nV()-1) ][0] - X[ e[ii]->at(0) ][0];
     float vol = size*size*size;
     float nodeMass = 0.125 * vol * density;
     for(int jj =0 ; jj<e[ii]->nV(); jj++){
@@ -159,11 +159,6 @@ void ElementMesh::computeMass()
 //      std::cout<<"m: "<<mass[e[ii]->at(jj)]<<"\n";
     }
   }
-}
-
-float ElementMesh::eleSize()
-{
-  return X[e[0]->at(7)][0] - X[e[0]->at(0)][0];
 }
 
 ElementMesh::ElementMesh():dim(3),dt(0.01),G(Vector3f(0,-9.8,0)), density(1000),

@@ -12,6 +12,7 @@
 llvm::Value*
 NStructDeclaration::codeGen(CodeGenContext& context)
 {
+
   return NULL;
 }
 

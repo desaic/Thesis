@@ -2,6 +2,7 @@
 #include "Render.hpp"
 #include "World.hpp"
 #include "Element.hpp"
+#include "ElementQuad.hpp"
 #include "ElementRegGrid.hpp"
 
 #include "StepperGrad.hpp"
@@ -13,7 +14,7 @@
 #include "StrainLin.hpp"
 #include "StrainCorotLin.hpp"
 #include "UnitTests.hpp"
-
+#include "Quadrature.hpp"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -24,23 +25,53 @@ void runTest()
 //  system("pause");
 }
 
+void makeQuadGrid(ElementMesh * em, int nx, int ny, float meshScale = 1.0f)
+{
+  float dx = meshScale / ny;
+  for(int ii = 0; ii<= nx; ii++){
+    for(int jj = 0; jj<=ny; jj++){
+      Vector3f v(ii*dx, jj*dx, 0);
+      em->X.push_back(v);
+    }
+  }
+  for(int ii = 0; ii<nx; ii++){
+    for(int jj = 0; jj<ny; jj++){
+      ElementQuad * e = new ElementQuad();
+      em->e.push_back(e);
+      int VIDX[4][2] = {{0,0},{0,1},{1,0},{1,1}};
+      for(int kk =0; kk<e->nV(); kk++){
+        int vi=ii+VIDX[kk][0];
+        int vj=jj+VIDX[kk][1];
+        (*e)[kk] = vi*(ny+1) + vj;
+      }
+    }
+  }
+  em->initArrays();
+}
 
 int main(int argc, char* argv[])
 {
   const char * filename = "config.txt";
+  if(argc>1){
+    filename = argv[1];
+  }
   ConfigFile conf;
   conf.load(filename);
   if (conf.getBool("test")){
     runTest();
     return 0;
   }
-  
+  int dim = 3;
+  if(conf.hasOpt("dim") && conf.getInt("dim")==2){
+    dim = 2;
+  }
+
   //make materials
   std::vector<StrainEneNeo> ene(2);
   //std::vector<StrainCorotLin> ene(2);
   //std::vector<StrainLin> ene(2);
-  ene[0].param[0] = 1e6;
-  ene[0].param[1] = 1e7;
+  ene[0].param[0] = 1e4;
+  ene[0].param[1] = 1e5;
   ene[1].param[0] = 4e8;
   ene[1].param[1] = 1.5e9;
   std::vector<MaterialQuad> material(ene.size());
@@ -50,11 +81,48 @@ int main(int argc, char* argv[])
     }
   }
 
-  ElementMesh * em = 0;
   //inch to meter
-//  float meshScale = 0.0254;
+  //  float meshScale = 0.0254;
   float meshScale = 1;
-  if(conf.hasOpt("meshfile")){
+
+  ElementMesh * em = 0;
+  Vector3f ff(100, 0, 0);
+  if(dim == 2){
+    for (unsigned int ii = 0; ii < material.size(); ii++){
+      material[ii].q = &(Quadrature::Gauss2_2D);
+      material[ii].e.resize(material[ii].q->x.size());
+      for (unsigned int jj = 0; jj < material[ii].e.size(); jj++){
+        material[ii].e[jj] = &ene[ii];
+      }
+    }
+
+    em = new ElementMesh();
+    em->dim = dim;
+    int refine = 1;
+    if (conf.hasOpt("refine")){
+      refine = conf.getInt("refine");
+    }
+    int res = (int)std::pow(2, refine);
+    int nx = res, ny=4*res;
+    makeQuadGrid(em, nx, ny, meshScale);
+
+    int topV[2] = {1,3};
+    int botV[2] = {0,2};
+    Vector3f force = (1.0/nx)*ff;
+    for(int ii = 0; ii<nx; ii++){
+      int ei = ii*ny+ny-1;
+      for(int jj =0; jj<2; jj++){
+        int vi = em->e[ei]->at(topV[jj]);
+        em->fe[vi] += force;
+      }
+      ei = ii*ny;
+      for(int jj =0; jj<2; jj++){
+        int vi = em->e[ei]->at(botV[jj]);
+//        em->fixed[vi] = true;
+      }
+    }
+
+  }else if(conf.hasOpt("meshfile")){
     std::string meshfile = conf.getString("meshfile");
     std::ifstream in(meshfile);
     if(!in.good()){
@@ -62,6 +130,7 @@ int main(int argc, char* argv[])
       return -1;
     }
     em = new ElementMesh();
+    em->dim = dim;
     em->load(in, meshScale);
 
     //apply some forces
@@ -97,7 +166,6 @@ int main(int argc, char* argv[])
     int nx = res, ny=4*res, nz=res;
     //int nx = 32, ny = 80, nz = 32;
     //int nx = 16, ny = 40, nz = 16;
-    Vector3f ff(1000, 0, 0);
     //per element pushing force
     ff = (1.0f / (nx*nz)) * ff;
     ElementRegGrid * grid = new ElementRegGrid(nx,ny,nz);

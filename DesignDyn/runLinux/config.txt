@@ -1,9 +1,10 @@
 #test true
+dim 2
 #meshfile ../cube2k.txt
 #meshfile /home/desaic/workspace/data/fem/cube.txt
 #meshfile /home/desaic/workspace/data/fem/george_2k.txt
 #meshfile /home/desaic/workspace/data/fem/bar.txt
-refine 0 
+refine 2
 #render false
 #stepper grad
 #stepper newton
