@@ -70,12 +70,16 @@ int main(int argc, char* argv[])
   std::vector<StrainEneNeo> ene(2);
   //std::vector<StrainCorotLin> ene(2);
   //std::vector<StrainLin> ene(2);
-  ene[0].param[0] = 1e4;
-  ene[0].param[1] = 1e5;
+  ene[0].param[0] = 1e8;
+  ene[0].param[1] = 1e9;
   ene[1].param[0] = 4e8;
   ene[1].param[1] = 1.5e9;
   std::vector<MaterialQuad> material(ene.size());
   for (unsigned int ii = 0; ii < material.size(); ii++){
+    if(dim==2){
+      material[ii].q = &(Quadrature::Gauss2_2D);
+      material[ii].e.resize(material[ii].q->x.size());
+    }
     for (unsigned int jj = 0; jj < material[ii].e.size(); jj++){
       material[ii].e[jj] = &ene[ii];
     }
@@ -83,46 +87,11 @@ int main(int argc, char* argv[])
 
   //inch to meter
   //  float meshScale = 0.0254;
-  float meshScale = 1;
+  float meshScale = 0.5;
 
   ElementMesh * em = 0;
-  Vector3f ff(100, 0, 0);
-  if(dim == 2){
-    for (unsigned int ii = 0; ii < material.size(); ii++){
-      material[ii].q = &(Quadrature::Gauss2_2D);
-      material[ii].e.resize(material[ii].q->x.size());
-      for (unsigned int jj = 0; jj < material[ii].e.size(); jj++){
-        material[ii].e[jj] = &ene[ii];
-      }
-    }
-
-    em = new ElementMesh();
-    em->dim = dim;
-    int refine = 1;
-    if (conf.hasOpt("refine")){
-      refine = conf.getInt("refine");
-    }
-    int res = (int)std::pow(2, refine);
-    int nx = res, ny=4*res;
-    makeQuadGrid(em, nx, ny, meshScale);
-
-    int topV[2] = {1,3};
-    int botV[2] = {0,2};
-    Vector3f force = (1.0/nx)*ff;
-    for(int ii = 0; ii<nx; ii++){
-      int ei = ii*ny+ny-1;
-      for(int jj =0; jj<2; jj++){
-        int vi = em->e[ei]->at(topV[jj]);
-        em->fe[vi] += force;
-      }
-      ei = ii*ny;
-      for(int jj =0; jj<2; jj++){
-        int vi = em->e[ei]->at(botV[jj]);
-//        em->fixed[vi] = true;
-      }
-    }
-
-  }else if(conf.hasOpt("meshfile")){
+  Vector3f ff(0, 300, 0);
+  if(conf.hasOpt("meshfile")){
     std::string meshfile = conf.getString("meshfile");
     std::ifstream in(meshfile);
     if(!in.good()){
@@ -146,9 +115,11 @@ int main(int argc, char* argv[])
     float eps = 1e-4;
     for(unsigned int ii =0 ; ii<em->x.size(); ii++){
       if(em->X[ii][1]>max-eps && em->X[ii][0]>0.5){
-        em->fe[ii] = Vector3f(0, -100.0, 0);
+        em->fe[ii] = Vector3f(0, -300.0, 0);
+        std::cout<<ii<<" f\n";
       }else if(em->X[ii][1]< min + eps ){
         em->fixed[ii] = true;
+         std::cout<<ii<<" c\n";
       }
     }
 
@@ -157,6 +128,34 @@ int main(int argc, char* argv[])
     }
 
     in.close();
+
+  }else if(dim == 2){
+    em = new ElementMesh();
+    em->dim = dim;
+    int refine = 1;
+    if (conf.hasOpt("refine")){
+      refine = conf.getInt("refine");
+    }
+    int res = (int)std::pow(2, refine);
+    int nx = res, ny=4*res;
+    makeQuadGrid(em, nx, ny, meshScale);
+
+    int topV[2] = {1,3};
+    int botV[2] = {0,2};
+    Vector3f force = (1.0/nx)*ff;
+    for(int ii = 0; ii<nx; ii++){
+      int ei = ii*ny+ny-1;
+      for(int jj =0; jj<2; jj++){
+        int vi = em->e[ei]->at(topV[jj]);
+        em->fe[vi] += force;
+      }
+      ei = ii*ny;
+      for(int jj =0; jj<2; jj++){
+        int vi = em->e[ei]->at(botV[jj]);
+        em->fixed[vi] = true;
+      }
+    }
+
   }else{
     int refine = 1;
     if (conf.hasOpt("refine")){
@@ -213,7 +212,13 @@ int main(int argc, char* argv[])
     em->addMaterial(&material[ii]);
   }
 
-  em->dt = 0.001;
+  em->dt = 0.01;
+  if(conf.hasOpt("dt")){
+    em->dt = conf.getFloat("dt");
+  }
+  if(conf.hasOpt("density")){
+    em->density = conf.getFloat("density");
+  }
   em->check();
 
   World * world = new World();

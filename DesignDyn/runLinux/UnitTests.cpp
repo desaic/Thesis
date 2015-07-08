@@ -1,5 +1,6 @@
 #include "UnitTests.hpp"
 #include "Element.hpp"
+#include "ElementQuad.hpp"
 #include "ElementRegGrid.hpp"
 #include "ElementHex.hpp"
 #include "MaterialQuad.hpp"
@@ -18,6 +19,31 @@
 
 void forceTestHelper(StrainEne * ene);
 void stiffnessTestHelper(StrainEne * ene);
+
+void quadGrid(ElementMesh * em, int nx, int ny, float meshScale = 1.0f)
+{
+  em->dim = 2;
+  float dx = meshScale / ny;
+  for(int ii = 0; ii<= nx; ii++){
+    for(int jj = 0; jj<=ny; jj++){
+      Vector3f v(ii*dx, jj*dx, 0);
+      em->X.push_back(v);
+    }
+  }
+  for(int ii = 0; ii<nx; ii++){
+    for(int jj = 0; jj<ny; jj++){
+      ElementQuad * e = new ElementQuad();
+      em->e.push_back(e);
+      int VIDX[4][2] = {{0,0},{0,1},{1,0},{1,1}};
+      for(int kk =0; kk<e->nV(); kk++){
+        int vi=ii+VIDX[kk][0];
+        int vj=jj+VIDX[kk][1];
+        (*e)[kk] = vi*(ny+1) + vj;
+      }
+    }
+  }
+  em->initArrays();
+}
 
 void stiffnessTest(int matModel)
 {
@@ -49,17 +75,31 @@ void stiffnessTest(int matModel)
 void stiffnessTestHelper(StrainEne * ene)
 {
   float h = 0.001f;
-  ElementRegGrid * grid = new ElementRegGrid(1, 1, 1);
+//  ElementRegGrid * grid = new ElementRegGrid(1, 1, 1);
+  ElementMesh * grid = new ElementMesh();
+  grid->dim = 2;
+  std::ifstream in("../quads3.txt");
+  grid->load(in, 0.5f);
+  int dim = grid->dim;
+
   MaterialQuad * material = new MaterialQuad(ene);
+  if(dim==2){
+    material->q = &(Quadrature::Gauss2_2D);
+    material->e.resize(material->q->x.size(),ene);
+  }
+
   grid->m.push_back(material);
- // grid->x[1][0] += 0.1f;
-  //grid->x[3][1] += 0.2f;
+  material->init(grid);
+   grid->x[1][0] += 0.1f;
+  grid->x[3][1] += 0.2f;
   MatrixXf KAna = grid->getStiffness();
   int nVar = (int)grid->X.size();
-  MatrixXf K(3*nVar,3*nVar);
+  MatrixXf K(dim*nVar,dim*nVar);
+  std::cout<<K.mm<<" K size\n";
+
   //check each partial derivative
   for(unsigned int ii = 0;ii<grid->x.size();ii++){
-    for(int jj = 0; jj<3; jj++){
+    for(int jj = 0; jj<dim; jj++){
       grid->x[ii][jj] -= h;
       std::vector<Vector3f>fminus = grid->getForce();
       grid->x[ii][jj] += 2*h;
@@ -68,8 +108,8 @@ void stiffnessTestHelper(StrainEne * ene)
       for(unsigned int kk = 0;kk<fminus.size();kk++){
         fplus[kk] -= fminus[kk];
         fplus[kk] /= 2*h;
-        for(int ll = 0;ll<3;ll++){
-          K(3*kk+ll,3*ii+jj)=-fplus[kk][ll];
+        for(int ll = 0;ll<dim;ll++){
+          K(dim*kk+ll,dim*ii+jj)=-fplus[kk][ll];
         }
       }
     }

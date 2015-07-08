@@ -70,10 +70,9 @@ void ElementMesh::getStiffnessSparse(std::vector<float> &val, bool trig, bool co
             float val = K(dim * jj + dim1, dim * kk + dim2);
             if (constrained){
               if (fixed[vk] || fixed[vj]){
-                val = 0;
-//                if (vj == vk && dim1 == dim2){
-//                  val = 100;
-//                }
+                if (vj != vk || dim1 != dim2){
+                  val = 0;
+                }
               }
             }
             //if (vk == vj && dim1 == dim2){
@@ -122,10 +121,9 @@ ElementMesh::getStiffnessSparse(bool trig, bool constrained, bool iFixedRigid)
             float val = K(dim * jj + dim1, dim * kk + dim2);
             if (constrained){
               if (fixed[vk] || fixed[vj]){
-                val = 0;
-//                if (vj == vk && dim1 == dim2){
-//                  val = 1;
-//                }
+                if (vj != vk || dim1 != dim2){
+                  val = 0;
+                }
               }
             }
             //if (vk == vj && dim1 == dim2){

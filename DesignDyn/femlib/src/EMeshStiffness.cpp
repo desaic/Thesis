@@ -11,7 +11,7 @@ MatrixXf ElementMesh::getStiffness(int eIdx)
 
 MatrixXf ElementMesh::getStiffness()
 {
-  int matSize = 3 * (int)x.size();
+  int matSize = dim * (int)x.size();
   MatrixXf Kglobal(matSize,matSize);
   Kglobal.fill(0);
   for(unsigned int ii = 0;ii<e.size();ii++){
@@ -20,7 +20,7 @@ MatrixXf ElementMesh::getStiffness()
       int vj = e[ii]->at(jj);
       for(int kk = 0; kk<e[ii]->nV(); kk++){
         int vk = e[ii]->at(kk);    
-        addSubMat(K,Kglobal, 3*jj, 3*kk, 3*vj, 3*vk, 3, 3);
+        addSubMat(K,Kglobal, dim*jj, dim*kk, dim*vj, dim*vk, dim, dim);
       }
     }
   }

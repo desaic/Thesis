@@ -34,7 +34,7 @@ int StepperNewtonDyn::oneStep()
   for(unsigned int ii =0 ; ii<force.size(); ii++){
 //    add gravity
     force[ii] += m->mass[ii] * m->G;
-    force[ii] = h*h*force[ii] + h*m->mass[ii]*m->v[ii];
+    force[ii] = 0.5*h*h*force[ii] + h*m->mass[ii]*m->v[ii];
   }
 
   compute_dx_sparse(m, force, std::vector<bool>(0), bb);
@@ -43,12 +43,20 @@ int StepperNewtonDyn::oneStep()
   //hard-coded collision detection.
   for(unsigned int ii = 0; ii<m->x.size(); ii++){
     if( bb[dim*ii+1] + m->x[ii][1] < 0 ){
+//      std::cout<<ii<<"\n";
       collide[ii] = true;
       hasCollision = true;
     }
   }
   if(hasCollision){
     compute_dx_sparse(m, force, collide, bb);
+    //force sanity check
+//    force = m->getForce();
+//    for(unsigned int ii =0; ii<m->x.size(); ii++){
+//      if(collide[ii] && force[ii][1]>0){
+//        std::cout<<"Force check "<<ii<<"\n";
+//      }
+//    }
   }
 
   for(unsigned int ii =0; ii<force.size(); ii++){
@@ -58,7 +66,7 @@ int StepperNewtonDyn::oneStep()
     }
   }
 
-  if(frameCnt*h>=0.05){
+  if(frameCnt*h>=0.2){
     for(unsigned int ii =0; ii<force.size(); ii++){
       m->fe[ii] = Vector3f(0,0,0);
       m->fixed[ii] = false;
@@ -97,8 +105,6 @@ float StepperNewtonDyn::compute_dx_sparse(ElementMesh * iMesh,
   int dim = iMesh->dim;
   int ndof = dim * iMesh->x.size();
 
-  PCGSolver <double> solver;
-
   assert(iMesh && ndof==bb.size());
 
   std::vector<float> Kvalues;
@@ -135,12 +141,15 @@ float StepperNewtonDyn::compute_dx_sparse(ElementMesh * iMesh,
       if(triangular && col>row){
         continue;
       }
-      Kvalues[i] *= h*h;
+      Kvalues[i] *= 0.5*h*h;
       int vrow = row/dim;
       if(row == col){
         Kvalues[i] += m->mass[vrow];
       }
       mat.value[col][ i-m_I[col] ] = Kvalues[i];
+      if(col==row){
+//       std::cout<<mat.value[col][ i-m_I[col] ]<<"\n";
+      }
     }
   }
 
@@ -162,10 +171,10 @@ float StepperNewtonDyn::compute_dx_sparse(ElementMesh * iMesh,
        }
        int vrow = row/dim;
        if(collide[vrow] || collide [vcol]){
-         if(row == col){
-           std::cout<<mat.value[col][ i-m_I[col] ]<<"\n";
-         }else{
+         if(row != col){
            mat.value[col][ i-m_I[col] ]=0;
+         }else{
+//           std::cout<<mat.value[col][ i-m_I[col] ]<<"\n";
          }
        }
       }
@@ -179,6 +188,9 @@ float StepperNewtonDyn::compute_dx_sparse(ElementMesh * iMesh,
   ///@TODO add call to sparse solver
   double residual=0;
   int iters = 0;
+  PCGSolver <double> solver;
+  solver.set_solver_parameters(1e-6,200,0);
+//  mat.write_matlab(std::cout, "K");
   bool ret = solver.solve(mat, rhs, x,residual, iters);
   std::cout<< "pcg ret " <<ret<<" iters " << iters << " residual "<<residual<<"\n";
   timer.end();

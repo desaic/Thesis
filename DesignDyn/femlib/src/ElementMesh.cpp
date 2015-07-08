@@ -1,7 +1,9 @@
 #include "ElementMesh.hpp"
 #include "ElementHex.hpp"
+#include "ElementQuad.hpp"
 #include "Material.hpp"
 #include "Element.hpp"
+
 #include "femError.hpp"
 #include <iostream>
 
@@ -17,11 +19,14 @@ void ElementMesh::load(std::istream & in, float scale)
   X.resize(nVert);
   e.resize(nEle);
   std::cout<<nVert<<" vertices\n"<<nEle<<" elements.\n";
-  Vector3f minPos(0,0,0);
+  Vector3f minPos(10, 10, 10);
+  if(dim==2){
+    minPos[2] = 0;
+  }
   for(int ii =0 ; ii<nVert; ii++){
     in>>X[ii][0]>>X[ii][1]>>X[ii][2];
     X[ii] = scale * X[ii];
-    for(int jj =0 ; jj<3; jj++){
+    for(int jj =0 ; jj<dim; jj++){
       if(minPos[jj]>X[ii][jj]){
         minPos[jj] = X[ii][jj];
       }
@@ -39,13 +44,15 @@ void ElementMesh::load(std::istream & in, float scale)
     Element * ele = 0;
     if(nV==8){
       ele = new ElementHex();
+    }else if(nV==4){
+      ele = new ElementQuad();
     }
     e[ii] = ele;
     for(int jj =0 ; jj<nV; jj++){
       in>>(*ele)[jj];
     }
   }
-  e.resize(nEle);
+
   initArrays();
 }
 
@@ -66,8 +73,7 @@ void ElementMesh::initArrays()
       }
     }
   }
-  std::cout<<minPos[0]<<" "<<minPos[1]<<" "<<minPos[2]<<"\n";
-  std::cout<<maxPos[0]<<" "<<maxPos[1]<<" "<<maxPos[2]<<"\n";
+
   v.resize(X.size(), Vector3f(0,0,0));
   fe.resize(X.size(), Vector3f(0,0,0));
   fixed.resize(X.size(),false);
@@ -151,8 +157,7 @@ void ElementMesh::computeMass()
 {
   mass.resize(x.size(), 0);
   for(unsigned int ii =0 ; ii<e.size(); ii++){
-    float size = X[ e[ii]->at(e[ii]->nV()-1) ][0] - X[ e[ii]->at(0) ][0];
-    float vol = size*size*size;
+    float vol = e[ii]->getVol(X);
     float nodeMass = 0.125 * vol * density;
     for(int jj =0 ; jj<e[ii]->nV(); jj++){
       mass[e[ii]->at(jj)] += nodeMass;
