@@ -7,6 +7,13 @@
 \usepackage{floatrow}
 
 \usepackage[margin=1in]{geometry}
+\newcommand{\set}[1]{\mathcal{#1}}
+\newcommand{\material}{\mathcal{M}}
+\newcommand{\fe}{\mathcal{E}}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 \title{ \large{Massachusetts Institute of Technology\\~\\
 	Department of Electrical Engineering and Computer Science\\~\\~\\
@@ -19,13 +26,13 @@
 	\maketitle
 \begin{flushleft}
  Title: Multiscale Methods for Fabrication Design\\~\\
-\end{flushleft} 
-\hskip-0.2cm\begin{tabular}{p{4cm} p{6cm} p{8cm}}
- 	 Submitted by: & Desai Chen & \underline{\hspace{6cm}}\\
-                   &32 Vassar St., 32-311 & (Signature of author) 	  \\
-                   &Cambridge, MA 02139&
-\end{tabular}\\
-\begin{flushleft}
+
+\begin{tabular}{L{4cm} p{6cm} p{8cm}}
+\hskip-0.2cm Submitted by: & Desai Chen & \underline{\hspace{6cm}}\\
+              &32 Vassar St., 32-311 & (Signature of author) 	  \\
+              &Cambridge, MA 02139&
+\end{tabular}\\~\\
+
 Date of submission: May , 2016\\~\\
 Expected date of completion: June 2016\\~\\
 Laboratory where thesis will be done: MIT CSAIL\\~\\
@@ -163,7 +170,9 @@ Comments:
 \pagenumbering{arabic}
 \input{introduction}
 \input{related}
-
+\input{static}
+\input{staticOpt}
+\input{dynamic}
 \bibliographystyle{plain}
 \bibliography{proposal}
 \end{document}
