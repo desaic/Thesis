@@ -43,15 +43,10 @@ We will fabricate exemplar objects and design physics experiments to validate th
 An overview of the pipeline is shown in figure~\ref{fig:overview}.
 \begin{figure}[ht]
 	\centering
-	\subcaptionbox{\label{fig:typical}Typical methods}{
-		\includegraphics[width=0.7\columnwidth]{images/typical1.pdf}
-	}
-	\subcaptionbox{\label{fig:ours}Our method}{
-		\includegraphics[width=0.7\columnwidth]{images/typical2.pdf}
-	}
+	\includegraphics[width=0.7\columnwidth]{images/overview.png}
 	\caption{
-		(a) In a typical method, the preprocessing step of reducing element count is performed for every design change, making the design loop slow.
-		(b) In our method, we move the time-consuming offline computation outside of the design loop.
+		In a typical method (top), the preprocessing step of reducing element count is performed for every design change, making the design loop slow.
+		In our method (bottom), we move the time-consuming offline computation outside of the design loop.
 	}
 	\label{fig:overview}
 \end{figure}
