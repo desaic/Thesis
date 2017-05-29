@@ -13,18 +13,19 @@ In subsequent sections, we use a left superscript to indicate the level of coars
 
 \paragraph{Coarsening for finite elements}
 The key component of our DDFEM is coarsening. It reduces the number of elements in a finite element simulation mesh in order to improve runtime performance. Since simply removing elements can greatly reduce the accuracy of the simulation, coarsening schemes assign new materials to coarsened elements to minimize this effect.
-
 We regard the global coarsening of a simulation mesh as the result of many local coarsening operations which map from contiguous subsets of fine elements with applied materials to coarse elements with new, optimized materials.
-Our goal is to precompute these optimized materials so that coarsening is fast at runtime.
+Our goal is to precompute these fitted materials so that coarsening is fast at runtime.
 
-
+Each local coarsening operation merges a 2x2 block of elements into a single coarse element (Figure~\ref{fig:coarsen}).
+\begin{figure}
+	\centering
+	
+	\includegraphics[width=0.5\textwidth]{images/coarsen.pdf}
+	\caption{Coarsening a 2x2 block of }
+	\label{fig:coarsen}
+\end{figure}
 \paragraph{Conforming vs.~embedded finite elements}
 The defining feature of conforming finite element methods is that the simulation mesh is aligned with the geometry of the object being simulated. One obvious feature of conforming meshes is that the mesh itself is a function of the input geometry. This means that the output of a local coarsening operator (the coarsened mesh) will also be a function of the input geometry. Also, the new material computed by each local coarsening operator will be a function of input geometry. This dependence on input geometry is a significant issue to overcome if we wish to precompute coarsened materials because, in design problems, the input geometry is in constant flux. The number of precomputed coarse materials now depends on the local material assignment on the simulation mesh and the input geometry. Thus space of coarsened materials is prohibitively large. 
-%\begin{figure}[b]
-%\includegraphics[width=0.7\columnwidth]{images/coarseningOp.pdf}
-%\caption{The two coarsening operators used for DDFEM: a 2$\times$2$\times$2 to 1 coarsening operator and a 2$\times$1$\times$1 coarsening operator which can be applied in the $x$, $y$, or $z$ directions.}
-%\label{fig:coarseningOp}
-%\end{figure}
 To mitigate this we turn to embedded finite elements. These methods embed the geometry to be simulated into the simulation mesh with no regard for whether the mesh conforms to the geometry or not. Thus an identical simulation mesh can be used for any input geometry. Local coarsening operations on the embedded mesh yield identical coarse elements and the optimized coarse material depends only on the local material distribution on the simulation mesh.  This significantly reduces the size of the coarsened material space. In this paper we embed all simulation geometry into a regular hexahedral mesh.
 
 \paragraph{Algorithms}
