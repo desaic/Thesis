@@ -5,23 +5,25 @@ To handle irregular boundary geometry, we will apply the use embedded finite ele
 Using regular elements enables trivial combination of fine elements into coarser blocks of elements. This operation can be applied hierarchically to coarsen a mesh multiple times.
 In this section, we discuss the two main stages of DDFEM computation---offline metamaterial construction and online coarsening.
 
-\paragraph{Material palettes and mappings}
+\paragraph{Material palettes and assignments}
 This study focuses on designs made of a discrete set of materials. The methodology can be extended to handle continuous mixtures of materials.
-We note that designers often do not work in a continuous space of materials but limit themselves to a relatively compact set (e.g. rubber, wood, steel) related to their problem domain. We call these discrete sets of materials palettes and denote them $\set{P}=\{\material_0, \material_1, \hdots, \material_n\}$. Here $\material_i$ denotes a specific material model in $\set{P}$, and $n$ is the size of the material palette. In this work we further limit ourselves to (nonlinear) hyper-elastic materials, which means that each $\material_i$ can be represented by a strain energy density function $V$.
+We note that designers often do not work in a continuous space of materials but limit themselves to a relatively compact set (e.g. rubber, wood, steel) related to their problem domain. We call these discrete sets of materials palettes. In this work we further limit ourselves to nonlinear hyper-elastic materials, which means that each material can be represented by a strain energy density function $V$.
+A material assignment to a finite element model with $K$ elements is a list of integers $(m^1,m^2,...,m^K), 1\leq m^k\leq N,$ where $N$ is the number of distinct materials in the palette.
 We also include a void (or empty) material in every palette. This allows us to perform topology changes in the same manner in which we perform material assignment updates.
-In subsequent sections, we use a left superscript to indicate the level of coarsening. For example, $\set{P}^0$ denotes a material palette at the fine scale while $\set{P}^1$ denotes the new palette of metamaterials that results from the first coarsening step.
+In subsequent sections, we use a subscript to indicate the level of coarsening. For example, $m_0^k$ denotes the material assigned to the $k$th element at the fine scale while $m_1^k$ denotes the coarse metamaterial assigned to the finite element model resulted from the first coarsening step.
 
 \paragraph{Coarsening for finite elements}
 The key component of our DDFEM is coarsening. It reduces the number of elements in a finite element simulation mesh in order to improve runtime performance. Since simply removing elements can greatly reduce the accuracy of the simulation, coarsening schemes assign new materials to coarsened elements to minimize this effect.
 We regard the global coarsening of a simulation mesh as the result of many local coarsening operations which map from contiguous subsets of fine elements with applied materials to coarse elements with new, optimized materials.
 Our goal is to precompute these fitted materials so that coarsening is fast at runtime.
 
-Each local coarsening operation merges a 2x2 block of elements into a single coarse element (Figure~\ref{fig:coarsen}).
+A local coarsening operation merges a 2x2 (2x2x2 in 3D) block of elements into a single coarse element (Figure~\ref{fig:coarsen}).
 \begin{figure}
-	\centering
-	
+	\centering	
 	\includegraphics[width=0.5\textwidth]{images/coarsen.pdf}
-	\caption{Coarsening a 2x2 block of }
+	\caption{Coarsening a 2x2 block of high-resolution elements into a single coarse element.
+		At each quadrature point $X_1^k$, the coarse element copies the energy density function $V_0^k$ with newly fitted material parameters to construct the coarse energy function
+		$V_1$.}
 	\label{fig:coarsen}
 \end{figure}
 \paragraph{Conforming vs.~embedded finite elements}
@@ -39,7 +41,7 @@ With the material palette in hand, we can now define our algorithm, which is div
 		\State $^1\set{P}$: new palatte of metamaterials
 		\State $S\gets$ initial designs
 		\State $A\gets \emptyset$
-		\Do
+        \Do
 		\State stochasticSampling($S$, $A$, $F$, $\mathcal{X}$)
 		\State $\mathbf{s}_i\gets$ selectCandidate($S$)
 		\State $\mathbf{d}\gets$ selectDirection($A$, $F$, $\mathcal{X}$)
