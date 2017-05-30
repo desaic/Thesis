@@ -5,7 +5,7 @@
 \usepackage{paralist}
 \usepackage{subcaption}
 \usepackage{floatrow}
-
+\usepackage{array}
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 \usepackage[noend]{algpseudocode}
@@ -14,7 +14,8 @@
 \newcommand{\set}[1]{\mathcal{#1}}
 \newcommand{\material}{\mathcal{M}}
 \newcommand{\fe}{\mathcal{E}}
-\usepackage{array}
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
