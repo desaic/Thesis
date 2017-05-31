@@ -1,7 +1,7 @@
 \section{Inverse Design for Elastostatics}
-Given a set of base materials, an object layout, and functional objectives, the goal of our system is to compute the material distribution inside the object that optimizes the objectives.
+Given a set of base materials, an object layout, and functional objectives, the goal of inverse design is to compute the material distribution inside the object that optimizes the objectives.
 In our approach, instead of computing per-voxel base material distribution, we work with microstructures made of the base materials and the space of physical material properties spanned by them. The complete pipeline of our system, illustrated in Figure \ref{fig:topoptOverview}, can be decomposed into two stages---gamut generation and gamut-constrained topology optimization.
-\begin{figure}
+\begin{figure}[hb]
 	\centering
 	\includegraphics[width=0.95\textwidth]{images/topoptOverview.pdf}
 	\caption{Inverse design algorithm.}

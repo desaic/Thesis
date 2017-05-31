@@ -1,1 +1,11 @@
 \section{Coarsening for Dynamics}
+The realistic simulation of highly-dynamic elastic objects is important for a broad range of applications in computer graphics, engineering and computational fabrication.
+However, whether simulating flipping toys, jumping robots, prosthetics or quickly moving creatures, performing such simulations in the presence of contact, impact and friction is both time consuming and inaccurate.
+We propose Dynamics-Aware Coarsening (DAC) and the Boundary Balanced Impact (BBI) model for the accurate simulation of dynamic, elastic objects undergoing both large scale deformation and frictional contact.
+Our methods aim to balance efficiency and accuracy to enable design-for-fabrication optimization. They can be used for both fast, realistic animation and engineering analysis. 
+
+We begin by observing that \emph{coarsening} offers an exciting alternative for efficient yet predictive FE modeling.
+Analytical solutions for coarsening have been developed for linear material models (models where the stress varies linearly with strain)~\cite{Kharevych2009,Nesme2009,Torres:2016:HIC}.
+Due to this linear assumption, and similarly to the linear modal models discussed above, we find them difficult to apply for the accurate modeling of the nonlinear materials required for 3D-printed objects.
+Even though our proposed DDFEM overcomes the linear limitation of prior work, it does not account for dynamic effects, inertial properties, nor material damping characteristics.
+

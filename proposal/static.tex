@@ -34,10 +34,13 @@ A local coarsening operation merges a 2x2 (2x2x2 in 3D) block of elements into a
 The high-resolution material assignment $(m_0^1,m_0^2,m_0^3,m_0^4)$ is mapped to a coarse metamaterial index $m_1$. We use the lookup function $L:\mathbb{N}^4\rightarrow \mathbb{N}$ to map from a list of fine material indices to a coarse material. In the actual implementation, we store $L^{-1}$, which is simply the list of fine materials that constitute each coarse material.
 
 \paragraph{Algorithms}
-With basic coarsening operation in hand, we can now define our algorithm, which is divided into two distinct phases: an \textbf{offline database construction} stage and an \textbf{online coarsening} stage. Below we detail the input, output, and steps of each stage:
+With basic coarsening operation in hand, we can now define our algorithm, which is divided into two distinct phases: an \textbf{offline database construction} stage and an \textbf{online coarsening} stage.
+Below we detail the input, output and steps of each stage.
 
-\begin{algorithm}
-	\caption{Offline Database Construction}\label{alg:offline}
+\noindent\hrulefill
+%\begin{algorithm}
+%	\caption{Offline Database Construction}\label{alg:offline}
+
 	\begin{algorithmic}[1]
 		\Procedure{DatabaseConstruction}{ }
 		\State INPUT $\set{P}_0$: Input material palette
@@ -52,9 +55,10 @@ With basic coarsening operation in hand, we can now define our algorithm, which 
 		\doWhile within computation budget
 		\EndProcedure
 	\end{algorithmic}
-\end{algorithm}
-\begin{algorithm}
-	\caption{Online Coarsening}\label{alg:online}
+%\end{algorithm}
+\hrulefill
+%\begin{algorithm}
+%	\caption{Online Coarsening}\label{alg:online}
 	\begin{algorithmic}[1]
 		\Procedure{Coarsen}{ }
 		\State INPUT $\set{E}_0$: High resolution mesh with $K$ cube elements
@@ -68,7 +72,8 @@ With basic coarsening operation in hand, we can now define our algorithm, which 
 		\EndFor
 		\EndProcedure
 	\end{algorithmic}
-\end{algorithm}
+%\end{algorithm}
+\hrulefill
 
 \paragraph{Hierarchical coarsening}
 We stress that both stages of the DDFEM algorithm can be applied hierarchically. Given the first level of metamaterials, $\set{P}_1$, we can construct a metamaterial library, $\set{P}_2$, for the second level by using $\set{P}_1$ as an input material palette. At runtime, the coarsening algorithm looks up materials from $\set{P}_2$ to replace each 2$\times$2$\times$2 coarse block with a single element.
