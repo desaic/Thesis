@@ -8,18 +8,18 @@ In the offline stage, combinations of fine materials are sampled to create a dat
 coarse material models. In the online stage, fine elements in a simulation model are merged and assigned appropriate coarse material model from the database.
 This section will motivate algorithm design choices we made and outline the steps of DDFEM.
 
-\paragraph{Material palettes and assignments}
+\subsection{Material palettes and assignments}
 This study focuses on designs made of a discrete set of materials. The methodology can be extended to handle continuous mixtures of materials.
 We note that designers often do not work in a continuous space of materials but limit themselves to a relatively compact set (e.g. rubber, wood, steel) related to their problem domain. We call these discrete sets of materials palettes denoted as $\set{P}$. In this work we further limit ourselves to nonlinear hyper-elastic materials, which means that each material can be represented by a strain energy density function $V$. The palette $\set{P}$ contains a list of energy functions $\{V^1,...,V^N\}$ where $N$ is the number of distinct materials.
 A material assignment to a finite element model with $K$ elements is a list of integers $(m^1,m^2,...,m^K), 1\leq m^k\leq N,$.
 We also include a void (or empty) material in every palette. This allows us to perform topology changes in the same manner in which we perform material assignment updates.
 In subsequent sections, we use a subscript to indicate the level of coarsening. For example, $m_0^k$ denotes the material assigned to the $k$th element at the fine scale while $m_1^k$ denotes the coarse metamaterial assigned to the finite element model resulted from the first coarsening step.
 
-\paragraph{Conforming vs.~embedded finite elements}
+\subsection{Conforming vs.~embedded finite elements}
 The defining feature of conforming finite element methods is that the simulation mesh is aligned with the geometry of the object being simulated. One obvious feature of conforming meshes is that the mesh itself is a function of the input geometry. This means that the output of a local coarsening operator (the coarsened mesh) will also be a function of the input geometry. Also, the new material computed by each local coarsening operator will be a function of input geometry. This dependence on input geometry is a significant issue to overcome since we wish to precompute coarsened materials applicable to varying geometry in design problems. If the precomputed coarse materials depends on the material assignment and the input geometry the space of possible combinations is prohibitively large.
 To mitigate this we turn to embedded finite elements. These methods embed the geometry to be simulated into the simulation mesh with no regard for whether the mesh conforms to the geometry or not. Thus an identical simulation mesh can be used for any input geometry. Local coarsening operations on the embedded mesh yield identical coarse elements and the optimized coarse material depends only on the local material distribution on the simulation mesh.  This significantly reduces the size of the coarsened material space. In this study we embed all simulation geometry into simulation meshes made of cube elements.
 
-\paragraph{Coarsening cube elements}
+\subsection{Coarsening cube elements}
 \begin{figure}[ht]
 	\centering	
 	\includegraphics[width=0.5\textwidth]{images/coarsen.pdf}
@@ -33,7 +33,7 @@ We regard the global coarsening of a simulation mesh as the result of many local
 A local coarsening operation merges a 2x2 (2x2x2 in 3D) block of elements into a single coarse element (Figure~\ref{fig:coarsen}).
 The high-resolution material assignment $(m_0^1,m_0^2,m_0^3,m_0^4)$ is mapped to a coarse metamaterial index $m_1$. We use the lookup function $L:\mathbb{N}^4\rightarrow \mathbb{N}$ to map from a list of fine material indices to a coarse material. In the actual implementation, we store $L^{-1}$, which is simply the list of fine materials that constitute each coarse material.
 
-\paragraph{Algorithms}
+\subsection{Algorithms}
 With basic coarsening operation in hand, we can now define our algorithm, which is divided into two distinct phases: an \textbf{offline database construction} stage and an \textbf{online coarsening} stage.
 Below we detail the input, output and steps of each stage.
 
@@ -75,5 +75,5 @@ Below we detail the input, output and steps of each stage.
 %\end{algorithm}
 \hrulefill
 
-\paragraph{Hierarchical coarsening}
+\subsection{Hierarchical coarsening}
 We stress that both stages of the DDFEM algorithm can be applied hierarchically. Given the first level of metamaterials, $\set{P}_1$, we can construct a metamaterial library, $\set{P}_2$, for the second level by using $\set{P}_1$ as an input material palette. At runtime, the coarsening algorithm looks up materials from $\set{P}_2$ to replace each 2$\times$2$\times$2 coarse block with a single element.
