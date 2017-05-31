@@ -29,7 +29,7 @@ Additionally, many existing methods assume the object only undergoes small defor
 with known boundary conditions.
 Extensions of these methods to large deformations with varying boundary conditions
 severely increase the algorithm complexity and quickly diminishes the performance improvements.
-
+\subsection{Coarsening}
 We propose coarsening algorithms based on standard FEM
 without introducing new types of spatial discretization which increases
 algorithmic complexity.
@@ -50,3 +50,17 @@ An overview of the pipeline is shown in figure~\ref{fig:overview}.
 	}
 	\label{fig:overview}
 \end{figure}
+\subsection{Inverse Design}
+Many engineering problems focus on the design of complex structures that needs to meet high level objectives such as the capability to support localized stresses, optimal tradeoffs between compliance and mass, minimal deformation under thermal changes, etc. One very popular approach to design such structures is topology optimization. It computes material distribution over elements to optimize given functional goals \cite{bendsoe2004topology}.
+Traditionally, it focused on designs made of homogeneous materials and was concerned with macroscopic changes in the object geometry.
+With the advent of multi-material 3D printing techniques, it is now possible to manufacture objects at a much higher resolution, allowing much finer designs and improved functional performances.
+Unfortunately, standard techniques for topology optimization do not scale well and they cannot be run on objects with billions of voxels. This is because the number of variables to optimize increases linearly with the number of cells. Since many current 3D printers have a resolution of 600DPI or more, a one billion voxel design occupies only a 1.67 inch cube.
+
+One direction to improve scalability is to work with microstructures corresponding to blocks of voxels instead of individual voxels directly. Recent works followed this direction and proposed to decouple macro structural design and micro material design \cite{rodrigues:2002:hierarchical,coelho:2008:hierarchical,nakshatrala:2013:nonlinear}. However, these approaches remain computationally expensive and, in most cases, limited to the well-known minimal compliance problem.
+The second direction to reduce the problem complexity is to temporarily ignore the geometry of the microstructures and consider only their macroscopic physical behavior.
+However, this introduces new difficulties as the space of material properties covered by all printable microstructures is much wider than the properties of the base materials.
+For example, microstructures made of alternating layers of soft and stiff isotropic materials exhibit an anisotropic behavior as they stretch more easily in one direction than in the others.
+This implies that not only the {\it range} but also the complexity of physical behavior of these microstructures increases.
+To make use the microstructures in inverse design problems, one needs to solve two challenging problems:
+(i) computing the {\it gamut} -- i.e the set -- of the material properties achievable by all microstructures, (ii) efficiently optimizing the distribution of these material properties inside the layout of the object.
+

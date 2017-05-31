@@ -1,4 +1,5 @@
 \section{Related Work}
+\subsection{Efficient FEM for Elasticity}
 Efficient FEM simulation plays an important role in designing deformable objects.
 As mentioned, these problems are common in engineering and
 graphics~\cite{bendsoe2004topology,Bickel2010,Kou2012,Skouras2013,Chen2013,Xu2014}.
@@ -62,4 +63,20 @@ Xu et al.~\cite{Xu2014} and Li et al.~\cite{Li2014} computed material distributi
 	our method supports user specified topology changes and material assignment.
 	These features are important due to the design-centric nature of our work.
 
-Data-driven techniques have also been applied to add fine detail to coarse surgical simulations \cite{Cotin1999,Kavan:2011,Seiler2012}. While these methods do not help with the type of iterative design problems addressed here, they could be combined with our fast coarsening in order to quickly ``upscale'' coarsened simulation results to original simulation resolution.
+Data-driven techniques have also been applied to add fine detail to coarse surgical simulations \cite{Cotin1999,Kavan:2011,Seiler2012}. While these methods do not help with the type of iterative design problems addressed here, they could be combined with our fast coarsening in order to quickly ``upscale'' coarsened simulation results to original resolution.
+
+\subsection{Application to Inverse Design Problems}
+The inverse design process computes material and geometry of an object to minimize a given objective function.
+Inverse design algorithms benefit from efficient simulation algorithms since they use simulations to evaluate designs and find search directions.
+A popular method to formulating and solving inverse design problems is topology optimization \cite{bendsoe2004topology}.
+Initially applied to structural design in engineering \cite{bendsoe:1989:optimal}, topology optimization has since then been extended to a variety of applications including compliant mechanisms \cite{Sigmund97Compliant},
+mass transfer \cite{challis:2009:level}, metamaterials \cite{sigmund:1996:composites,cadman:2013:design}, multifunctional structure \cite{yan:2015:two}, and coupled structure-appearance optimization \cite{Martinez:2015:SAO}.
+Many algorithms have been proposed to solve the optimization problem.
+We refer to the survey by Sigmund and Maute \cite{sigmund:2013:topology} for a complete review.
+In the very popular SIMP (Solid Isotropic Materials with Penalization) method, the presence of material in a given cell is controlled by locally varying its density. A binary design is eventually achieved by penalizing intermediate values for these densities. In practice, this method works well for two-material designs (e.g., a material and a void), but generalizing this method to robustly handle higher dimensional material spaces remains challenging.
+Instead of considering only discrete structures, free material optimization \cite{Ringertz1993On,haber1994analytical} optimizes structures made of continuous material distributions constrained by analytical bounds.
+Another class of methods rely on {\it homogenization}. They replace the material in each voxel of the object by a mixture of the base materials whose material properties can be analytically derived. While optimal microstructures are known for certain classes of problems (laminated composites in the case of the minimum compliance problem), this is not the case in the general setting, for which using a specific subclass of microstructures can lead to suboptimal results.
+In a sense, our work is a generalization of these approaches and aims to handle a wider range of materials for which theoretical bounds on the material properties are not known a priori.
+
+More related frameworks for the design and fabrication of objects with desired mechanical behaviors have been proposed by Bickel et al.~\cite{Bickel2010} and Skouras et al.~\cite{Skouras2013}. Like these works, our system matches given input deformations. However, while these previous systems assume a small set of available base materials and use these base materials in relatively coarse discretizations, our system combines the base materials into microstructures to expand the design possibilities. Also relevant is the tool presented by Xu et al.~\cite{Xu2014} for interactive design of heterogeneous materials and the material optimization approach proposed by Panetta et al.~\cite{Panetta:2015}.
+However, these methods may output materials that are not available in the real world for non-convex manifolds of material properties. By contrast, we guarantee that all the microstructures used are always realizable in such cases, which is one of the key contributions of our work.
