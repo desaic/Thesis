@@ -42,11 +42,13 @@ Date of submission: May , 2016\\~\\
 Expected date of completion: June 2016\\~\\
 Laboratory where thesis will be done: MIT CSAIL\\~\\
 Brief statement of the problem:\\~\\
-Crafting the behavior of a deformable object is difficult---whether it is a biomechanically accurate character model or a multimaterial 3D print design.
-Getting it right requires constant iteration, performed either manually or driven by an automated system.
-Throughout this process the geometry and material composition of the object are in constant flux.
-Accurate simulation of deformable objects using standard finite element methods is computationally expensive especially for large deformations beyond linear elasticity regime.
-We propose to speed up simulation using multiscale methods that approximates the solution at coarser scales while capturing the overall behavior with sufficient accuracy for design tasks.
+Modern manufacturing technologies enable the design and fabrication of objects with extraordinary physical properties. A wide range of applications have been demonstrated in the fields of mechanics, acoustics, optics and electromagnetics. Unfortunately, it is difficult to design objects manually or with optimization algorithms in the large combinatorial space of possible designs. 
+We propose to speed up simulation and inverse design of manufacturable objects using a multiscale method.
+We first construct a library of microstructures with their bulk material properties.
+Discrete and continuous search methods are used to push the structures to the limits of achievable material properties.
+With the library, functional objects can be designed using the microstructures.
+This allows us to simulate and optimize objects at a much coarser scale.
+Additionally, the microstructure library provides a way to discover families of microstructures with extremal physical properties.
 \end{flushleft}
 \newpage
 \begin{center}
