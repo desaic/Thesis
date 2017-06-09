@@ -63,4 +63,21 @@ For example, microstructures made of alternating layers of soft and stiff isotro
 This implies that not only the {\it range} but also the complexity of physical behavior of these microstructures increases.
 To make use the microstructures in inverse design problems, one needs to solve two challenging problems:
 (i) computing the {\it gamut} -- i.e the set -- of the material properties achievable by all microstructures, (ii) efficiently optimizing the distribution of these material properties inside the layout of the object.
-
+\subsection{Microstructure Design}
+The material property gamut not only speeds up the inverse design process,
+but also allows us to discover families of microstructures with extremal physical properties.
+Microstructures can exhibit remarkable physical properties that extend beyond the properties of their constituent materials.
+Many microstructure types have been developed to demonstrate applications in mechanics~\cite{milton1995,Kadic2012,Meza2014,Zheng2014,Wang2016Therm,li2016mechanical},
+acoustics~\cite{fang2006ultrasonic,li2009experimental},
+and electromagnetics~\cite{schurig2006metamaterial,shalaev2007optical,magnus2008dc}.
+Microstructures are typically designed manually by domain experts.
+These designs are often programmable in the sense that they have a small number of parameters to generate a family of geometries.
+A sample set from a given microstructure family can be tested with simulations or experimental measurements.
+The mapping between parameters and physical properties helps in gaining insights into the underlying design principles.
+In practical applications, it also allows for the selection of a family member that has a desired tradeoff of physical properties~\cite{gibson1982mechanics}.
+Unfortunately, it is rare for manually designed microstructure families to reach extremal properties.
+This is because the space of possible microstructure designs is combinatorial and therefore impossible to explore exhaustively.
+On the other hand, computational methods, such as topology optimization~\cite{sigmund1994materials,sigmund1995tailoring,vogiatzis2017topology},
+use a computer simulation in their inner loop to find a microstructure with a desired tradeoff of physical properties.
+However, constructing parametric models from optimized structures requires further expertise and manual design effort~\cite{clausen2015topology}.
+In contrast to previous work, we propose the first computational method to automatically explore the space of microstructure designs and discover parametric families optimized for competing properties.
