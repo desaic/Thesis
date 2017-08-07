@@ -1,5 +1,49 @@
 \chapter{Introduction}
+Crafting the behavior of a deformable object is difficult---whether
+it is a biomechanically accurate character model or a new multimaterial
+3D printable design.
+Getting it right requires constant iteration,
+performed either manually or driven by an automated system.
+These design iterations often require many expensive physical prototypes
+that takes months to make and test.
+Physics-driven computational design can be used to reduce the time and cost of designing such systems.
 
+Instead of using physical prototypes, predictive physics-based simulation can be used to evaluate the performance of given designs.
+The gold standard technique for estimating the mechanical behavior
+of a deformable object under load is the finite element method
+(FEM).
+While accurate, FEM is notoriously slow, making it a major
+bottleneck in the iterative design process.
+This is because FEM is only accurate with a sufficiently high-resolution discretization.
+In order to apply FEM to design problems, we require simulation techniques that are fast and accurate even in the face of constant tinkering.
+In this thesis, we propose to achieve efficiency using low-resolution meshes while ensuring accuracy by computing new material models for the coarse finite elements.
+\section{Background}
+Computational design concerns itself with optimizing the shape and material assignment in an object in order to control its large scale behavior.
+Advances in computational design, physical modeling and rapid manufacturing 
+have enabled the automated design and fabrication of objects with customized physical properties.
+The range of media and applications addressed in previous literature is very diverse and we focus our discussion on systems targeting 3D printing.
+Applications of computational design extend
+from stable standing and spinning [Pr´evost et al. 2013; B¨acher et al.
+2014] to mechanism design [Coros et al. 2013; Thomaszewski et al.
+2014] and deformable character manufacture [Bickel et al. 2012;
+Skouras et al. 2013],
+Starting with optical properties, Hasˇan et al. [2010] and
+Dong et al. [2010] provided methods for printing objects with desired subsurface scattering properties. Stability of 3D printed objects has been later considered by Stava et al. [2012], structural
+strength by Zhou et al. [2013], rest shape by Chen et al. [2014].
+Closer to our present work, frameworks for the design of objects
+174 with desired mechanical behaviours have been proposed by Bickel
+175 et al. [2010] and Skouras et al. [2013]. Like these works, our sys176
+tem also allows to match given input deformations. However, while
+177 these previous systems assume a small set of available base materi178
+als and use these base materials in relatively coarse discretizations,
+179 our system combines the base materials into microstructures to ex180
+pand the design possibilities. Also relevant is the tool presented by
+181 Xu et al. [2015] that allows to interactively design heterogeneous
+182 materials for elastic objects subject to prescribed displacement and
+183 forces. However, their method does not target fabricable objects
+184 specifically and might produce materials that are not available in
+185 the real world. In an effort to unify individual contributions when
+186 dealing with inverse modeling problems, Chen et al. [2013]
 
 \section{Motivations}
 
