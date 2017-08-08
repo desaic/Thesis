@@ -31,23 +31,22 @@ For 3D-printed objects, many researchers have investigated how to improve struct
 More complex mechanisms have been designed to achieve specified motions using kinematics~\citep{Zhu:2012,Coros:2013:CDM,Bacher:2015,Megaro:2017}.
 
 The most relevant line of work is the design and fabrication of deformable objects with prescribed behavior under load.
-The behavior is usually controlled by altering the material composition and shape of the designs.
-\citet{Bickel:2010:DAF} used a measurement based material model to design layered soft structures with prescribed non-linear static deformation behavior.
-\citet{Chen:2014:ANM} optimized the rest shape of a deformable object such that it deforms the right way under gravity.
-Later, researchers use material composition and geometry to control characters 
-articulated with kinematics~\citep{Bickel:2012,Skouras13Computational}.
-
-Like these works, our system also allows to match given input deformations.
- However, while these previous systems assume a small set of available base 
- materials and use these base materials in relatively coarse discretizations, 
- our system combines the base materials into microstructures to expand the 
- design possibilities. Also relevant is the tool presented by Xu et al. [2015] 
- that allows to interactively design heterogeneous
-materials for elastic objects subject to prescribed displacement and
-forces. However, their method does not target fabricable objects
-specifically and might produce materials that are not available in
-the real world. In an effort to unify individual contributions when
-dealing with inverse modeling problems, Chen et al. [2013]
+The behavior is usually controlled by altering the material
+composition and shape of the designs.
+\citet{Bickel:2010:DAF} used a measurement based material model to design 
+layered soft structures with prescribed non-linear static deformation behavior.
+\citet{Chen:2014:ANM} optimized the rest shape of a deformable object such that 
+it deforms the right way under gravity.
+Later, researchers use material composition and geometry to control 
+articulated characters~\citep{Bickel:2012,Skouras13Computational}.
+Like these works, one of our goals is to efficiently design compliant objects 
+with desired deformation behavior. These work assume a small set of available 
+base materials such a stiff and a soft material.
+To expand the range of material building blocks, the base materials are 
+organized into larger structures known as microstructures.
+These microstructures are then used in design optimization loop to 
+compose objects with specified compliant 
+properties~\citep{Schumacher:2015,Panetta:2015,Zhu:2017:TTO}.
 
 \section{Motivations}
 
