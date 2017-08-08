@@ -8,7 +8,7 @@ These design iterations often require many expensive physical prototypes
 that takes months to make and test.
 Physics-driven computational design can be used to reduce the time and cost of designing such systems.
 
-Instead of using physical prototypes, predictive physics-based simulation can be used to evaluate the performance of given designs.
+Instead of using physical prototypes, predictive physics-based simulation evaluates the performance of virtual designs to accelerate the design process.
 The gold standard technique for estimating the mechanical behavior
 of a deformable object under load is the finite element method
 (FEM).
@@ -17,7 +17,7 @@ bottleneck in the iterative design process.
 This is because FEM is only accurate with a sufficiently high-resolution discretization.
 In order to apply FEM to design problems, we require simulation techniques that are fast and accurate even in the face of constant tinkering.
 In this thesis, we propose to achieve efficiency using low-resolution meshes while ensuring accuracy by computing new material models for the coarse finite elements.
-\section{Background}
+\section{Computational Design}
 Computational design concerns itself with optimizing the shape and material assignment in an object in order to control its large scale behavior.
 Advances in computational design, physical modeling and rapid manufacturing 
 have enabled the automated design and fabrication of objects with customized physical properties.
@@ -48,9 +48,94 @@ These microstructures are then used in design optimization loop to
 compose objects with specified compliant 
 properties~\citep{Schumacher:2015,Panetta:2015,Zhu:2017:TTO}.
 
-\section{Motivations}
+\section{Efficient FEM Simulation}
+As mentioned, design and fabrication of deformable objects is common in
+engineering and graphics~\citep{bendsoe2004topology,Kou2012,McAdams2011}.
+Efficient FEM simulation plays an important role in automating the design process.
+We can broadly partition the space of approaches for
+optimizing FEM simulation into two categories. We term the first
+category numerical approaches. These methods use fast matrix inversion
+techniques and other insights about the algebra of the finite
+element method to increase its performance. Simulators based on
+the multigrid method~\citep{Peraire1992,Zhu2010,McAdams2011}
+and Krylov subspace techniques~\citep{Patterson2012}
+have yielded impressive performance increases. Other hierarchical
+numerical approaches, as well as highly parallel techniques, have
+also been applied to improve the time required to perform complex
+simulations~\citep{Farhat1991,Mandel1993}. Finally, \citet{Bouaziz:2014} propose specially designed energy functions and an
+alternating time-integrator for efficient simulation of dynamics.
 
+The second set of methods are reduction approaches. These algorithms
+attempt to intelligently decouple or remove degrees of
+freedom (DOFs) from the simulated system. This leads to smaller
+systems resulting in a massive increase in performance, with some
+decrease in accuracy. Our algorithm falls into this category. Note,
+however, that numerical and reduction approaches need not be mutually exclusive.
+For example, since our algorithm uses the same type of spatial discretization as the underlying FEM,
+faster numerical algorithms such as multigrid will improve the efficiency of our algorithm.
+Algorithms based on reduction approaches mitigate the inevitable increase in error using
+one or more of three approaches: Adaptive remeshing, higher-order
+shape functions, or by adapting the constitutive model.
 
+Adaptive remeshing alters the resolution of the simulation discretization
+in response to various metrics (stress, strain etc.). Such methods
+seek to maintain an optimal number of elements and thus achieve
+reasonable performance. Adaptive remeshing has proven useful
+for simulating thin sheets such as cloth~\citep{Narain2012}, paper~\citep{Narain2013}, as well as elastoplastic solids~\citep{Wicke:2010} and solid-fluid mixtures~\citep{Clausen2013}.
+More general basis refinement approaches have also been suggested~\citep{Debunne2001,Grinspun2002}.
+While these methods do improve
+the performance of simulation algorithms, they have some drawbacks.
+First, they often require complicated geometric operations
+which can be time consuming to implement.
+Second, they introduce elements of varying size into the FEM discretization.
+This can lead to poor numerical conditioning if not done carefully.
+Finally, in order to maintain accuracy, it may still be necessary to introduce many
+fine elements, leading to slow performance.
+Alternatively, one can turn to P-Adaptivity for help.
+This refers to adaptively introducing higher-order basis functions 
+in order to increase accuracy during simulation~\citep{Szabo2004}.
+Unfortunately, these methods suffer from requiring complicated mesh generation schemes and are not
+well-suited for iterative design problems.
+An alternative approach to remeshing is to use higher order shape
+functions in order to more accurately represent the object's motion
+using a small set of DOFs. Modal simulation techniques fall into
+this category~\citep{Shabana1991,Krysl2001,Barbic:subspace:2005}.
+Substructuring~\citep{Barbic2011} decomposes an input
+geometry into a collection of basis parts, performing modal reduction on each one.
+These basis parts can be reused to construct new global structures.
+Other approaches involve computing physically meaningful shape functions as an offline preprocessing step.
+For instance, \cite{Nesme2009} compute shape functions based on
+the static configuration of a high resolution element mesh induced
+via a small deformation of each vertex.
+\cite{Faure2011} use skinning transformations as shape functions to simulate complex
+objects using a small number of frames.
+\cite{Gilles2011} show how to compute material aware shape functions for these framebased
+models, taking into account the linearized object compliance.
+Both \cite{Nesme2009} and \cite{Faure2011} accurately capture
+material behavior in the linear regime, 
+but, because their shape functions cannot change with the deformed state of the material,
+they do not accurately capture the full, non-linear behavior of an
+elastic object.
+Our non-linear metamaterials rectify this problem.
+Computing material aware shape functions improves both the speed
+and accuracy of the simulation. However, these methods require a
+precomputation step that assumes a fixed material distribution and geometry.
+If the material distribution changes, these shape functions
+must be recomputed, and this becomes a bottleneck in applications
+that require constantly changing material parameters.
+The final coarsening technique involves reducing the degrees of freedom
+of a mesh while simultaneously augmenting the constitutive
+model at each element, rather than the shape functions.
+Numerical coarsening is an extension of analytical homogenization which seeks
+to compute optimal,
+averaged material for heterogeneous structures~\citep{Guedes1990,farmer2002}.
+Numerical coarsening, for instance, has been applied to linearly
+(in terms of material displacement)
+elastic tetrahedral finite elements~\citep{Kharevych2009}.
+These methods require an expensive precomputation step (a series
+of static solves) that must be repeated when the material content, or
+the geometry of an object changes.
+This holds these methods back from being suitable for iterative design problems.
 \section{Description}\label{ch1:desc}
 
 
