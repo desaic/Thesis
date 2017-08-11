@@ -97,6 +97,9 @@ For any point $\mathbf{X}$ inside the element with known natural coordinates $\c
 \mathbf{u}(\mathbf{X}) = \sum_iN_i(\chi)\mathbf{u}_i.
 \label{eq:disp}
 \end{equation}
+To make a clear distinction between $\mathbf{X}$ and $\mathbf{x}$,
+$\mathbf{X}$ is defined as a point in the \textbf{reference space} that represents the undeformed shape of an object. The lower case $\mathbf{x}$ lives in the \textbf{deformed space} that represents the deformed configuration of an object.
+
 From now on, to simplify notation, $N_i(\xi)$ will be written as $N_i$.
 The deformation of an object is quantified using strain measures,
 which is defined in terms of the difference in displacement between nearby points.
@@ -110,16 +113,17 @@ More generally, the difference of displacement between nearby points can be writ
 \dfrac{\partial u_3}{\partial X_1} & \dfrac{\partial u_3}{\partial X_2}&\dfrac{\partial u_3}{\partial X_3}\\
 \end{pmatrix}+\mathbf{I}.
 \]
-The matrix $\mathbf{F}$ is the deformation gradient and $\mathbf{I}$ is the identity matrix.
+The matrix $\mathbf{F}$ is the \textbf{deformation gradient} and $\mathbf{I}$ is the identity matrix.
 While we do not have a closed-form expression of $\mathbf{u}$ written in terms of $\mathbf{X}$,
 we have Equation~\ref{eq:rest} and~\ref{eq:disp} that relate $\mathbf{u}$ and $\mathbf{X}$ through $\chi$.
 The term $\frac{\partial \mathbf{u}}{\partial \mathbf{X}}$ can be re-written using the chain rule,
-\[
+\begin{equation}
 \frac{\partial \mathbf{u}}{\partial \mathbf{X}}=
 \frac{\partial \mathbf{u}}{\partial \chi}
 \frac{\partial \chi}{\partial \mathbf{X}}=
 (\sum_i\mathbf{u}_i\frac{dN_i}{d\chi})(\frac{\partial \mathbf{X}}{\partial \chi})^{-1}
-\]
+\label{eq:dudX}
+\end{equation}
 The matrix $\frac{\partial \mathbf{X}}{\partial \chi}$ is called the Jacobian matrix of $\mathbf{X}$ with respect to $\chi$ and is written as
 \[
 \mathbf{J}=\frac{\partial \mathbf{X}}{\partial \chi}
@@ -128,4 +132,197 @@ The matrix $\frac{\partial \mathbf{X}}{\partial \chi}$ is called the Jacobian ma
 By convention, $\frac{dN_i}{d\chi}$ is a $1\times 3$ row vector.
 The term $\mathbf{X}_i\frac{dN_i}{d\chi}$ is an outer product that produces a $3\times 3$ matrix.
 
-\section{}
+Given the full expression for the deformation gradient $\mathbf{F}$, we can now define elastic energy densities. 
+The elastic energy density function $\Psi(\mathbf{F})$ computes a non-negative energy value given a deformation gradient.
+This function fully defines the elastic behavior of a piece of material especially the elastic forces.
+Integrating $\Psi$ over the domain $\Omega$ of an element in the reference space yields the total elastic energy contained by that element.
+\[
+E(\mathbf{x}_1,...,\mathbf{x}_8)=\int_{\Omega}\Psi dV.
+\]
+Differentiating $E$ with respect to nodal positions $\mathbf{x}_i$ gives us the opposite direction of nodal elastic forces
+\[
+-\mathbf{f}_i=\frac{dE}{d\mathbf{x}_i}=\int_{\Omega}
+\frac{d\Psi(\mathbf{F})}{d\mathbf{F}}
+\frac{d\mathbf{F}}{d\mathbf{x}_i}dV
+=\int_{\Omega}
+\mathbf{P}(\mathbf{F})
+\frac{d\mathbf{F}}{d\mathbf{x}_i}dV,
+\]
+Where
+\[
+\mathbf{P}(\mathbf{F})=\dfrac{d\Psi(\mathbf{F})}{d\mathbf{F}}.
+\]
+$\mathbf{P}(\mathbf{F})$ is called the fist Piola-Kirchhoff stress.
+It transforms a normal vector in the reference space to a force acting in the deformed configuration divided by area in the reference space.
+Integrating in the reference space is not easy since the element is not necessarily a rectangular shape. By change of variables, we can integrate in natural coordinates
+in the set $\Omega_{\chi}=[-1,1]^3$.
+\begin{align*}
+\int_{\Omega}
+\mathbf{P}(\mathbf{F})
+\frac{d\mathbf{F}}{d\mathbf{x}_i}dV
+&=\int_{\Omega_{\chi}}
+\mathbf{P}(\mathbf{F})
+\frac{d\mathbf{F}}{d\mathbf{x}_i}|\det{\mathbf{J}}|dV\\
+&=\int_{\Omega_{\chi}}
+\mathbf{P}(\mathbf{F})\mathbf{J}^{-T}
+\frac{dN_i}{d\chi}\det{\mathbf{J}}\,dV.
+\end{align*}
+Here we dropped the absolute value sign because the undeformed element is required to have positive determinant everywhere.
+To numerically evaluate the integral, we use Gaussian quadrature rules.
+For example, the two-point Gaussian quadrature rule places quadrature points at
+$\pm \sqrt{\frac{1}{3}}$ in natural coordinates, which results in $8$ quadrature points with equal weights in 3D.
+For each quadrature point $j$, we evaluate the integrand and multiply by the quadrature weight $w_j$. The integral is written as a summation
+\[
+-\mathbf{f}_i=\sum_j w_j\mathbf{P(\mathbf{F}_j)}\mathbf{J}^{-T}
+\frac{dN_i}{d\chi}\det{\mathbf{J}}.
+\]
+
+$\Psi$ determines the constitutive model of elasticity, i.e. the relationship between strain measures and stress.
+This thesis primarily uses two kinds of constitutive models: linear elasticity and Neo-Hookean model. For the linear elasticity, we first define the infinitesimal strain tensor
+\[
+\epsilon = \frac{1}{2}(\mathbf{F}+\mathbf{F}^T)-I.
+\]
+This strain tensor is a symmetric matrix. The stress tensor derived from this strain measure is also a symmetric matrix. This property is a necessary condition for conservation of linear and angular momentum. 
+In other words, stress and internal elastic forces should not cause any change in total linear or angular momentum.
+The strain energy density function for isotropic linear elasticity is
+\[
+\Psi(\mathbf{F}) = \mu\epsilon:\epsilon + \frac{\lambda}{2}tr^2(\epsilon).
+\]
+$\mu$ is a material parameter called shear modulus and $\lambda$ is Lam\'{e}'s first parameter.
+$tr(\epsilon)$ is the trace of the strain tensor.
+Differentiate $\Psi$ to obtain
+\[
+\mathbf{P}(\mathbf{F})=\mu(\mathbf{F}+\mathbf{F}^T-2\mathbf{I})+\lambda tr(\mathbf{F}-\mathbf{I})\mathbf{I}.
+\]
+For anisotropic linear elasticity, the constitutive equation is written as
+\begin{equation}
+\sigma=\mathbf{C}\epsilon,
+\label{eq:constitutive}
+\end{equation}
+where $\sigma$ is the $3\times 3$ Cauchy stress tensor, $\mathbf{C}$ is a
+fourth-order $3\times 3\times3\times3$ tensor called the tensor of elasticity.
+The term $\mathbf{C}\epsilon$ is a summation of component-wise products.
+In Einstein notation,
+\[
+\sigma_{ij}=C_{ijkl}\epsilon_{kl}.
+\]
+Cauchy stress relates to the first Piola-Kirchhoff stress by
+\[
+\sigma = \frac{1}{\det \mathbf{F}}\mathbf{P}\mathbf{F}^T
+\]
+The corresponding strain energy density function is
+\[
+\Psi(\epsilon)=\frac{1}{2}\mathbf{C}\epsilon^2.
+\]
+To simplify notations, the stress and strain tensors are written as vectors instead of matrices.
+Using Voigt notation,
+a stress tensor of the form
+\[
+\sigma=\begin{pmatrix}
+\sigma_{xx} & \sigma_{xy} & \sigma_{xz}\\
+\sigma_{yx} & \sigma_{yy} & \sigma_{yz}\\
+\sigma_{zx} & \sigma_{zy} & \sigma_{zz}
+\end{pmatrix}
+\]
+is rewritten as
+\[\sigma=(\sigma_{xx} , \sigma_{yy} , \sigma_{zz},
+\sigma_{xy} , \sigma_{yz} , \sigma_{zx}).
+\]
+This allows the tensor of elasticity to be written as a $6\times 6$ matrix.
+For orthotropic linear materials, $\mathbf{C}$ takes the following form
+\[
+\mathbf{C}=
+\begin{pmatrix}
+C_{1111} & C_{1122} & C_{1133} & 0 & 0 & 0 \\
+ & C_{2222} & C_{2233} & 0 & 0 & 0 \\
+& & C_{3333} & 0 & 0 & 0 \\
+& & & C_{1212} & 0 & 0 \\
+ & Symm &  & & C_{2323} & 0 \\
+ & & & & & C_{1313}
+\end{pmatrix}.
+\]
+For a more restricted subset of materials with cubic symmetry, 
+$\mathbf{C}$ is specified by three material parameters: Young's modulus $E$,
+Poisson's ratio $\nu$, and shear modulus $G$ or $\mu$.
+\[\mathbf{C}=
+\begin{pmatrix}
+(1-\nu)\hat{E} & \nu\hat{E} & \nu\hat{E} & 0 & 0 & 0 \\
+&(1-\nu)\hat{E} & \nu\hat{E} & 0 & 0 & 0 \\
+& &(1-\nu)\hat{E} & 0 & 0 & 0 \\
+& & & \mu & 0 & 0 \\
+& Symm &  & & \mu & 0 \\
+& & & & & \mu
+\end{pmatrix},\hat{E} = \frac{E}{(1-2\nu)(1+\nu)}.
+\]
+
+The advantage of the linear elasticity is that it assumes a linear relationship between stress and strain. This leads to a linear relationship between nodal displacements and nodal forces
+as follows
+\[
+\mathbf{K}\mathbf{U}=-\mathbf{f}.
+\]
+Here $\mathbf{K}$ is called the stiffness matrix given by
+\[
+\mathbf{K}=\frac{\partial^2 \Psi}{\partial\mathbf{U}^2}.
+\]
+$\mathbf{U}$ is the concatenated nodal displacement vector
+$[\mathbf{u}_1,\mathbf{u}_2,...,\mathbf{u}_8]$ and $\mathbf{f}$ is the concatenated internal nodal force vector.
+Computing the deformation under external boundary conditions and forces requires only a single linear solve
+\[
+\mathbf{U}=\mathbf{K}^{-1}\mathbf{f}_{ext},
+\]
+given sufficient boundary conditions.
+The stiffness matrix is sparse and positive semi-definite (positive definite with enough constraints).
+A wide class of linear solvers have been developed for such linear systems.
+To see the linear relationship between displacements and force,
+we just need to derive the linear relationship between $\epsilon$ and $\mathbf{u}_i$
+from Equation~\ref{eq:dudX} and combine it with Equation~\ref{eq:constitutive}.
+For a point $\mathbf{X}\in\mathbb{R}^3$, we will use superscripts to denote its individual coordinates.
+Define the strain-displacement matrix
+\[
+\mathbf{B}(\mathbf{X})=
+\begin{pmatrix}
+\dfrac{dN_1}{d\mathbf{X}^1} & 0 & 0 & ... \\
+0 & \dfrac{dN_1}{d\mathbf{X}^2} & 0 & ... \\
+0 & 0 & \dfrac{dN_1}{d\mathbf{X}^3} & ... \\
+\dfrac{dN_1}{d\mathbf{X}^2} & \dfrac{dN_1}{d\mathbf{X}^1} & 0 & ... \\
+0 & \dfrac{dN_1}{d\mathbf{X}^3} & \dfrac{dN_1}{d\mathbf{X}^2} & ... \\
+\dfrac{dN_1}{d\mathbf{X}^3} & 0 & \dfrac{dN_1}{d\mathbf{X}^1} & ...
+\end{pmatrix}.
+\]
+For an eight-node hexahedron, this matrix has $3\times 8=24$ columns.
+This matrix computes the strain tensor at a point $\mathbf{X}$ given nodal displacements
+\[
+\epsilon(\mathbf{X})=\mathbf{B}(\mathbf{X})\mathbf{U}.
+\]
+This linear relationship concludes our claim that linear elasticity model defines a linear relationship between nodal displacements and nodal forces.
+Further, using quadrature rules, we can numerically evaluate $\mathbf{K}$ as
+\[
+\mathbf{K}=\sum_j w_j \mathbf{B}(\mathbf{X}_j)\mathbf{C}\mathbf{B}(\mathbf{X}_j)\det \mathbf{J}.
+\]
+
+The downside of linear elasticity is that it does not handle rotation properly.
+An elastic object undergoing a rigid rotation should contain zero elastic energy.
+If we let $\mathbf{F}=\mathbf{R}$ for some rotation matrix $\mathbf{R}$,
+the resulting energy measure is generally non-zero.
+This constitutive model is useful only when the deformation is small with respect to the overall size of the object.
+When an object undergoes buckling with many potential static equilibrium configurations,
+linear elasticity always predict a single solution with little buckling since its elastic energy landscape is convex with a unique local minimum.
+Additionally, linear elasticity does not preserve volume according to the Poisson's ratio parameter. In fact, elements can easily invert into non-physical states.
+
+To address the rotation problem, non-linear elasticity models such as the corotated linear elasticity model and the Saint-Venant Kirchhoff model are developed to be rotation invariant.
+However, these models still allow an element to invert and do not preserve volume.
+We use the Neo-Hookean material model for non-linear elasticity. It resists inverting, and approximately preserves volume according to Poisson's ratio.
+The strain energy density of Neo-Hookean model is
+\[
+\Psi(\mathbf{F})=\frac{\mu}{2}(I_1-3) - \mu \log \det \mathbf{F} 
++ \frac{\lambda}{2}(\log \det \mathbf{F})^2,
+\]
+where the first isotropic invariant is 
+\[
+I_1=tr(\mathbf{F}^T\mathbf{F}).
+\]
+The first Piola-Kirchhoff stress is
+\[
+\mathbf{P}(\mathbf{F})=\mu(\mathbf{F}-\mathbf{F}^{-T})+\lambda(\log\det\mathbf{F})\mathbf{F}^{-T}.
+\]
+\section{Data-Driven Coarsening}
