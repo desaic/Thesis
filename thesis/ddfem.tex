@@ -98,28 +98,27 @@ With the material palette in hand, we can now define our algorithm, which is div
 \paragraph{Hierarchical coarsening}
 We stress that both stages of the DDFEM algorithm can be applied hierarchically. Given the first level of metamaterials, $\set{P}^1$, we can construct a metamaterial library, $\set{P}^2$, for the second level by using $\set{P}^1$ as an input material palette. At runtime, the coarsening algorithm looks up materials from $\set{P}^2$ to replace each 2$\times$2$\times$2 coarse block with a single element.
 
-Having introduced the broad strokes of the DDFEM scheme, we move on to a detailed explanation of each algorithmic component. First we discuss database construction, followed by the runtime component. We end by demonstrating the speed and accuracy of DDFEM.
+Having introduced the broad strokes of the DDFEM scheme, we move on to a detailed explanation of each algorithmic component. First we discuss database construction in \autoref{sec:database}, followed by the runtime component in \autoref{sec:runtime}. We end by demonstrating the speed and accuracy of DDFEM in \autoref{sec:result}.
+
 \section{Metamaterial Database Construction}
 \label{sec:database}
-We construct our metamaterial database using a potential energy fitting approach. This is valid due to the hyperelastic materials that make up our material palettes. Material fitting considers 2$\times$2$\times$2 blocks of high-resolution hexahedral elements (denoted $^0\set{E}$). For each element $^0E_k\in \, ^0\set{E}$, its material is referred to as $^0\set{M}_k\in \, ^0\set{P}$. (Note that $\set{E}$ refers to a set of elements and $E$ refers to a single element.) Given $^0\set{E}$, we can sample its deformation space, and using $^0\set{M}_k$, compute the potential energy $^0V$ for each sample.  Now we must find a metamaterial that, when applied to a single coarse element $^1\mathit{E}$ best approximates $^0V$.  This is accomplished by fitting a metamaterial potential energy function , $^1V$, to the set of deformation/energy samples. The fitted metamaterial is stored in the metamaterial database and indexed by the material indices of $^0\set{M}$.
+We construct our metamaterial database using a potential energy fitting approach. This is valid due to the hyperelastic materials that make up our material palettes. Material fitting considers 2$\times$2$\times$2 blocks of high-resolution hexahedral elements (denoted $\set{E}^0$). For each element $E_k^0\in \, \set{E}^0$, its material is referred to as $\set{M}_k^0\in \, \set{P}^0$. (Note that $\set{E}$ refers to a set of elements and $E$ refers to a single element.) Given $\set{E}^0$, we can sample its deformation space, and using $\set{M}_k^0$, compute the potential energy $V^0$ for each sample.  Now we must find a metamaterial that, when applied to a single coarse element $\mathit{E}^1$ best approximates $V^0$.  This is accomplished by fitting a metamaterial potential energy function , $V^1$, to the set of deformation/energy samples. The fitted metamaterial is stored in the metamaterial database and indexed by the material indices of $\set{M}^0$.
 
 \subsection{Metamaterial Model}
 Our fitting approach depends on choosing a good metamaterial model.
-In order to ensure that our model meets the criteria for a material energy function~\cite{Marsden2012}, we choose our metamaterial model for $^1\mathit{E}$ as a combination of material models of $^0\set{M}_k$:
+In order to ensure that our model meets the criteria for a material energy function~\cite{Marsden2012}, we choose our metamaterial model for $\mathit{E}^1$ as a combination of material models of $\set{M}_k^0$:
 \begin{align}
-^1V(^1\vr{u}, \, ^1\vr{p}) = \sum_{k=1}^8 w_k \, ^0V_k(^0\vr{u}_k, \, ^1\vr{p}_k, \, ^1\vr{X}_k),
+V^1(\vr{u}^1, \, \vr{p}^1) = \sum_{k=1}^8 w_k \, V_k^0(\vr{u}_k^0, \, \vr{p}_k^1, \, \vr{X}_k^1),
 \label{eq:materialModel}
 \end{align}
-where $^0V_k$ is the strain energy density of $^0\set{M}_k$ at quadrature point position $^1\vr{X}_k$ (\autoref{fig:coarseFine}). Here $^1\vr{u}$ is the vector of nodal displacements associated with $^1\mathit{E}$ while $^0\vr{u}_k$ are displacements for the $k^{th}$ element at level $0$ reconstructed using trilinear interpolation from $^1\vr{u}$. The vector $^1\vr{p}$ stores the material parameters for the coarse metamaterial and consists of the stacked material parameter vectors for each material in $^0\set{M}_k$, themselves denoted by $^1\vr{p}_k$.  $w_k$ is the standard Gaussian quadrature weight.
+where $V_k^0$ is the strain energy density of $\set{M}_k^0$ at quadrature point position $\vr{X}_k^1$ (\autoref{fig:coarseFine}). Here $\vr{u}^1$ is the vector of nodal displacements associated with $^1\mathit{E}$ while $^0\vr{u}_k$ are displacements for the $k^{th}$ element at level $0$ reconstructed using trilinear interpolation from $\vr{u}^1$. The vector $\vr{p}^1$ stores the material parameters for the coarse metamaterial and consists of the stacked material parameter vectors for each material in $\set{M}_k^0$, themselves denoted by $\vr{p}_k^1$.  $w_k$ is the standard Gaussian quadrature weight.
 We note that our model incurs slight computational overhead at runtime because we must evaluate potential energy functions at 8 quadrature points.
-%However, because each constituent material model can be evaluated independently, much of this deficit can be made up by parallelizing the computation.
-%Furthermore
 However, the speed improvement gained by coarsening makes the remaining, per-quadrature point expense negligible.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\textwidth]{images/coarseFine.pdf}
-	\caption{The relationship between high-resolution and coarsened elements. At each quadrature point $^1\vr{X}_k$, the coarse element copies the corresponding energy density function $^0V_k$ from the high-resolution element.}
+	\caption{The relationship between high-resolution and coarsened elements. At each quadrature point $\vr{X}_k^1$, the coarse element copies the corresponding energy density function $V_k^0$ from the high-resolution element.}
 	\label{fig:coarseFine}
 \end{figure}
 
@@ -127,7 +126,7 @@ We observe that even if the individual base material models are isotropic, the m
 The complete model is then given by
 \begin{align}
 \begin{split}
-^1V(^1\vr{u}, \, ^1\vr{p}, \, C) &= \sum_{k=1}^8 \bigg( w_k \, ^0V_k(^0\vr{u}, \, ^1\vr{p}_k, \, ^1\vr{X}_k)\\
+V^1(\vr{u}^1, \, \vr{p}^1, \, C) &= \sum_{k=1}^8 \bigg( w_k \, V_k^0(\vr{u}^0, \,\vr{p}_k^1, \, \vr{X}_k^1)\\
 & + C_k\left( \sqrt{\vr{v}^T\vr{F}_k^T\vr{F}_k\vr{v}} - 1\right)^2\bigg),\\
 \label{eq:materialModel2}
 \end{split}
@@ -136,30 +135,30 @@ where $\vr{v}$ is a unit-length direction of anisotropy and $C_k$ is the scaling
 
 \subsection{Force Space Sampling}
 \label{sec:force_space_sampling}
-As mentioned previously, we take a sampling-based approach to metamaterial fitting. In order to fit our model (\autoref{eq:materialModel2}) to $^0V$ we first draw a number of samples from the deformation space of $^0\set{E}$ and compute $^0V$ for each sample.
+As mentioned previously, we take a sampling-based approach to metamaterial fitting. In order to fit our model (\autoref{eq:materialModel2}) to $V^0$ we first draw a number of samples from the deformation space of $\set{E}^0$ and compute $V^0$ for each sample.
 If a user has prior knowledge of the set of meshes and simulations that they will require, then the best way to draw the samples is to run a number of anticipated simulations with various material combinations.
 In this paper, we provide a more general method to draw samples for a metamaterial.
-Initially, we attempted sampling by applying a random deformation to the corners of $^1\mathit{E}$; however, this led to many infeasible samples for very stiff materials.
+Initially, we attempted sampling by applying a random deformation to the corners of $\mathit{E}^1$; however, this led to many infeasible samples for very stiff materials.
 In order to alleviate this problem we perform sampling in the force space.
 
-For each element $^0\mathit{E}\in \, ^0\set{E}$ we apply a set of randomly generated forces.
-We solve an elastostatic problem to compute the deformation of $^0\set{E}$, using constraints to remove rigid motion. Recall that this is fast because $^0\set{E}$ consists of just 8 elements.
-Each sample is then a tuple $\left\{^0\vr{u}, \, ^0V\right\}$ (\autoref{fig:sampling}) where $^0\vr{u}$ are the nodal displacements of $^0\set{E}$, and $^0V$ is the strain energy density value of this deformed configuration.
+For each element $\mathit{E}^0\in \, \set{E}^0$ we apply a set of randomly generated forces.
+We solve an elastostatic problem to compute the deformation of $\set{E}^0$, using constraints to remove rigid motion. Recall that this is fast because $^0\set{E}$ consists of just 8 elements.
+Each sample is then a tuple $\left\{\vr{u}^0, \, V^0\right\}$ (\autoref{fig:sampling}) where $^0\vr{u}$ are the nodal displacements of $^0\set{E}$, and $^0V$ is the strain energy density value of this deformed configuration.
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\columnwidth]{images/sampling.pdf}
+	\includegraphics[width=0.6\columnwidth]{images/sampling.pdf}
 	\caption{ We sample the energy function of a 2$\times$2$\times$2 block of hexahedra by applying random forces and deforming the block using FEM. Each set of forces results in a deformation-energy tuple which is used during fitting.}
 	\label{fig:sampling}
 \end{figure}
 
 \subsection{Fitting}
 \label{sec:fitting}
-Given a set of deformation samples, $\left\{ ^0\vr{u}, \, ^0V\right\}$, we perform a least squares fit to determine the parameters, $^1\vr{p}$, for a given metamaterial (\autoref{fig:fitting}):
+Given a set of deformation samples, $\left\{ \vr{u}^0, \,V^0\right\}$, we perform a least squares fit to determine the parameters, $\vr{p}^*$, for a given metamaterial (\autoref{fig:fitting}):
 \begin{align}
-^{1}\vr{p}^*= \underset{^1\vr{p}}{\operatorname{argmin}} \, \sum_{s=1}^{n_s}\left(^0V_s- \, ^1V\left(\vr{r}\left(^0\vr{u}_s\right), \, ^1\vr{p}\right)\right)^2,
+\vr{p}^*= \underset{\vr{p}^1}{\operatorname{argmin}} \, \sum_{s=1}^{n_s}\left(V_s^0- \, V^1\left(\vr{r}\left(\vr{u}_s^0\right), \, \vr{p}^1\right)\right)^2,
 \label{eq:fitting}
 \end{align}
-where $\vr{r}$ constructs $^1\vr{u}$ from $^0\vr{u}$, $n_s$ is the total number of samples, and $s$ indexes all samples. In our experiments we use the simplest form of $\vr{r}$ choosing it to extract the displacements of the corners of $^0\set{E}$.
+where $\vr{r}$ constructs $\vr{u}^1$ from $\vr{u}^0$, $n_s$ is the total number of samples, and $s$ indexes all samples. In our experiments we use the simplest form of $\vr{r}$ choosing it to extract the displacements of the corners of $\set{E}^0$.
 
 \paragraph{Fitting in the Presence of Anisotropy}
 If performed naively this optimization is nonlinear because we must simultaneously solve for $\vr{v}_k$, the preferred direction of anisotropy. This can severely slow the fitting procedure, especially in cases where it would otherwise be a linear least squares problem (i.e if all fine-scale materials are Neo-Hookean or a similarly simple material model).
@@ -172,7 +171,7 @@ The set of all 3D vectors $l\mathbf{v}$ forms an ellipse-like shape.
 We find the principal axes of the ellipse (via SVD) and use them as directions of anisotropy.
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\columnwidth]{images/fitting.pdf}
+	\includegraphics[width=0.6\columnwidth]{images/fitting.pdf}
 	\caption{ Metamaterial potential energy functions are fitted to the deformation-energy samples using a least-squares optimization.}
 	\label{fig:fitting}
 \end{figure}
@@ -182,16 +181,16 @@ The same metamaterial can be achieved by interleaving hard and soft materials at
 To overcome this, we add a regularization term to control the parameter ranges and prevent overfitting of the training samples.
 Our modified error function takes the following form:
 \begin{equation}
-\sum_{s=1}^{n_s}\left(^0V_s- \, ^1V\left(\vr{r}\left(^0\vr{u}_s\right), \, ^1\vr{p}\right)\right)^2 + 
-\lambda\sum_k (^1\vr{p}_k - \, ^0\vr{p}_k)^2,
+\sum_{s=1}^{n_s}\left(V_s^0- \, V^1\left(\vr{r}\left(\vr{u}_s^0\right), \, \vr{p}^1\right)\right)^2 + 
+\lambda\sum_k (\vr{p}_k^1 - \, \vr{p}_k^0)^2,
 \end{equation}
-which prevents material parameters from deviating too far from  $^0\set{M}_k$.
+which prevents material parameters from deviating too far from  $\set{M}_k^0$.
 We chose the regularization constant $\lambda=0.02$ for the results in this paper.
 In our experiments, since the base energy functions are linear with respect to the material parameters, the fitting problem can be solved by linear regression with regularization.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\columnwidth]{images/compression}
+	\includegraphics[width=0.6\columnwidth]{images/compression}
 	\caption{Database compression step adds metamaterials to a compressed database by a farthest point sampling strategy.}
 	\label{fig:compression}
 \end{figure}
@@ -204,15 +203,15 @@ In order to compress the number of materials stored in our metamaterial database
 Since our base materials differ in stiffness by orders of magnitude, we take the logarithm to measure the difference in ratio.
 Let $D$ be the $L^2$ norm of log-energies between the two materials given by
 \begin{equation}
-D(A,B)=\sqrt{\sum_s (\log(^0V^{A}_{s})-\log(^0V^{B}_{s}))^2},
+D(A,B)=\sqrt{\sum_s (\log(V^{A}_{s})-\log(V^{B}_{s}))^2},
 \end{equation} where $A$ and $B$ denote two distinct metamaterials in the database. 
 Given the distance metric, we can select $k$ representatives materials using farthest point sampling~\cite{eldar1997farthest}. We randomly choose an initial metamaterial and then repeatedly select the material combination furthest away from any previous representatives -- continuing until we obtain $k$ representatives (\autoref{fig:compression}). This compression algorithm chooses $k$ samples that equally cover the metamaterial energy space, helping to preserve good behavior in our coarse simulations. 
 \subsection{Hierarchical Coarsening}
 While one level of coarsening can yield significant speed-ups, DDFEM can also be applied hierarchically.
 As discussed in~\autoref{sec:compression}, the exponential growth of metamaterials palettes at each level makes it prohibitively expensive to perform fitting.
 We address this by changing our coarsening strategy. 
-Instead of choosing $^0\set{E}$ to be a 2$\times$2$\times$2 block we choose it to be a 2$\times$1$\times$1 block, which we coarsen. We construct an intermediate database of materials and compress. 
-We then choose $^0\set{E}$ to be a 1$\times$2$\times$1 block, coarsen and compress, and finally a 1$\times$1$\times$2 block, coarsen and compress. Intermediate compression greatly reduces the number of samples we need to generate in order to populate the material parameter database for the next coarsening level. 
+Instead of choosing $\set{E}^0$ to be a 2$\times$2$\times$2 block we choose it to be a 2$\times$1$\times$1 block, which we coarsen. We construct an intermediate database of materials and compress. 
+We then choose $\set{E}^0$ to be a 1$\times$2$\times$1 block, coarsen and compress, and finally a 1$\times$1$\times$2 block, coarsen and compress. Intermediate compression greatly reduces the number of samples we need to generate in order to populate the material parameter database for the next coarsening level. 
 It is important to note that our intermediate databases only store lookup tables which allow us to extract appropriate material IDs for the next coarsening stage. Material parameters need only be stored in the final database since it is these elements that are simulated.
 \begin{figure}
 	\centering
@@ -223,13 +222,12 @@ It is important to note that our intermediate databases only store lookup tables
 \section{Runtime Simulation}
 \label{sec:runtime}
 Once our metamaterial database, $\set{P}^1$, has been constructed we can use it to perform fast online coarsening. 
-Initially, the user loads geometry which is embedded in a hexahedral grid for simulation. Prior to simulation we iterate over all 2$\times$2$\times$2 blocks of hexahedral elements and perform mesh coarsening by replacing these 8 elements with a single coarse element. We perform a database lookup into $^1\set{P}$, using the material ID numbers of the 8 original elements, to quickly retrieve the optimal metamaterial for this coarse element. Database lookup is fast (even using our unoptimized, single-threaded implementation), and this is what makes DDFEM so appealing.
+Initially, the user loads geometry which is embedded in a hexahedral grid for simulation. Prior to simulation we iterate over all 2$\times$2$\times$2 blocks of hexahedral elements and perform mesh coarsening by replacing these 8 elements with a single coarse element. We perform a database lookup into $\set{P}^1$, using the material ID numbers of the 8 original elements, to quickly retrieve the optimal metamaterial for this coarse element. Database lookup is fast (even using our unoptimized, single-threaded implementation), and this is what makes DDFEM so appealing.
 We achieve significant simulation speed-up from coarsening, retain accuracy in the simulation, and reduce the cost of material coarsening at runtime to a negligible amount.
 	Our material model can be used in any simulation algorithm suitable for non-linear elasticity. In our experiments, we use Coin-IpOpt~\cite{ipopt} to implement static and dynamics simulations with tolerance (``tol'' option) set to $0.5$. We use Pardiso as our linear solver.
 	For timing purposes, we limit Pardiso to single thread mode.
 	The pseudo-code for static simulation is shown in \autoref{alg:sim}.
-\begin{algorithm}[!h]
-	
+\begin{algorithm}
 	\caption{Static Simulation}\label{alg:sim}
 	\begin{algorithmic}[1]
 		\REPEAT
@@ -383,17 +381,17 @@ We achieve significant simulation speed-up from coarsening, retain accuracy in t
 		\textbf{51x Faster} & \textbf{489x Faster}
 	\end{tabularx}\\
 	\subcaptionbox{}{
-		\includegraphics[width=0.45\textwidth]{images/fiber_l1_xray_begin}
+		\includegraphics[width=0.4\textwidth]{images/fiber_l1_xray_begin}
 	}%\vrule
 	\subcaptionbox{}{
-		\includegraphics[width=0.45\textwidth]{images/fiber_l2_xray_begin}
+		\includegraphics[width=0.4\textwidth]{images/fiber_l2_xray_begin}
 	}  \\
 
 	\subcaptionbox{}{
-		\includegraphics[width=0.45\textwidth]{images/fiber_l1_wire_end}
+		\includegraphics[width=0.4\textwidth]{images/fiber_l1_wire_end}
 	}%\vrule
 	\subcaptionbox{}{
-		\includegraphics[width=0.45\textwidth]{images/fiber_l2_wire_end}
+		\includegraphics[width=0.4\textwidth]{images/fiber_l2_wire_end}
 	}
 	\vspace{-2pt}
 	\caption{Simulating a bar with an embedded set of fibers using {\Naive}, {\DDFEM} and a {\HiRes}. Note that {\DDFEM} captures the characteristic twisting motion of the bar better than {\Naive}.  (a,b) shows the initial state of both bars while (c,d) shows the deformed state after pulling on the top of the bars.}
@@ -445,7 +443,8 @@ We also examine the behavior of DDFEM during bending (\autoref{fig:bending}). Ye
 }
 
 \begin{figure}
-	\includegraphics[width=0.9\textwidth]{figs/CGConverge.pdf}
+	\centering
+	\includegraphics[width=0.6\textwidth]{figs/CGConverge.pdf}
 	\caption{
 		\note{Comparison of CG iterations on high-resolution and coarsened meshes of the George-bone example.
 			The squared residual is measured as $\|\mathbf{K}\mathbf{x}-\mathbf{f}\|^2$.
@@ -491,20 +490,21 @@ In the second example, we add a supporting arch to a bridge. Prior to the additi
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.95\textwidth]{images/bridge}
+	\includegraphics[width=0.8\textwidth]{images/bridge}
 	\caption{Accelerating geometry change: We repair a structurally unsound bridge by adding a supporting arch (8x faster).}
 	\label{fig:bridge}
 \end{figure}
 \begin{figure}
 	\centering
-	\includegraphics[width=0.95\textwidth]{images/georgeUpdate.png}
+	\includegraphics[width=0.8\textwidth]{images/georgeUpdate.png}
 	\caption{Correcting George's posture using a rigid skeleton ({\HiRes} and {\DDFEM}).}
 	\label{fig:george}
 \end{figure}
 \paragraph{Dynamics} Though the examples shown in this paper focus on static analysis, DDFEM is equally applicable to dynamic simulations. At its core, DDFEM simply supplies new, more accurate material models for use during simulation. This makes the method useful for accelerating various animation tasks as well. In the accompanying videos we show a dynamic simulation of our fiber embedded bar, computed using a standard linearly-implicit time integrator.
 
 \begin{figure}
-	\includegraphics[width=0.95\textwidth]{images/experiments.jpg}
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/experiments.jpg}
 	\caption{A comparison of  {\DDFEM} (2 levels of coarsening) to real world deformations of 3D printed, multi-material designs. {\DDFEM} captures the twisting behavior of an anisotropic bar much more accurately than {\Naive}. Similarly {\DDFEM} accurately predicts the deformation of our heterogeneous George character. }
 	\label{fig:experiments}
 \end{figure}

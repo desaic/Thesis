@@ -17,7 +17,14 @@ The main contributions of our work can be summarized as follows:
 \end{itemize}
 \section{Overview}
 Given as input a set of base materials, an object layout, and functional objectives, the goal of our system is to compute the material distribution inside the object in order to optimize these functional objectives. In our approach, we do not solve the problem directly, instead we work with microstructures made of the base materials and the space of physical material properties spanned by them. The complete pipeline of our system, illustrated in Figure \ref{fig:overview}, can be decomposed into three stages.
-
+\begin{figure}
+	\centering
+	\includegraphics[width=.95\linewidth]{figs/Overview.pdf}
+	\caption{
+		Algorithm overview. We start by precomputing the gamut of material properties that can be achieved with all material microstructures of a given size. Next, we run our topology optimization algorithm that optimizes the material properties of the object within this gamut such as to minimize some functional objective. Finally, we map the optimal continuous material properties back to microstructures from our database to generate a printable object.
+	}
+	\label{fig:overview}
+\end{figure}
 \paragraph{Material Space Precomputation}
 In the first stage, we estimate the gamut of material properties covered by all possible microstructures made by spatial arrangement of base materials. 
 Since exhaustively computing the properties of all these microstructures is, in practice, intractable, we progressively increase the material space by alternating a stochastic search and a continuous optimization. The first step introduces discrete changes in the materials of the microstructures and allows emergence of new types of microstructures. The second step allows to locally push the material space boundaries by refining the microstructure shapes. After completing this stage, we obtain a discrete representation of the space of material properties and the mapping between these properties and the corresponding microstructures.
@@ -61,26 +68,7 @@ where $\phi_{k}(\bf p)=\left(1-\frac{||\bf p-\bf p_{k}||^{2}_{2}}{h^{2}}\right)^
 
 The first term in Equation \ref{eq:score_fct} favors microstructures located near the gamut boundary. The normalization by $D$ allows us to be less sensitive to the local microstructures density and to hit any location corresponding to the same level-set value with a more uniform probability. The second product is used to additionally privilege under-sampled areas.
 
-Particles are resampled using systematic resampling scheme \cite{Douc05resamplingSchmes} that is also used to initiate the population of particles. These particles are then evolved according to Algorithm~\ref{algo:proc_microstructure}. Additional details regarding the implementation of our algorithm are provided in the supplementary material.
-
-%\algrenewcommand\algorithmicindent{1.0em}%
-
-\begin{algorithm}
-	\begin{algorithmic}
-		\Procedure{genMicrostructure}{input: microstructure $M_i$, output: microstructure $M_o$}
-		\State $M_o\gets M_i$
-		\While {some voxels of $M_o$ have not been visited}
-		\While {microstructure $M_o$ is unchanged}
-		\State pick a random voxel $v$ of $M_o$ that has not been visited %yet
-		\State assign a randomly chosen material to $v$
-		\If {$M_o$ is manifold and $M_o\neq M_i$} \State{accept the change} \EndIf
-		\EndWhile
-		\EndWhile
-		\EndProcedure
-	\end{algorithmic}
-	\caption{Procedure for generating new microstructures}
-	\label{algo:proc_microstructure}
-\end{algorithm}
+Particles are resampled using systematic resampling scheme \citep{Douc05resamplingSchmes} that is also used to initiate the population of particles. These particles are then evolved by adding and subtracting beams with random sizes. The sampled structures are then cleaned by removing unsupported components and filling enclosed cavities.
 
 \subsection{Continuous Optimization of Microstructures}
 The goal of the continuous optimization is to refine the geometry of the microstructures located at the boundary of the gamut in order to further expand the gamut along the normal directions (Figure \ref{fig:contMicro}).
@@ -106,15 +94,15 @@ The first objective uses an energy based formulation~\cite{xia:2015:design} to c
 where $\bx$ is the ratio of materials in each cell, and $w_{\rho}$ controls the weighting between the displacement term and the density term.
 The authors of the method developed parameter heuristics to optimize for difficult cases such as negative Poisson's ratio structures. We naturally arrive at structures with negative Poisson's ratio without the parameter varying step in~\cite{xia:2015:design} since our discrete samples allow us to explore a wide variety of initial designs.
 
-The second objective is formulated using harmonic displacements~\cite{Kharevych:2009,Schumacher:2015} $\bG$ instead of the elasticity tensor directly. $\bG$ is a $6\times 6$ symmetric matrix where each row corresponds to a strain in vector form. We use the target elasticity tensor $\bC_0$ to compute the target harmonic displacements matrix $\bG_0$ and minimize the objective function:
+The second objective is formulated using harmonic displacements~\citep{Kharevych2009,Schumacher:2015} $\bG$ instead of the elasticity tensor directly. $\bG$ is a $6\times 6$ symmetric matrix where each row corresponds to a strain in vector form. We use the target elasticity tensor $\bC_0$ to compute the target harmonic displacements matrix $\bG_0$ and minimize the objective function:
 \begin{equation}
 f(\bx) = (\bG(\bx)-\bG_0)^2 + w_{\rho}(\rho-\rho_0)^2.
 \end{equation}
 This objective matches soft structures more accurately since entries of $G$ are inversely proportional to material stiffness.
 
-Following the work by Andreassen et al. \shortcite{Andreassen2014}, we use the method of moving asymptotes (MMA) \cite{svanberg1987method}) to optimize the objectives using an implementation provided in the NLOPT package \cite{johnson2014nlopt}. We run at most $50$ iterations since it usually converges to a solution within 20-30 steps (Figure~\ref{fig:contMicro}).
+Following the work by \citet{Andreassen2014}, we use the method of moving asymptotes (MMA) \cite{svanberg1987method}) to optimize the objectives using an implementation provided in the NLOPT package \citep{johnson2014nlopt}. We run at most $50$ iterations since it usually converges to a solution within 20-30 steps (Figure~\ref{fig:contMicro}).
 MMA makes large jumps during the optimization while keeping track of the current best solution, thus causing the oscillation of the objective value.
-To force continuous material ratios towards discrete values, we experimented with the SIMP model with the exponent set to $3$ and the Hashin-Shtrikman bound for isotropic materials described by Bends{\o}e and Sigmund \shortcite{bendsoe1999material}.
+To force continuous material ratios towards discrete values, we experimented with the SIMP model with the exponent set to $3$ and the Hashin-Shtrikman bound for isotropic materials described by Bends{\o}e and Sigmund \citet{bendsoe1999material}.
 
 Either interpolation allows us to threshold the final continuous distribution and obtain a similar discrete sample. We tolerate small deviations introduced by the thresholding since our goal is to obtain a microstructure lying outside of the gamut rather than reaching a particular target. In practice, we observed that the material properties of the final discrete structures often did not change significantly after the thresholding step. 
 
@@ -124,3 +112,5 @@ First, we normalize each coordinate $p_i$ of $\bf p$ to constrain the scope of t
 We initialize the signed distance field using the implicit function $\Phi(\mathbf{p})=||\mathbf{p}-\bar{\mathbf{p}}||-r$ from \cite{zhu2005animating} where $||\cdot||$ is the Euclidean distance between two points in $\mathcal{M}$, and $\bar{\mathbf{p}}$ is the average position of the neighboring points of $\mathbf{p}$ within a range of $2r$. Note that the signed distance is initially defined only near the boundary of the gamut. In order to sample the distance on the entire domain, we propagate the 0-level set surface using the fast marching algorithm and solve an explicit mean curvature flow problem defined as $\partial \Phi / \partial t = \Delta \Phi$ \cite{osher2006level} .
 
 Having a continuous representation of the gamut of materials achievable by the microstructures, we can now reformulate the topology optimization problem directly in the material space.
+
+\section{Discovery of Extremal Microstructure Families}
