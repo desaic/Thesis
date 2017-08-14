@@ -346,8 +346,16 @@ object’s geometry and material composition a priori, something
 that is not known during a design task.
 When the user updates the model by changing the geometry or the material distribution,
 the preprocessing step must be run again.
-As shown in Fig. 2a, since this step is inside the design loop,
+As shown in Figure~\ref{fig:typical}a, since this step is inside the design loop,
 the user cannot get rapid feedback on the changes made to the object.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{figs/typical1.pdf}
+	\caption{(a) In a typical method, the preprocessing step is offline,
+		making the design loop slow. (b) In our method, we move the timeconsuming
+		offline computation outside of the design loop.}
+	\label{fig:typical}
+\end{figure}
 
 We propose Data-Driven FEM (DDFEM), a new simulation methodology
 that removes these limitations and is thus extremely well suited
@@ -360,5 +368,5 @@ and geometry.
 At runtime we use the database to perform fast coarsening of an FEM mesh in a way that is agnostic to changes in geometry and material composition of the object.
 The key features of the algorithm are its ability to handle arbitrary, nonlinear elastic
 constitutive models as well as to avoid expensive precomputation
-within the design loop (Fig. 2b).
+within the design loop (Figure~\ref{fig:typical}b).
 DDFEM is the first algorithm optimized for interactive design of non-linear elastic objects.

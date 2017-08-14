@@ -33,9 +33,14 @@
 \usepackage[T1]{fontenc}
 \pagestyle{plain}
 \usepackage[sort]{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{graphicx}
+\usepackage{paralist}
+\usepackage{hyperref}
+\usepackage{bm}
 %% This bit allows you to either specify only the files which you wish to
 %% process, or `all' to process all files which you \include.
 %% Krishna Sethuraman (1990).
@@ -44,7 +49,11 @@
 %process all files:}
 %\def\all{all}
 %\ifx\files\all \typeout{Including all files.} \else \typeout{Including only \files.} \includeonly{\files} \fi
+\newcommand{\set}[1]{\mathcal{#1}}
+\newcommand{\material}{\mathcal{M}}
 
+\newcommand{\vr}[1]{\mbox{$\bm{#1}$}}
+\newcommand{\vc}[1]{\mbox{\textbf{{$\mathsf #1$}}}}
 \begin{document}
 
 \include{cover}
@@ -56,6 +65,7 @@
 \include{contents}
 \include{chap1}
 \include{chap2}
+\input{ddfem}
 \appendix
 \include{appa}
 \include{appb}
