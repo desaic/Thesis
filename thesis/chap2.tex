@@ -326,3 +326,39 @@ The first Piola-Kirchhoff stress is
 \mathbf{P}(\mathbf{F})=\mu(\mathbf{F}-\mathbf{F}^{-T})+\lambda(\log\det\mathbf{F})\mathbf{F}^{-T}.
 \]
 \section{Data-Driven Coarsening}
+Objects with high-resolution, heterogeneous elastic materials are everywhere:
+from the output of multimaterial 3D printers to virtual characters 
+gracing the screen in our summer blockbusters.
+Designing such objects is made possible by the tight coupling of design
+tools and numerical simulation which allows designers or automatic
+algorithms to update geometry or material parameters and subsequently
+estimate the physical effects of the change.
+Fast, accurate simulation techniques that can handle runtime changes in geometry
+and material composition are a necessity for such iterative design algorithms.
+There have been a large number of works on speeding up FEM simulations,
+and these speed improvements have enabled FEM to be used in many performance critical tasks 
+such as computer animation, surgical training, and virtual/augmented reality.
+Even though techniques such as model reduction or numerical coarsening can
+achieve order-of-magnitude performance increases,
+they require expensive precomputation phases, typically on the order of minutes for large meshes.
+This precomputation requires knowledge of an
+object’s geometry and material composition a priori, something
+that is not known during a design task.
+When the user updates the model by changing the geometry or the material distribution,
+the preprocessing step must be run again.
+As shown in Fig. 2a, since this step is inside the design loop,
+the user cannot get rapid feedback on the changes made to the object.
+
+We propose Data-Driven FEM (DDFEM), a new simulation methodology
+that removes these limitations and is thus extremely well suited
+to the types of design problems discussed above.
+We divide an object into a set of deformable voxels using embedded finite
+elements and coarsen these voxels hierarchically.
+A custom metamaterial database is populated with materials that minimize the error incurred by coarsening.
+This database is learned once in a completely offline fashion and depends only on the set of materials to be used by the deformable object and not on the actual material distribution
+and geometry.
+At runtime we use the database to perform fast coarsening of an FEM mesh in a way that is agnostic to changes in geometry and material composition of the object.
+The key features of the algorithm are its ability to handle arbitrary, nonlinear elastic
+constitutive models as well as to avoid expensive precomputation
+within the design loop (Fig. 2b).
+DDFEM is the first algorithm optimized for interactive design of non-linear elastic objects.
