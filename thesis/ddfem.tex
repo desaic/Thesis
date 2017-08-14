@@ -1,4 +1,3 @@
-\subsection{Overview}
 DDFEM is a combination of embedded finite elements and hierarchical
 coarsening.
 In this section, we discuss the problem of coarsening
@@ -100,7 +99,6 @@ With the material palette in hand, we can now define our algorithm, which is div
 We stress that both stages of the DDFEM algorithm can be applied hierarchically. Given the first level of metamaterials, $\set{P}^1$, we can construct a metamaterial library, $\set{P}^2$, for the second level by using $\set{P}^1$ as an input material palette. At runtime, the coarsening algorithm looks up materials from $\set{P}^2$ to replace each 2$\times$2$\times$2 coarse block with a single element.
 
 Having introduced the broad strokes of the DDFEM scheme, we move on to a detailed explanation of each algorithmic component. First we discuss database construction, followed by the runtime component. We end by demonstrating the speed and accuracy of DDFEM.
-\subsection{title}
 \section{Metamaterial Database Construction}
 \label{sec:database}
 We construct our metamaterial database using a potential energy fitting approach. This is valid due to the hyperelastic materials that make up our material palettes. Material fitting considers 2$\times$2$\times$2 blocks of high-resolution hexahedral elements (denoted $^0\set{E}$). For each element $^0E_k\in \, ^0\set{E}$, its material is referred to as $^0\set{M}_k\in \, ^0\set{P}$. (Note that $\set{E}$ refers to a set of elements and $E$ refers to a single element.) Given $^0\set{E}$, we can sample its deformation space, and using $^0\set{M}_k$, compute the potential energy $^0V$ for each sample.  Now we must find a metamaterial that, when applied to a single coarse element $^1\mathit{E}$ best approximates $^0V$.  This is accomplished by fitting a metamaterial potential energy function , $^1V$, to the set of deformation/energy samples. The fitted metamaterial is stored in the metamaterial database and indexed by the material indices of $^0\set{M}$.
@@ -258,3 +256,266 @@ We achieve significant simulation speed-up from coarsening, retain accuracy in t
 		\UNTIL{convergence}
 	\end{algorithmic}
 \end{algorithm}
+
+\begin{table}[!h]
+	\centering
+	\footnotesize
+	\begin{tabular}{l c r r r r r r r r}
+		\hline 
+		\textbf{Example} &\textbf{grid size}&\textbf{rel sp}&\textbf{time/iter}&\textbf{iters}&\textbf{error}\\
+		\hline
+		{\color{HiResColor}Pushing(0)} &16$\times$16$\times$16&1.0 &1.010 &5&-\\
+		{\color{DDFEMColor}Pushing(1)} &8$\times$8$\times$8   &11.5&0.087&5&8.91e-4\\
+		{\color{DDFEMColor}Pushing(2)} &4$\times$4$\times$4   &31.4&0.032&5&1.36e-2\\
+		\hline 
+		{\color{HiResColor}Bending(0)} &8$\times$32$\times$8&1.0   &0.270 &28&-\\
+		{\color{DDFEMColor}Bending(1)} &4$\times$16$\times$4&12.6  &0.028 & 22& 5.60e-2\\
+		{\color{DDFEMColor}Bending(2)} &2$\times$8$\times$2 &22.7  &0.015 & 22&8.88e-2\\
+		\hline 
+		{\color{HiResColor}Twisting(0)} &8$\times$32$\times$8&1.0  & 0.300 & 16&-\\
+		{\color{DDFEMColor}Twisting(1)} &4$\times$16$\times$4&15.2 & 0.031 & 10&1.56e-2\\
+		{\color{DDFEMColor}Twisting(2)} &2$\times$8$\times$2 &20.7 & 0.019 & 12&3.28e-2\\
+		\hline
+		{\color{HiResColor}Buckling(0)} &128$\times$8$\times$16&1.0   &8.85 &32&-\\
+		{\color{DDFEMColor}Buckling(1)} &64$\times$4$\times$8  &50.1 &0.28 &20&7.24e-3\\
+		{\color{DDFEMColor}Buckling(2) }&32$\times$2$\times$4  &331.8&0.12 &7 &3.14e-2\\
+		\hline
+		{\color{HiResColor}Fibers(0)} &32$\times$100$\times$32&1.0  &193.85&17&-\\
+		{\color{DDFEMColor}Fibers(1)} &16$\times$50$\times$16 &51.2 &4.95  &13& 2.94e-2\\
+		{\color{DDFEMColor}Fibers(2)} &8$\times$25$\times$8   &489.5&0.96  &7 & 4.26e-2\\
+		\hline
+		{\color{HiResColor}Bridge(0)} &56177&1.0&43.44&14&-\\
+		{\color{DDFEMColor}Bridge(1)} &9727&8.4&4.88&15&4.39e-3\\
+		{\color{HiResColor}Bridge-arch(0)} &65684&1.0&54.99&3&-\\
+		{\color{DDFEMColor}Bridge-arch(1)} &11695&8.1&7.84&3&3.68e-4\\
+		\hline
+		{\color{HiResColor}George(0)} &46152 & 1.0&52.19&23&-\\
+		{\color{DDFEMColor}George(1)} &6755 & 16.4&3.49&21&2.86e-2\\
+		{\color{HiResColor}George-bone(0)} &46152 & 1.0&41.35&12&-\\
+		{\color{DDFEMColor}George-bone(1)} &6755 & 13.2&2.70&14&2.99e-2\\
+		\hline
+	\end{tabular}
+	\vspace{-4pt}
+	\caption{Relative performance, absolute performance in seconds and average vertex error relative to the bounding box size for full-resolution and coarsened simulations.
+		Relative performance illustrates the performance increase gained by coarsening with respect to the time taken for the high-resolution static simulation to converge. Bracketed numbers after each example name indicate the number of coarsening levels with 0 indicating the {\color{HiResColor}high-resolution} simulation. All computation times are recorded using Coin-IpOpt running in single threaded mode on a 2.5 GHz Intel Core i7 processor. }
+	\label{table:performance}
+\end{table}
+\begin{figure}[t]
+	\centering
+	\begin{tabularx}{0.92\columnwidth}{ Y Y }
+		\textbf{Pushing} & \textbf{Twisting} \\
+		\textbf{12x Faster} & \textbf{15x Faster}
+	\end{tabularx}\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/push_l1_begin}
+	}%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/twist_l1_begin}
+	}
+	\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/push_l1_wire_end}
+	}%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/twist_l1_wire_end}
+	}
+	%\vspace{-3mm}
+	\caption{Examples of pushing a cube (a - Initial State, c - Compressed) and twisting a bar (b - Initial State, d - Compressed), both with heterogeneous material distribution. We compare {\DDFEM} to {\Naive} and the  ground-truth, {\HiRes}. We render wire frames to show the simulation meshes.}
+	\label{fig:accuracy}
+\end{figure}
+\begin{figure}[t]
+	\centering
+	\begin{tabularx}{0.92\columnwidth}{ Y Y }
+		\textbf{1 Level of Coarsening} & \textbf{\textbf{2 Levels of Coarsening}} \\
+		\textbf{13x Faster} & \textbf{23x Faster}
+	\end{tabularx}\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=170px 105px 40px 105px, clip=true]{images/bend_l1_begin}
+	}
+	%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=170px 105px 40px 105px, clip=true]{images/bend_l2_begin}
+	}\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=170px 105px 40px 105px, clip=true]{images/bend_l1_wire_end}
+	}
+	%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=170px 105px 40px 105px, clip=true]{images/bend_l2_wire_end}
+	}
+	%\vspace{-8pt}
+	\caption{Bending a heterogeneous bar: We compare {\DDFEM} to {\Naive} and a {\HiRes}. Subfigures (a, c) show comparison for 
+		1 level of coarsening, and (b, d) show 2 levels of
+		coarsening. The na\"{i}ve coarsening
+		approach results in a much stiffer behavior, whereas our fitted
+		model more closely approximates the fine model.}
+	\label{fig:bending}
+\end{figure}
+\begin{figure}[t]
+	\centering
+	\begin{tabularx}{0.92\columnwidth}{ Y Y }
+		\textbf{1 Level of Coarsening} & \textbf{\textbf{2 Levels of Coarsening}} \\
+		\textbf{50x Faster} & \textbf{332x Faster}
+	\end{tabularx}\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=105px 60px 70px 115px, clip=true]{images/buckle_l1_begin}
+	}%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=105px 60px 70px 115px, clip=true]{images/buckle_l2_begin}
+	}
+	\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=105px 60px 70px 115px, clip=true]{images/buckle_l1_wire_end}
+	}
+	%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.47\columnwidth, trim=105px 60px 70px 115px, clip=true]{images/buckle_l2_wire_end}
+	}
+	\vspace{-2pt}
+	\caption{Compressing a heterogeneous slab using {\Naive} (1 level and 2 levels of coarsening), {\DDFEM} (1 level and 2 levels of coarsening) and a {\HiRes}. The top, darker layer is stiffer, causing the object to buckle. The bottom vertices are constrained to stay on the floor. Figure (a,b) shows the slabs before compression, figure (c,d) shows the slabs after compression and figure. Notice that, after 1 level of coarsening, {\Naive} neither compresses nor buckles as much as either {\DDFEM} or {\HiRes}. After 2 levels of coarsening, \note{the buckling behavior is lost.}
+		The {\Naive} fails to capture the compressive behavior of {\HiRes}, whereas {\DDFEM} does.}
+	\label{fig:buckling}
+\end{figure}
+\begin{figure}
+	\centering
+	\begin{tabularx}{0.92\columnwidth}{ Y Y }
+		\textbf{1 Level of Coarsening} & \textbf{\textbf{2 Levels of Coarsening}} \\
+		\textbf{51x Faster} & \textbf{489x Faster}
+	\end{tabularx}\\
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/fiber_l1_xray_begin}
+	}%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/fiber_l2_xray_begin}
+	}  \\
+
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/fiber_l1_wire_end}
+	}%\vrule
+	\subcaptionbox{}{
+		\includegraphics[width=0.45\textwidth]{images/fiber_l2_wire_end}
+	}
+	\vspace{-2pt}
+	\caption{Simulating a bar with an embedded set of fibers using {\Naive}, {\DDFEM} and a {\HiRes}. Note that {\DDFEM} captures the characteristic twisting motion of the bar better than {\Naive}.  (a,b) shows the initial state of both bars while (c,d) shows the deformed state after pulling on the top of the bars.}
+	\label{fig:fiberPull}
+\end{figure}
+\section{Results and Discussion}
+\label{sec:result}
+All the results shown here are simulated using nonlinear constitutive models at the fine scale. This and coarsening speed are the key differentiating factors between DDFEM and other coarsening algorithms such as~\citet{Nesme2009} and~\citet{Kharevych2009}.
+\note{Our database starts with three Neo-hookean base materials with Young's modulus $1e5, 1e6, 1e7$ and Poisson's ration $0.45$. For comparison with 3D-printed objects, we used two base materials with measured Young's moduli.
+	We use $500$ force directions, and sample $5$ magnitudes in each direction,
+	resulting in $2500$ force samples for each material combination.
+	In addition, we generate $500$ stretching samples for computing the direction of anisotropy. During fitting, we use shear modulus and Lam\'{e}'s first parameter,
+	as well as the spring stiffness.
+	We repeat the same process for the second level of coarsening, using
+	$6561$ materials in the first level as base materials. We select
+	$400$ representatives at each intermediate level.}
+
+\subsection{Database}
+One advantage of our compact metamaterial representation is the small amount of storage it requires. In fact we require only $6\times8=48$ floating-point values for each material at the first coarsening level and $6\times64=384$ values for the second level.
+(For each finer element, $^0\vr{p}$ contains 2 material moduli plus $C, \vr{v}$.)
+For further recursive levels, we can limit ourselves to $320$ values per material.
+Our current 3 material database is $4$ megabytes in size.
+
+\subsection{Simulation Results}
+We show results from elastostatic simulations performed using DDFEM. We also demonstrate its performance advantages over high-resolution simulations. We render wire frames to show the discretizations of the high-resolution and coarse meshes. We first show examples of two simple simulations, the pushing and twisting of a rectangular object with heterogeneous, layered material distribution (\autoref{fig:accuracy}). Note that in all cases DDFEM qualitatively matches the behavior of the high-resolution simulation. We also compare the performance of DDFEM to a na\"{i}ve coarsening method that uses the material properties from 2$\times$2$\times$2 element blocks of the high-resolution simulation mesh at each corresponding quadrature point. \note{In our supplemental video we compare to a second baseline model which averages material parameters inside each coarse element. This average model is less accurate than the Na\"{i}ve model in all cases.} 
+
+Na\"{i}ve approaches often exhibit pathological stiffness  for heterogeneous materials (illustrated by the lack of compression of the box and lack of twisting of the bar)~\cite{Nesme2009}. In these cases, DDFEM yields good speed ups while maintaining accuracy. For a single level of coarsening we achieve \emph{8 times or greater} speed ups for all examples. Performance numbers and mean errors are listed in \autoref{table:performance}.
+Since the fine simulation and the coarse simulation have different numbers of vertices, we create a fine mesh from the coarse simulation by
+trilinearly interpolating the fine vertices using the coarse displacements. The errors are measured by computing the average vertex distance relative
+to the longest dimension of the bounding box in rest shape.
+We also examine the behavior of DDFEM during bending (\autoref{fig:bending}). Yet again the na\"{i}ve coarsening method completely fails to capture the behavior of the high-resolution result, while DDFEM offers a much better approximation. 
+\paragraph{Performance Analysis}
+\note{\autoref{table:quadPerformance} shows time spent in quadrature evaluation versus in solver at coarse and fine levels.
+	We use $8$ quadrature points for the first level of coarsening 
+	and $64$ for the second level. The time for computing the local stiffness matrix for one element increases from $0.1$ms to $1$ms.
+	In the second level, the speedup comes from the reduced number of elements over which to perform quadrature and the time required for the linear solver.
+	
+	To further investigate the performance of our coarsened simulations
+	we replaced Pardiso with an assembly-free
+	Jacobi-preconditioned conjugate gradient (CG) linear solver and used this to simulate our George-bone test case.
+	While the overall runtime of the high-resolution simulation increased from $496$ to $2082$ seconds (most likely do to the unoptimized nature of our solver) our coarsened model achieved 20x and 67x speedups using one level and two levels of coarsening respectively. 
+	One might expect no benefit from the second level of coarsening since the 
+	number of quadrature points remains constant. 
+	However, the number of CG iterations is roughly proportional to the number of vertices in the simulation mesh and thus the coarse model converges more quickly~(\autoref{fig:cg}).
+	Since our  metamaterial models are not restricted to use
+	a fixed number of quadrature points,
+	one could design coarse models that are more tailored towards
+	assembly-free solvers by reducing the number of quadrature points and simplifying the strain energy expressions.
+}
+
+\begin{figure}
+	\includegraphics[width=0.9\textwidth]{figs/CGConverge.pdf}
+	\caption{
+		\note{Comparison of CG iterations on high-resolution and coarsened meshes of the George-bone example.
+			The squared residual is measured as $\|\mathbf{K}\mathbf{x}-\mathbf{f}\|^2$.
+			We observe that CG converges much faster on coarse meshes.
+		}
+	}\label{fig:cg}
+\end{figure}
+
+\begin{table}
+	\centering
+	\footnotesize
+	\begin{tabular}{l c p{1cm} p{1cm} r }
+		\hline 
+		\textbf{Example} &\textbf{grid size}&\textbf{quad/iter} (12)&\textbf{time/iter} (2-21)&\textbf{iters}\\
+		\hline 
+		{\color{HiResColor}Bending(0)} &8$\times$32$\times$8   &  0.11  &0.27 &28\\
+		{\color{DDFEMColor}Bending(1)} &4$\times$16$\times$4   &  0.015 &0.028&22\\
+		{\color{DDFEMColor}Bending(2)} &2$\times$8$\times$2    &  0.014 &0.015&22\\
+		\hline
+		{\color{HiResColor}Buckling(0)} &128$\times$8$\times$16&  1.0   &8.8 &32\\
+		{\color{DDFEMColor}Buckling(1)} &64$\times$4$\times$8  &  0.11  &0.28&20\\
+		{\color{DDFEMColor}Buckling(2) }&32$\times$2$\times$4  &  0.10  &0.12&7\\
+		\hline
+		{\color{HiResColor}Fibers(0)} &32$\times$100$\times$32 & 10.0   &193&17\\
+		{\color{DDFEMColor}Fibers(1)} &16$\times$50$\times$16  &  1.0   &4.9&13\\
+		{\color{DDFEMColor}Fibers(2)} &8$\times$25$\times$8    &  0.68  &0.96&7\\
+		\hline
+	\end{tabular}
+	\caption{\note{Portion of time in seconds used by quadrature computation during static simulation in seconds. Bracketed numbers indicate corresponding lines in Algorithm \ref{alg:sim}.}}
+	\label{table:quadPerformance}
+\end{table}
+\paragraph{Complex material behavior} DDFEM can capture the gross behavior of  complex, spatially-varying material distributions. \autoref{fig:buckling} shows the results of applying DDFEM to a non-linearly elastic slab with a stiff ``skin.'' The bottom of the slab is constrained to slide along the ground with one end fixed. When force is applied to the free end of the slab, buckling occurs.  Somewhat obviously, DDFEM cannot replicate the frequency of the high-resolution buckling pattern due to the coarseness of the simulation mesh. However, it correctly captures the gross behavior of the bar and approximates the overall amount of compression well. \autoref{fig:buckling} also shows a comparison with 2nd level coarsening. In this case, the overall compression of the bar is still captured accurately. For this example DDFEM affords \emph{50 times} (1 level of coarsening) and \emph{332 times}  (2 levels of coarsening) performance improvements over the high-resolution simulation.  The artificial stiffness of the na\"{i}ve model can be seen in the reduced buckling and compression when compared to DDFEM at both coarsening levels.
+%\vspace{-8pt}
+\paragraph{Anisotropic material distribution} Next we explore the ability of DDFEM to handle highly anisotropic material distributions (\autoref{fig:fiberPull}). Specifically, we embed a helical set of stiff fibers in a soft, non-linearly elastic matrix. Pulling on the object induces a twisting. Again, at one coarsening level DDFEM captures this anisotropic behavior well, much better than the naive approach, and gains a \emph{51 times} speed up over the high-resolution simulation. Worth noting is that the DDFEM bar is slightly softer in the $y$-direction. This kind of inaccuracy should be expected. Since our method builds a low-dimensional approximation of a potential energy function we cannot hope to accurately reproduce the complete behavior of the high-resolution simulation.  What is important is that DDFEM captures the salient global behavior, in this case, the twisting of the bar. 
+\paragraph{Geometry and material design} We present three examples of using DDFEM for geometry and material design. In the first example, we edit the material composition of the sole of a running shoe in order to stabilize it. \autoref{fig:shoe} shows the effect of the three material edits as well as relative speed up achieved over the full resolution simulation and coarsening time. DDFEM performance is always an order of magnitude more than that of the high-resolution simulation, and, most importantly, our coarsening times are on the order of milliseconds. We stress that our current implementation is completely single threaded and that coarsening, which in our case involves a simple database lookup, is inherently parallel.
+In the second example, we add a supporting arch to a bridge. Prior to the addition of the support structure, the bridge sags catastrophically. The fast coarsening of DDFEM allows us to achieve an 8 fold increase in simulation performance using a single coarsening pass. In the third example, we add a rigid skeleton to a deformable character (George) in order  to control his pose. Here our single threaded, data-driven coarsening only takes ~200ms.  
+\begin{figure*}
+	\centering
+	\includegraphics[width=0.90\textwidth]{images/DesignExampleShoe}
+	\caption{Designing a shoe sole: We compare the performance of {\DDFEM} to that of {\HiRes} in the context of a material design problems. Large images show the effect of material changes on the sole of the shoe, which is being deformed under a ``foot-like'' pressure field. Inset images show the materials assigned to the shoe sole and the embedded finite element simulation mesh. Numbers within arrows show coarsening times between editing steps and the numbers in the upper left corner of each image show the relative performance of {\DDFEM} to  {\HiRes}. While the {\DDFEM} sole is made up of many metamaterials, we display it as a single color to distinguish it from the {\HiRes}.}
+	\label{fig:shoe}
+\end{figure*}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/bridge}
+	\caption{Accelerating geometry change: We repair a structurally unsound bridge by adding a supporting arch (8x faster).}
+	\label{fig:bridge}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/georgeUpdate.png}
+	\caption{Correcting George's posture using a rigid skeleton ({\HiRes} and {\DDFEM}).}
+	\label{fig:george}
+\end{figure}
+\paragraph{Dynamics} Though the examples shown in this paper focus on static analysis, DDFEM is equally applicable to dynamic simulations. At its core, DDFEM simply supplies new, more accurate material models for use during simulation. This makes the method useful for accelerating various animation tasks as well. In the accompanying videos we show a dynamic simulation of our fiber embedded bar, computed using a standard linearly-implicit time integrator.
+
+\begin{figure}
+	\includegraphics[width=0.95\textwidth]{images/experiments.jpg}
+	\caption{A comparison of  {\DDFEM} (2 levels of coarsening) to real world deformations of 3D printed, multi-material designs. {\DDFEM} captures the twisting behavior of an anisotropic bar much more accurately than {\Naive}. Similarly {\DDFEM} accurately predicts the deformation of our heterogeneous George character. }
+	\label{fig:experiments}
+\end{figure}
+
+\subsection{Fabricated Results}
+Finally, we test the accuracy of our simulation against fabricated results, created using a Stratysys Object Connex 500 multimaterial 3D printer. We fabricated a bar with embedded helical fibers as well as our George character and applied specified loads to both. We show qualitative comparison of the deformed configurations of these real-world examples to our simulated results (\emph{2 levels of coarsening}-\autoref{fig:experiments}). Note that the simulation does an excellent job of predicting the deformed configuration of both objects.
+
+\section{Limitations and Future Work}
+Because DDFEM relies on a database compression step to combat the combinatorial explosion of metamaterials,  accuracy is heavily influenced by the set of representative metamaterials. Finding a better way to select metamaterial structures is an interesting area of future work.
+Second, in our attempt to make our method geometry independent, some accuracy when dealing with partially filled boundary finite elements is sacrificed. Adding a parameterized boundary representation to the method, in order to more correctly handle non-axis aligned boundary conditions, could also be explored. Third, the method acts on discrete materials. While we believe that this is reasonable, considering the way that engineers and designers approach material design, a method that coarsens continuous spaces of non-linear materials could be beneficial.   
+
+Many avenues of future work are promising. First, one could explore topologically aware meshing (i.e. in the same vein as~\citet{Nesme2009}) to allow better handling of models with large empty regions.
+In fact shape function learning approaches, such as~\citet{Nesme2009} could be combined with our material learning approach to produce even more accurate simulations. Including these shape functions in our database could, for instance,  allow us to capture the wrinkles in our buckling example. Second, extending DDFEM to more complex material models, such as those involving plasticity, would be a useful exercise.
+Third, DDFEM can be combined with an adaptive voxel grid as well as other dynamic meshing approaches to obtain further speed-ups.  Finally,  exploring hierarchical solvers based on DDFEM coarsening is a very attractive direction. Solvers such as multigrid methods rely on good coarse approximations to accelerate fine scale simulations. Using DDFEM for these approximations could improve the convergence rate, and thus the performance of such algorithms. 

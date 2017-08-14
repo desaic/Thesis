@@ -41,6 +41,10 @@
 \usepackage{paralist}
 \usepackage{hyperref}
 \usepackage{bm}
+\usepackage{color}
+\usepackage{tabularx}
+\usepackage{subcaption}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
 %% This bit allows you to either specify only the files which you wish to
 %% process, or `all' to process all files which you \include.
 %% Krishna Sethuraman (1990).
@@ -49,11 +53,24 @@
 %process all files:}
 %\def\all{all}
 %\ifx\files\all \typeout{Including all files.} \else \typeout{Including only \files.} \includeonly{\files} \fi
-\newcommand{\set}[1]{\mathcal{#1}}
-\newcommand{\material}{\mathcal{M}}
 
 \newcommand{\vr}[1]{\mbox{$\bm{#1}$}}
 \newcommand{\vc}[1]{\mbox{\textbf{{$\mathsf #1$}}}}
+\definecolor{RED}{rgb}{1.0,0.0,0.0}
+\definecolor{BLACK}{rgb}{0.0,0.0,0.0}
+\definecolor{WHITE}{rgb}{1.0,1.0,1.0}
+\newcommand{\set}[1]{\mathcal{#1}}
+\newcommand{\material}{\mathcal{M}}
+\newcommand{\fe}{\mathcal{E}}
+\newcommand{\note}[1]{#1}
+
+\definecolor{DDFEMColor}{rgb}{0.49,0.49,0.8}
+\definecolor{HiResColor}{rgb}{ 0.3686,0.5765 , 0.3961}
+\definecolor{NaiveColor}{rgb}{ 0.6471, 0.3922, 0.4353}
+
+\newcommand{\DDFEM}{{{\color{DDFEMColor}DDFEM}}}
+\newcommand{\HiRes}{{{\color{HiResColor}High-Res Simulation}}}
+\newcommand{\Naive}{{{\color{NaiveColor}Na\"{i}ve Coarsening}}}
 \begin{document}
 
 \include{cover}
