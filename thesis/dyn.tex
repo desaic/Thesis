@@ -388,19 +388,18 @@ When initially loading mechanisms, e.g., when pressing down a jumper in Figure~\
 We also track the time-varying elastic potential energy stored in simulated compliant objects. When damping causes this internal potential to fall to zero, e.g., during portions of free-flight, we switch from our full DAC discretization to a rigid body discretization. We use DMV~\cite{Moser:1991dl}, an efficient energy--momentum preserving rigid-body integrator, to then time step the system in SE(3) coordinates until the next collision is reached, at which point we map rigid-body state back to the DAC model to capture the new deformation dynamics at impact. See our Supplemental for details on this process.
 
 \subsection{Identification}
-
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.45\textwidth]{figs/materials_table}
+\includegraphics[width=0.6\textwidth]{figs/materials_table}
 \caption{Material parameters identified by our fine and coarse matching against calibration. Left to right we list previously reported Young's moduli for vertically and horizontally oriented prints compared with our identified moduli. We then report the matched numerical moduli we use for each for our DAC models and finally, list previously unreported damping parameters we identify and use in our simulations. 
 }
 \label{fig:identified_params}
 \end{figure}
 
 We compute each DAC model's coarse mesh resolution and material parameters using the measurement procedure described above in \S\ref{sec:DAC}; see also Figure~\ref{fig:vibration_match}. We model heterogeneous materials by computing numerical Young's moduli for soft (TangoBlackPlus) and rigid (Rigur RGD450) materials and coarsening as much as possible while retaining a single material per element. A major benefit of our coarsening scheme is that it identifies both actual and numerical moduli and damping parameters of real-world materials. Figure \ref{fig:identified_params} details these parameters. The damping parameters we present here have not, to our knowledge, been previously identified in the literature. On the other hand, in our experiments and simulations we find that the previously identified Poisson's ratio for our printed materials~\cite{major2011}, at $0.45$, is effective, and keep it fixed at this value for all examples reported here.
-
 \begin{figure}
-\includegraphics[width=0.45\textwidth]{figs/measure.pdf}
+	\centering
+\includegraphics[width=0.6\textwidth]{figs/measure.pdf}
 \caption{Measured and simulated vibrations of a 3D-printed jumper (Rigur) model (magnify the plot for details of fit).}
 \label{fig:vibration_match}
 \end{figure}
@@ -408,10 +407,12 @@ We compute each DAC model's coarse mesh resolution and material parameters using
 \subsection{Experiments}
 \label{sec:exp}
 
-\changed{In this section we detail the individual design examples. We visually compare the trajectory behavior of both the real world fabricated initial and final mechanisms with corresponding DAC and BBI simulation results at the same parameters. In the following section we then discuss the results of the user study we perform to evaluate the results of initial and final fabricated mechanisms over repeated user trials comparing against DAC and BBI predicted simulation outcomes.}
+In this section we detail the individual design examples. We visually compare the trajectory behavior of both the real world fabricated initial and final mechanisms with corresponding DAC and BBI simulation results at the same parameters.
+In the following section we then discuss the results of the user study we perform to evaluate the results of initial and final fabricated mechanisms over repeated user trials comparing against DAC and BBI predicted simulation outcomes.
 
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{./figs/ResultsFlipper.pdf}
+	\centering
+\includegraphics[width=0.7\columnwidth]{images/ResultsFlipper.png}
 \caption{A comparison of experimental (bottom) and DAC/BBI simulated (top) results for initial (left) and final (right) designs of a flipping mechanism.}
 \label{fig:flipper}	
 \end{figure}
@@ -421,7 +422,8 @@ Our first design example is a simple forward flipping jumper. We begin with the 
 See Figure~\ref{fig:flipper} comparing simulated and experimental trajectories for both initial and final design samples.
 
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{./figs/ResultsCatapult.pdf}
+	\centering
+\includegraphics[width=0.7\columnwidth]{./images/ResultsCatapult.png}
 \caption{A comparison of experimental (bottom) and DAC/BBI simulated (top) results for initial (left) and final (right) designs of the catapult mechanism.}
 \label{fig:catapult}	
 \end{figure}
@@ -431,7 +433,8 @@ Our next design example is a catapult mechanism. By adding a firing basket to th
 See Figure~\ref{fig:catapult} comparing simulated and experimental trajectories for both initial and final design samples.
 
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{./figs/ResultsOnto.pdf}
+	\centering
+\includegraphics[width=0.7\columnwidth]{./figs/ResultsOnto.pdf}
 \caption{A comparison of experimental (bottom) and DAC/BBI simulated (top) results for initial (left) and final (right) designs for a jumper mechanism to jump onto a platform and land upright.}
 \label{fig:onto}	
 \end{figure}
@@ -442,7 +445,8 @@ to find a geometry for a 3D-printed jumper mechanism that, upon release, jumps f
 See Figure~\ref{fig:onto} comparing simulated and experimental trajectories for both initial and final design samples.
 
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{./figs/ResultsOver.pdf}
+	\centering
+\includegraphics[width=0.7\columnwidth]{./figs/ResultsOver.pdf}
 \caption{A comparison of experimental (bottom) and DAC/BBI simulated (top) results for initial (left) and final (right) designs for a jumper mechanism to jump over a wall of specified height and land upright.}
 \label{fig:over}	
 \end{figure}
@@ -452,8 +456,9 @@ In this example, the goal is to find a geometry for a 3D-printed mechanism that,
 See Figure~\ref{fig:over} comparing simulated and experimental trajectories for both initial and final design samples.
 
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{./figs/ResultsAllFlippers}
-\caption{\changed{A comparison of experimental (bottom) and DAC/BBI simulated (top) results for six more design samples: initial (left) and final (right) designs of variations on the flipping mechanism (``Normal'').}}
+	\centering
+\includegraphics[width=0.7\columnwidth]{./images/ResultsAllFlippers.png}
+\caption{A comparison of experimental (bottom) and DAC/BBI simulated (top) results for six more design samples: initial (left) and final (right) designs of variations on the flipping mechanism (``Normal'').}
 \label{fig:more_flippers}	
 \end{figure}
 
@@ -465,13 +470,15 @@ We additionally evaluate six further design example comparisons between fabricat
 Here we present the results of a user study evaluating the goal outcomes of initial and final fabricated mechanisms over repeated user trials as compared against outcomes predicted by DAC and BBI.
 
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{./figs/UserStudyCatapult.pdf}
+\centering
+\includegraphics[width=0.7\columnwidth]{./figs/UserStudyCatapult.pdf}
 \caption{Statistics summarizing our user study comparing results from trials with our initial and final \emph{catapult} mechanisms. We report the distance to target per trial. The final catapult design dramatically outperforms its initial counterpart, consistently, across all users, coming close to matching DAC/BBI predicted outcomes.}
 \label{fig:userStudyCatapult}
 \end{figure}
 
 \begin{figure*}[hpt!]
-\includegraphics[width=\textwidth]{./figs/UserStudyJumpers.pdf}
+\centering
+\includegraphics[width=0.95\textwidth]{./figs/UserStudyJumpers.pdf}
 \caption{
 Statistics summarizing our user studies comparing results from trials (left to right) with our our initial and final  \emph{flipper}, \emph{jump-onto}, and \emph{jump-over} mechanisms. In orange bars we report the number of successes per user, while in grey we report total successes per mechanism across all trials. Note that  initial designs for both the \emph{jump-onto} and \emph{jump-over} have no successes at all, while, across all three mechanisms, final designs dramatically outperform their initial counterparts. This success is consistent across all users - closely matching DAC/BBI predicted outcomes.}
 \label{fig:userStudyJumpers}
