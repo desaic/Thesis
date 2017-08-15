@@ -17,6 +17,7 @@ First, due to changing design parameters, we will need to identify suitable regi
 Second, coupling swapped-in higher-order elements to other element types introduces overhead. Consider, for example, replacing lower-order hexahedra with plate elements in these regions. We must then ensure continuity of displacements between plate-like portions of the design and thicker, volumetric portions. This, in turn, requires introducing difficult coupling constraints~\cite{Bergou2007,Martin:2010:USE}. Finally, even with such additional efforts, these substitutions may not always improve computational performance as high-order elements contain more DoFs than their low-order counterparts~\cite{Belytschko:2013tz}. 
 
 \begin{figure}
+	\centering
 	\includegraphics[width=0.7\columnwidth]{./figs/Adaptive_Meshing}	
 	\caption{Comparing adaptivity and coarsening. A tetrahedral model of a jumper is adaptively remeshed to capture input stress fields from its launch and landing states. We compare the resulting element and node counts to our DAC-coarsened model. We set the minimum edge length for remeshing to one that was experimentally found to yield convergent numerical results.}
 	\label{fig:adaptiveMeshing}
@@ -32,7 +33,7 @@ Finally, nonlinear modal models~\cite{Barbic:subspace:2005} can alleviate some o
 
 \begin{figure}
 	\centering
-	\includegraphics[width=\columnwidth]{figs/Modal_Expansion}
+	\includegraphics[width=0.7\columnwidth]{figs/Modal_Expansion}
 	\caption{Linear modal models suffer from distortion as deformations grow. In (a) we illustrate increasing deformations, left to right, with corresponding inflation errors. Even for smaller deformations, (a) middle, the linear modal model still introduces significant distortions leading to modeling inaccuracies. In (b), left, we overlay simulations of small deformation  performed respectively with the linear modal model (red) and the coarsened nonlinear FE model (grey); and, on the right, evaluate accuracy of the modal model. During simulation, even these smaller deformations introduce inaccuracies in the modal model due to element inflation; here up to 13.7\%.} 
 	\label{fig:modalModels}	
 \end{figure}
@@ -51,7 +52,7 @@ These form so-called nonsmooth or \emph{complementarity} integrators.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=\columnwidth]{figs/Figure_2_BBI}	
+	\includegraphics[width=0.8\columnwidth]{figs/Figure_2_BBI}	
 	\caption{Comparison of complementarity Newmark integration, DKE Stabilization and our BBI model for the impact resolution of an elastic, 3D-printed block. BBI closely matches the maximum rebound height achieved by the experimental result while both the Complementarity and DKE methods overestimate the rebound significantly.}
 	\label{fig:BBI_block_compare}
 \end{figure}
@@ -59,9 +60,216 @@ These form so-called nonsmooth or \emph{complementarity} integrators.
 However, these complementarity integrators have two well-known flaws~\cite{Deuflhard:2008fu}: (1) these methods can yield spurious oscillations on the contact boundaries and (2) the effective impact response of these methods is too energetic. Effectively the normal velocity on impact along the elastic boundary should be dissipated completely. Instead, complementarity methods with Newmark will generate an entirely incorrect elastic restitution; see Figure~\ref{fig:BBI_block_compare}. To address these problems~\citet{Deuflhard:2008fu} introduced the now-standard DKE contact-stabilization step to filter contact response with projection. In the limit, DKE makes the impact-response model consistent,
 while in FE codes it is applied as an effective strategy to recover from the well-known limitations of implicit integration with impact. However, it remains widely acknowledged that the right-way to accurately model high-speed collision response with implicit FE remains an open question at this time - not only in graphics - but more broadly in scientific computing as well. As an example consider Figure~\ref{fig:BBI_block_compare} where we see that both the complementarity model \emph{and} the DKE filter produce different but equally incorrect predictions of the response of a stiff elastic block dropped on the floor. Here we offer a new, Boundary-Balancing Impact (BBI) model for FE that gains us accurate prediction of impact response for the stiff 3D-printed materials we focus on here; see Figure~\ref{fig:BBI_block_compare}.
 
-\subsection{Summary}
+\subsection{Summary and Contributions}
 High-fidelity simulation methods for elastodynamics are too slow for use in fabrication design tasks while existing strategies to reduce the simulation cost of elastica (including adaptive, reduced and coarsened models) are too inaccurate and/or too expensive to employ. Finally, existing FE models for simulating elastic collision and rebound miss critical compliance coupling in the filter stage.
 
-\subsection{Contributions}
 We have exposed and analyzed the limitations of simulation methods for the predictive modeling of elastodynamics at rates sufficient for fabrication design optimization. Next, we develop our \emph{Dynamics-Aware Coarsening} (DAC) method to address this need {(\S3)}. DAC jointly identifies \emph{and} predictively simulates fabricated materials. To address current limitations in FE collision-response filtering we then introduce our \emph{Boundary Balancing Impact} (BBI) model {(\S4)}. 
 We then validate these contributions by comparing simulated results generated by DAC and BBI with real-world results experimentally obtained from a range of compliant 3D-printed jumping and throwing mechanisms that flip, throw projectiles, jump onto obstacles and jump over walls (\S5).
+\section{Simulation Preliminaries}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.99\textwidth]{images/dynPhase.png}
+	\caption{Bottom: the dynamic behavior of a 3D-printed, elastic jumping mechanism in experiment. Top: our DAC-coarsening combined with our BBI impact model generate a simulation that predictively captures this experimental behavior at rates 79X faster than state-of-the-art FEM.}
+	\label{fig:simulationStage}
+\end{figure}
+\label{sec:simPrelim}
+Accurate time-varying tracking of energy dissipation is key to accurate dynamic simulation~\cite{Marsden:2001dj} and so we rely on implicit Newmark time integration, a discrete variational integrator~\cite{Kane:2000dw} with consistent high-quality energy tracking. 
+We experimented with other integrators, including linearly implicit Newmark, Implicit Euler, and BDF2, but found them to be wanting in either stability or energetic behavior; see our Supplemental for details.
+\subsection{Discrete Model} We begin with a standard elastic material model for 3D printed materials.
+To capture stiff elastic response of 3D-printed materials we use the neo-Hookean material model, augmented with Rayleigh damping to capture transient dissipation of vibrations, and discretize with second order, hexahedral finite elements. We start with a second-order, implicit Newmark %($\gamma=1/2,\beta=1/4$) 
+time discretization 
+
+\begin{align}
+\vc M \vc \delta^{t+1} &= \vc b^t +  \tfrac{h^2}{4} \vc F(\vc q^{t+1}) -\tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1},
+\label{eq:newmark_free}
+%
+\end{align}
+\begin{align}
+\begin{split}
+\vc q^{t+1} &= \vc q^t + \vc \delta^{t+1},\\
+\vc v^{t+1} &= \tfrac{2}{h} \vc \delta^{t+1} - \vc v^t,
+\end{split}
+\label{eq:newmark_free_update}
+\end{align}
+where
+\begin{align}
+\vc b^t = h \vc M \vc v^t + \tfrac{h^2}{4} \vc F( \vc q^t) -\tfrac{h^2}{4} \vc D( \vc q^t) \vc v^t,
+\label{eq:newmark_predictor}
+\end{align}
+$h$ is the timestep size, $\vc F(\cdot)$ is the internal force vector, $\vc D(\cdot) = a \vc M + b \vc K(\cdot)$, 
+with $a,b \in \mathbb{R}^+$ is the Rayleigh damping matrix, $\vc M$ is the stiffness-consistent mass-matrix~\citep{Belytschko:2013tz},
+$\vc K(\cdot) = -\nabla \vc F(\cdot)$ is the tangent stiffness matrix, 
+and $\vc q, \vc v \in \mathbb{R}^{3n}$ are respectively the nodal position and velocity vectors. In the absence of dissipative forces this method is symplectic and momentum preserving~\citep{Kane:2000dw}.
+With dissipation we find that integration gives us accurate bookkeeping of system energy at comparable cost to implicit Euler. 
+
+\subsection{Material Parameters}
+No matter how good our energy bookkeeping, the overall fidelity of our method is critically determined by the accuracy of the material parameters we select. While many material parameters are reported in the literature, there remains large and significant variation in these values across 3D-print batches, printing orientations and curings; see \S5.
+For predictive simulation we need to identify these values. In addition, we must model dissipation requiring us to determine unreported damping properties; e.g., $a$ and $b$ in the Rayleigh model. Finally, as discussed below and complicating matters even further, these material parameters are discretization dependent at non-convergent spatial resolutions. In the next section we will detail our DAC model to capture dynamic deformation, stiffness and damping at coarsened spatial resolutions.
+
+\subsection{Contact and Friction} For contact we need to model nonpenetration constraints and frictional contact forces that resist sliding along interfaces. 
+Contacts are between object parts or between a part and a fixed boundary such as the ground.  At each time step we apply continuous collision detection to the predicted trajectory to gather contact constraints into a contact set $\mathcal C$. 
+
+To simplify the following, for each such contact $k \in \mathcal C$, the relative acceleration between material points $\vr x_i$ and $\vr x_j$ (at contact $k$) can be expressed via the map $\vc \Gamma_k: \dot{\vc q} \rightarrow \dot{\vr x}_i - \dot{\vr x}_j$. See our Supplement
+for details on construction of $\vc \Gamma_k$. If $\vr y \in \mathbb{R}^3$ is a force applied to point $\vr x_i$, and an equal but opposite force is applied to point $\vr x_j$, then $ \vc \Gamma_k ^T \vr y$ is the resulting generalized force applied to the contacting system.
+
+In turn, points in contact apply an equal and opposite force along their shared, unit-length normal $\vr n_k \in \mathbb{R}^3$.  In global coordinates this is equivalent to applying a force of magnitude $\bar{\alpha}_k \in \mathbb{R}^+$ along a generalized normal 
+\begin{equation}
+\vc n_k = \vc \Gamma_k^T \vr n_k \in \mathbb{R}^{3n},
+\end{equation}
+to the system. The subspace of generalized normal directions
+\begin{equation}
+\label{eq:N}
+\vc N = (\vc n_1 ... \vc n_{|\mathcal C|})
+\end{equation}
+then forms a basis for contact forces. Concatenating the corresponding force magnitudes in  
+$\alpha = (\bar{\alpha}_1, ..., \bar{\alpha}_{|\mathcal{C}|})^T$, the total contact force applied in the system is then $\vc N \alpha$. 
+
+Friction forces lie in the tangent plane orthogonal to the contact normal. At each contact $k$ we sample an orthogonal pair of unit length vectors from the tangent plane. The $3\times2$ matrix composed column-wise of these samples is given by $\vr T_k$ so that a friction force, $\vr f_k \in \mathbb{R}^3$, applied at a contact $k$, lies in the span of $\vr T_k$ with $\vr f_k = \vr T_k \bar{\beta}_k$, where each $\bar{\beta}_k \in \mathbb{R}^2$ gives the frictional response coefficients at contact $k$.
+
+The total friction force applied to the system at each contact $k$ must be equal and opposite and is $\vc f_k = \vc \Gamma_k^T \vr T_k \bar{\beta}_k$. 
+The generalized basis for a friction force at contact $k$ is then 
+\begin{equation}
+\vc T_k = \vc \Gamma_k^T \vr T_k \in \mathbb{R}^{3n \times 2}.
+\end{equation}
+We build the corresponding subspace of generalized tangent directions,
+\begin{equation}
+\vc T = ( \vc T_1 ... \vc T_{|\mathcal C|})
+\end{equation}
+and form the corresponding vector of frictional force coefficients as $\beta = ( \bar{\beta}^T_1,  ... , \bar{\beta}^T_{|\mathcal C|})^T$.
+The total friction force on the system is then $\vc T \beta$.
+
+Contact and friction forces can be inexpensively modeled explicitly~\citep{Belytschko:2013tz} but this introduces instabilities and nonphysical oscillations on boundaries even at small time step for stiffer materials~\cite{Deuflhard:2008fu}. Thus FEM state-of-the-art generally turns to implicit time-integration for efficient contact force modeling. 
+
+\citet{Kane:1999kr} proposed the now standard nonsmooth-Newmark method for contact modeling. 
+This is a fully implicit time-stepping model that couples frictional contact with internal energies and forcing in each solve.
+\begin{align}
+\begin{split}
+\vc M \vc \delta^{t+1} &= \vc b^t +  \tfrac{h^2}{4} \vc F(\vc q^{t+1}) -\tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1} + \tfrac{h^2}{2} \vc N \alpha +  \tfrac{h^2}{2}  \vc T \beta.
+\label{eq:newmark_contact_implicit}
+\end{split}
+\end{align}
+Note that here, unlike internal forces, contact forces are evaluated solely at the time step endpoint to ensure dissipation.
+Next, to fully define the time stepper, consistency conditions are required for contact and friction forces. 
+
+Enforcing the complementarity model for contact requires contact forces to balance along boundaries 
+\begin{align}
+\begin{split}
+0 \leq \alpha \perp \vc N^T \delta^{t+1} \geq 0,
+\label{eq:contact_conditions}
+\end{split}
+\end{align}
+
+Friction in turn is modeled with the {\em Maximal Dissipation Principle}, requiring friction to maximize the rate of negative work done at each contact, $- \vr f_k^T \dot{\vr x}$. The total dissipation performed by friction is then 
+\begin{align}
+\sum_{k \in \mathcal{C}} \bigl(- \vr f_k^T \dot{\vr x}_k \bigr) =  -\Bigl[\sum_{k \in \mathcal{C}} \vr f_k^T  \vc \Gamma_k \Bigr] \dot{\vc q} =  - \beta^T \vc T^T \dot{\vc q}.
+\end{align}
+Then, maximizing the Coulomb-constrained dissipation simultaneously at \emph{all} contact points, with the implicit Newmark discretization~\cite{Pandolfi:2002ik}, gives us the final condition for our numerical integration
+\begin{align}
+\begin{split}
+\min_{\beta} \{ \beta^T \vc T^T (\tfrac{2}{h} \delta^{t+1} - \vc v^t) : \mu_k \bar{\alpha}_k \geq \|\bar{\beta}_k\|, \> \forall k \in \mathcal{C} \},
+\label{eq:max_diss_transform}
+\end{split}
+\end{align}
+where $\mu_k$ is the local friction coefficient at contact $k$.
+
+Taken together stepping this implicit \emph{complementarity} Newmark integrator with (\ref{eq:newmark_predictor}), (\ref{eq:newmark_contact_implicit}), (\ref{eq:contact_conditions}), (\ref{eq:max_diss_transform}) and (\ref{eq:newmark_free_update}) provides predictive simulation at slower speeds of contact. For higher speed contacts and impacts, the remaining challenge lies in stabilizing contact stresses, velocities and displacements~\cite{Deuflhard:2008fu} to ensure that simulated objects' bounces and rebounds consistently match with their real-world counterparts. 
+In Section \ref{sec:BBI} we will address this issue with a new impact model for FE simulation. First, however, we address our fundamental scaling problem: how can we gain 
+accurate dynamic simulation without being bottlenecked by systems too large to solve quickly per time step?
+\section{Dynamics-Aware Coarsening}
+\label{sec:DAC}
+We couple numerical coarsening with parameter acquisition.
+Our DAC method computes \emph{numerical} stiffness parameters for the nonlinearly elastic, Neohookean material model, and damping parameters for the Rayleigh damping model so that, when applied to the coarsened simulation mesh, the dynamic behavior of a high-resolution simulation is preserved.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\columnwidth]{images/modeFit.png}
+	\caption{Dynamics-aware coarsening (DAC) coarsens meshes to capture deformation with calibrated stiffness. We observe FE meshes capture accurate deformation modes up to a quite coarse resolution. However, these same coarse meshes suffer from numerical stiffening (see Figure~\ref{fig:numerical_stiffness}). We design coarse mesh FE models by matching both significant deformation modes (above) and their captured material response (see Figures~\ref{fig:error} and \ref{fig:vibration_match}) to obtain efficient and predictive coarse-mesh FEM simulations of dynamics. }
+	\label{fig:defo_and_frequency_match}
+\end{figure}
+
+Because the goal of DAC is to replicate the dynamic behavior of a high-resolution simulation, we focus on creating a coarse mesh which captures both the large-scale deformation modes, and the corresponding natural frequencies of the high-resolution mesh. We do this in two stages. First, we produce a coarse hexahedral mesh that can replicate the large scale deformation modes of our high-resolution mesh. Second, we compute material and damping parameters that yield matching fundamental frequencies for each mode shape on this coarse mesh.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/stiffness.pdf}
+	\caption{Static Deformation Test. We apply an identical load to three meshes with the same model geometry. With the same material parameters, a high-resolution mesh (left) is effectively 2.5x softer than the corresponding coarse mesh (right). Applying our captured numerical Young's modulus to the coarse mesh (middle) regains the correct deformation of the original, high-resolution mesh on the left.}
+	\label{fig:numerical_stiffness}
+\end{figure}
+
+\subsection{Geometric Coarsening}
+DAC uses an iterative procedure {to create the} coarse mesh while maintaining mode shapes. We initialize our mesh to a coarse hexahedral discretization of the starting geometry, $\vc q^0$, and then subdivide recursively until we reach a convergent mesh resolution. We then solve the generalized mass-PCA system 
+\begin{align}
+\vc K(\vc q^0) \vc q = \lambda \vc M \vc q
+\end{align}
+for the dominant shape modes of the convergent system and then coarsen via bisection 
+with mass-PCA until we reach a maximally coarse mesh that matches the dominant four shape modes to tolerance. We use a relative geometric difference of $5\%$ (Hausdorff distance) as our tolerance threshold. Typically this is a short validation step as even the coarsest meshes generally satisfy this criteria (Figure~\ref{fig:defo_and_frequency_match}).
+
+\subsection{Material Parameter Fitting}  
+Our geometric coarsening ensures that our DAC mesh captures significant deformation modes of our design accurately. However, when simulated, these same coarse meshes suffer from \emph{numerical stiffening} -- an increase in effective stiffness and damping as a consequence of decreased mesh resolution; see Figure~\ref{fig:numerical_stiffness}. This leads to unacceptably inaccurate simulated trajectories no matter how we simulate this system. Regaining predictive stiffness and damping by refining the discretization would take us back to intractable mesh sizes; see Figure~\ref{fig:adaptiveMeshing}.
+Rather than refine, we keep our coarse mesh (as we have already ensured that our geometry is resolved there) and instead calibrate its frequency spectrum to directly match experiment. 
+
+To do this, we rescale our coarse model stiffness so that its fundamental frequency matches an observed frequency. As we will see below, this simple analysis sufficiently recovers effective stiffness and damping to regain a predictive 
+nonlinear simulation with our coarse mesh. 
+
+From the geometric coarsening step above, we retain the numerical eigenvalues, $\lambda_i^0$, of our coarse mesh with corresponding deformation modes $m_i$ approximated linearly by the damped harmonic oscillator~\cite{Anonymous:TmbCyHDJ} 
+\begin{align}
+\ddot m_i = -(a + b \lambda_i ) \dot m_i - \lambda_i m_i,
+\end{align}
+or equivalently 
+\begin{align}
+\begin{split}
+m_i(t) = &A_i\exp(-d_i t)\sin(2 \pi f_it+ \theta_i),\\
+&f_i = \frac{1}{2\pi}\sqrt{\lambda_i - (\frac{a+ b \lambda_i}{2})^2},\\
+&d_i=\frac{1}{2}(a + b \lambda_i),
+\label{eq:oscillator}
+\end{split}
+\end{align} where $a$ and $b$ are Rayleigh Damping parameters and $\lambda_i$ is the $i^{th}$ eigenvalue associated with the $i^{th}$ deformation mode.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\columnwidth]{images/calibrationfig.png}
+	\caption{Top: tracking the oscillations of a 3D-printed calibration rig allows us to measure mesh-dependent stiffness and damping parameters. Bottom: the resulting DAC-simulated frames at corresponding times for visual comparison to the captured motion.}
+	\label{fig:calibrationRig}
+\end{figure}
+
+We then 3D-print calibration rigs with tracker markings, see e.g., Figure~\ref{fig:calibrationRig}, and capture high-speed video (240 fps) of the rigs vibrating.  
+We extract a tracked trajectory $m_t$ of the marker motion from the video capture and solve the inverse harmonics problem~\citep{Mandelshtam:1997gr} to find the printed beam's frequency, $f_t$, and damping, $d_t$, parameters. Setting the tracked $f_t $ and $d_t$ in (\ref{eq:oscillator}) and $a=0$, based on our observation of minimal effective mass-damping, simultaneously retrieves the captured target eigenvalue $\lambda_t$ and the unknown and unreported stiffness damping parameter $b$ required for dynamic simulation. 
+
+With our tracked $\lambda_t$ in hand, our final step is to map the initial material Young's modulus, $E_m$, that we use to compute $\lambda_i^0$ (we set $E_m=1$ throughout)
+to a new, \emph{numerical} modulus value, $E_n$.
+We seek an $E_n$ that will match the numerical stiffness response of the simulated coarse FE mesh to the captured material response. We do this with a simple argument of fixed proportionality between the principle eigenvalues and the moduli by setting 
+\begin{align}
+E_n \leftarrow \frac{\lambda_t}{\lambda^0_1}  E_m.
+\end{align}
+As validation we confirm that our coarsened FE simulations, initialized to the starting calibration pose, with 
+Young's modulus set to $E_n$, and stiffness damping set to the measured damping parameter, match both high-resolution simulation and the tracked calibration rig, up to viscosity---which we so far find unnecessary to model; see \autoref{fig:vibration_match}. 
+
+Note that, in our experiments, increasing the number of mode shapes which must fall below our error threshold of $5\%$  Hausdorff distance does not improve simulation accuracy. Figure~\ref{fig:error} shows a comparison of DAC meshes created using $4$ and $10$ modes for the error threshold. The resulting simulations are indistinguishable from each other and both match measured experimental data equally well. 
+
+In practice we observe that DAC captures object motions containing large contributions from a number of modes. To understand why we see that DAC scaling corrects frequencies of modes well beyond the first, so that, for example, for our plant and walker models, DAC reduces average frequency error across the first 10 modes from 27.1\% to 2.4\%. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/measurePlantEdna.png}
+	\caption{Measured and simulated vibrations of the 3D-printed plant (digital material) and 3D-printed flamingo (Rigur RGD450) models (magnify the plots for details of fits).}
+	\label{fig:vibration_match_plant}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/coarseFineVibe.png}
+	\caption{DAC coarsening comparison for increasing the number of fitted modes. Our default setting requires less than $5\%$ relative Hausdorff distance up to the $4^{th}$ mode and gives a coarsened FE mesh with $dx=0.6mm$. If we increase the number of modes for our DAC fit to less than $5\%$ relative Hausdorff for up to the $10^{th}$ mode shape, we instead obtain a mesh with $dx=0.3mm$. Note that the resultant simulations for these two DAC meshes are indistinguishable (magnify the plot for detail of fit). }
+	\label{fig:error}
+\end{figure}
+
+Figure~\ref{fig:vibration_match_plant} shows an example of DAC coarsening applied to plant and flamingo models. With DAC we accelerate the simulation of the time varying deformation of our plant object by 25X while achieving good approximation to the high-resolution simulation mesh; see Figure~\ref{table:suff}. Here Figure~\ref{table:suff} distinguishes between convergent FEM discretizations and accurate FEM discretizations for meshes used in our examples. Convergent discretizations are ones for which the spatial resolution is high enough so that the modal frequencies of the mesh have converged to their final values (changing by less than $1\%$ with respect to previous subdivision). Accurate discretizations are ones for which the resolution of the FE mesh is such that the modal frequencies are within $5\%$ of convergent values. In this paper all results are with respect to the coarser, accurate FE meshes. Even compared to these we achieve speedups of up to 79X. We also note that, if measurement data  is not available, DAC calibration can be carried out using high-resolution simulation data.
+
+\begin{figure}[h]
+	\includegraphics[width=0.45\textwidth]{figs/coarsening_runtime_sim}
+	\centering
+	\caption{Statistics for our DAC simulations compared with two choices of accurate FE: a convergent FE model, 
+		%(determined as the largest consistent time-step and spatial sizes), 
+		and a validated accurate FE model (validated as matching experimental behavior and modal frequencies are within $5\%$ of convergent values). For each simulation we report the model used (plant and jumper models), the mesh element size,  the average wall-clock time spent per dynamic time step, memory usage, and the number of elements in the simulated mesh. Timings were recorded on an Intel Xeon E5-2666 v3, 2.9Ghz with 4 CPU threads.
+	}
+	\label{table:suff}
+\end{figure}
