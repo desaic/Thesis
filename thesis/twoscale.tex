@@ -214,7 +214,7 @@ Overall, the two models exhibit similar global deformation behaviors, in particu
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=.6\linewidth]{images/hom_cube_peri.png}	
+		\includegraphics[width=.8\linewidth]{images/hom_cube_peri.png}	
 		\caption{Simulation of a cube made of a periodic arrangement of a single microstructure at different resolutions. Inset pictures correspond to the model with homogenized material properties, while main pictures correspond to the full resolution simulations.}
 			\label{fig:hom_cube_1}
 	\end{figure}
@@ -228,8 +228,7 @@ Note that the resulting material distribution varies smoothly. By considering va
 
 \begin{figure}
 	\centering
-	\sixfigure{.16\textwidth}{.03in}{figures/ortho_cell0.png}{figures/ortho_cell1.png}{figures/ortho_cube_ms0.png}{figures/ortho_cube_ms6.png}{figures/ortho_cube_ms40.png}{figures/ortho_cube_ms51.png}
-	\sixfigure{.16\textwidth}{.03in}{figures/ortho_cell2.png}{figures/ortho_cell3.png}{figures/ortho_cube_mat0.png}{figures/ortho_cube_mat6.png}{figures/ortho_cube_mat40.png}{figures/ortho_cube_mat51.png}
+	\includegraphics[width=0.95\textwidth]{images/ortho_square.png}
 	\caption{Optimizing the orthotropic material parameters of a single cell (\emph{left}) and a $32\times32$ lattice of cells (\emph{right}) subject to directional forces. The vertices on the left side of the layout are fixed while forces are applied on the right vertices as depicted by the red arrows. Our simple but effective tiling algorithm allows to nicely transition between microstructures of smoothly material properties (\emph{right, top}).}
 	\label{plot:res}
 \end{figure}
@@ -237,7 +236,7 @@ Note that the resulting material distribution varies smoothly. By considering va
 \begin{table}
 	\centering
 	\footnotesize
-	\caption{\updated{Error statistics (SI units). The size of one microstructure is set to $1\times1\times1$.}} 
+	\caption{Error statistics (SI units). The size of one microstructure is set to $1\times1\times1$.}
 	{\begin{tabularx}{\linewidth}{ |X| X | X | X | X | }
 			\hline
 			Example & Mean displacement & Mean displacement difference & \multicolumn{2}{p{3.2cm}|}{\centering Elastic energy \newline homogenized/full resolution}\\ \hline
@@ -286,53 +285,44 @@ Note that the resulting material distribution varies smoothly. By considering va
 			\label{tab:results}
 		\end{table}
 		
-		\paragraph*{Beams with controlled deformation behaviour}
-		
+		\paragraph{Beams with controlled deformation behaviour}
 		We started by designing a 3D hollowed beam with a desired deformed shape. The beam was stretched by moving vertices on two opposite sides. Our topology optimization algorithm was run using a target deformation objective. The resulting optimized material properties and the 3D-printed structure are depicted in Figure \ref{fig:beam}. 
-		
 		\begin{figure}[h!]
 			\centering
-			\includegraphics[width=.99\linewidth]{figures/bar2_two.png}
+			\includegraphics[width=.8\linewidth]{images/bar2_two.png}
 			\caption{
 				An optimized hollow beam with target deformation. The left figure shows the target deformation and optimized material distribution. The right figure shows the 3D-printed structure and the achieved deformation.
 				\label{fig:beam}}
 		\end{figure}
-		
-		\paragraph*{Multi-Objective Flexure Design}
-		We tested our algorithm on a multi-target deformation setting by optimizing the structure of a flexure mount with two different target shapes (see Figure \ref{fig:flexure}). Here, our goal is to design a flexure that resists vertical loads while remaining compliant to horizontal loads. We assume that the object mounted on the flexure is connected to the flexure using a cylindrical connector that transmits the forces to the flexure via the connecting area. In the first scenario, vertical forces are applied to the points of the cylindrical area and we ask the flexure to stay as close as possible to its rest configuration. In the second scenario, horizontal forces are applied to the points of the cylinder and we ask the flexure shape to match the shape shown in the Figure \ref{fig:flexure}. %\melina{how was this shape obtained?}.
+		\paragraph{Multi-Objective Flexure Design}
+		We tested our algorithm on a multi-target deformation setting by optimizing the structure of a flexure mount with two different target shapes (see Figure \ref{fig:flexure}). Here, our goal is to design a flexure that resists vertical loads while remaining compliant to horizontal loads. We assume that the object mounted on the flexure is connected to the flexure using a cylindrical connector that transmits the forces to the flexure via the connecting area. In the first scenario, vertical forces are applied to the points of the cylindrical area and we ask the flexure to stay as close as possible to its rest configuration. In the second scenario, horizontal forces are applied to the points of the cylinder and we ask the flexure shape to match the shape shown in the Figure \ref{fig:flexure}. 
 		\begin{figure}
 			\centering
-			\includegraphics[width=.99\linewidth]{figures/flex_four.png}	
-			\caption{Optimizing a flexure mount. The flexure is connected to an object thanks to a cylindrical connector. We leave space for this connector by keeping a cylindrical area of the design layout empty of material. The material distribution of the flexure is optimized for two sets of external forces applied to the cylindrical area. Under vertical load, the flexure should stay close to the rest shape while under horizontal load, the flexure should deform according to the inset figure. 
-				\label{fig:flexure}}
+			\includegraphics[width=.6\linewidth]{images/flex_four.png}	
+			\caption{Optimizing a flexure mount. The flexure is connected to an object thanks to a cylindrical connector. We leave space for this connector by keeping a cylindrical area of the design layout empty of material. The material distribution of the flexure is optimized for two sets of external forces applied to the cylindrical area. Under vertical load, the flexure should stay close to the rest shape while under horizontal load, the flexure should deform according to the inset figure.}
+				\label{fig:flexure}
 		\end{figure}
-		
 		\begin{figure}[h]
 			\centering
-			\includegraphics[width=.99\linewidth]{figures/gripper_print.png}
+			\includegraphics[width=.8\linewidth]{images/gripper_print.png}
 			\caption{3D-printed functional grippers. By setting different target ratios of the rigid material, different designs can be obtained. 
-				When more soft material is used the grasping behaviour of the gripper is obtained via out-of-plane bending (\emph{top}), whereas more rigid material is used, the gripper deformation remains planar (\emph{bottom}).}  
-			
+				When more soft material is used the grasping behavior of the gripper is obtained via out-of-plane bending (\emph{top}), whereas more rigid material is used, the gripper deformation remains planar (\emph{bottom}).} 
 			\label{fig:gripper_printed}
 		\end{figure}
-		
 		\paragraph{Gripper}
 		We verified the functionality of our grippers by fabricating two of them. For these results we ran the optimization on high resolution meshes of the version that grasps the object when the extremities of the gripper are pressed (see Figure \ref{fig:gripper_printed}). By changing the parameter controlling the ratio of the soft material, different designs based on different mechanisms can be achieved. When more soft material is used the gripper achieves its target deformation thanks to out-of-plane bending, while for stiffer designs, the grasping motion is achieved via in-plane deformation.
-		\paragraph*{Minimal Compliance Examples}
+		\paragraph{Minimal Compliance Examples}
 		To demonstrate the scalability of our algorithm, we ran our topology optimization algorithm on a Stanford bunny (Figure \ref{fig:bunny}) made of more than 100 million voxels and subject to two load case scenarios.
 		We also designed two bridges of increasing resolutions. The first bridge was optimized using a lattice of half a million cells which corresponds to 1 billion voxels (Figure \ref{fig:bridge}). For the second bridge, we used the database of $64^3$ microstructures and a layout made of 4 million cells, which amounts to 1 trillion voxels. We initialized the topology optimization by running the algorithm on a lower resolution grid with 1.4 million elements and used the resulting parameters as initial material parameter values for the higher resolution optimization. 	
 		\begin{figure}
 			\centering	
-			\includegraphics[width=.99\linewidth]{figures/bunny_two.png}
+			\includegraphics[width=.8\linewidth]{images/bunny_two.png}
 			\caption{Stanford bunny optimized for two loading cases. Two sets of external forces are applied to the back and chest of the bunny as indicated by the arrows, and the color indicates the material distribution (\emph{left}). Material parameters are mapped to microstructures to obtain an object that can be actually printed (right).
 				\label{fig:bunny}}
 		\end{figure}
-		
 		\begin{figure}
 			\centering
-			%\twofigure{.235\textwidth}{.03in}{figures/bridge_bdry.png}{figures/bridge2.jpg}
-			%\twofigure{.235\textwidth}{.03in}{figures/bridge3.jpg}{figures/bridge2.jpg}	
-			\includegraphics[width=.99\linewidth]{figures/bridge_three.jpg}
-			\caption{Optimizing a bridge. The initial layout corresponds to a 128x64x32 regular grid. We apply uniform loads on the upper plane deck. We compute the material parameters and set cells with extremely low stiffness to void (\emph{top left}). We look up the microstructures and 3D print the bridge (\emph{top right}). We scaled the problem to 1 trillion voxels by using a lattice of 4 million elements where each element corresponds to a $64^3$ microstructure (bottom).
-				\label{fig:bridge}}
+			\includegraphics[width=.8\linewidth]{images/bridge_three.jpg}
+			\caption{Optimizing a bridge. The initial layout corresponds to a 128x64x32 regular grid. We apply uniform loads on the upper plane deck. We compute the material parameters and set cells with extremely low stiffness to void (\emph{top left}). We look up the microstructures and 3D print the bridge (\emph{top right}). We scaled the problem to 1 trillion voxels by using a lattice of 4 million elements where each element corresponds to a $64^3$ microstructure (bottom).}
+				\label{fig:bridge}
 		\end{figure}
