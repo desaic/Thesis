@@ -226,7 +226,7 @@ Initially, the user loads geometry which is embedded in a hexahedral grid for si
 We achieve significant simulation speed-up from coarsening, retain accuracy in the simulation, and reduce the cost of material coarsening at runtime to a negligible amount.
 	Our material model can be used in any simulation algorithm suitable for non-linear elasticity. In our experiments, we use Coin-IpOpt~\cite{ipopt} to implement static and dynamics simulations with tolerance (``tol'' option) set to $0.5$. We use Pardiso as our linear solver.
 	For timing purposes, we limit Pardiso to single thread mode.
-	The pseudo-code for static simulation is shown in \autoref{alg:sim}.
+	The pseudo-code for static simulation is shown in~\autoref{alg:sim}.
 \begin{algorithm}
 	\caption{Static Simulation}\label{alg:sim}
 	\begin{algorithmic}[1]
@@ -490,7 +490,7 @@ In the second example, we add a supporting arch to a bridge. Prior to the additi
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\textwidth]{images/bridge}
+	\includegraphics[width=0.8\textwidth]{images/bridge.pdf}
 	\caption{Accelerating geometry change: We repair a structurally unsound bridge by adding a supporting arch (8x faster).}
 	\label{fig:bridge}
 \end{figure}
