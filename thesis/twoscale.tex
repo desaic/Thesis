@@ -194,7 +194,7 @@ To this end, we designed several grippers that can grasp objects by moving their
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=.6\linewidth]{images/hom_cube_random.png}	
+	\includegraphics[width=.8\linewidth]{images/hom_cube_random.png}	
 	\caption{Comparison of simulated cubes with different material patterns modeled by homogenized cells (\emph{inset pictures}) and full resolution microstructures (\emph{large pictures}).}
 		\label{fig:hom_cube_2}
 \end{figure}
@@ -207,19 +207,19 @@ Overall, the two models exhibit similar global deformation behaviors, in particu
 	
 	\begin{figure}[t]
 		\centering
-		\includegraphics[width=.99\linewidth]{figures/gripper_cmp.png}	
-		\caption{\updated{Comparison of a simulated gripper with homogenized material properties (\emph{inset picture, left}) to the one using full microstructures (\emph{main picture, left}). The figures on the right show the vector field of vertex displacement of the two models. The blue-to-red colors represent the magnitudes of the displacements.}
-			\label{fig:gripper_validate}}
+		\includegraphics[width=.6\linewidth]{images/gripper_cmp.png}	
+		\caption{Comparison of a simulated gripper with homogenized material properties (\emph{inset picture, left}) to the one using full microstructures (\emph{main picture, left}). The figures on the right show the vector field of vertex displacement of the two models. The blue-to-red colors represent the magnitudes of the displacements.}
+			\label{fig:gripper_validate}
 	\end{figure}
 	
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=.99\linewidth]{figures/hom_cube_peri.png}	
-		\caption{\updated{Simulation of a cube made of a periodic arrangement of a single microstructure at different resolutions. Inset pictures correspond to the model with homogenized material properties, while main pictures correspond to the full resolution simulations.}
-			\label{fig:hom_cube_1}}
+		\includegraphics[width=.6\linewidth]{images/hom_cube_peri.png}	
+		\caption{Simulation of a cube made of a periodic arrangement of a single microstructure at different resolutions. Inset pictures correspond to the model with homogenized material properties, while main pictures correspond to the full resolution simulations.}
+			\label{fig:hom_cube_1}
 	\end{figure}
 	
-The differences observed between the homogenized model behaviour and the full resolution simulation can be explained by two major factors: (i) numeral stiffness when using larger elements which tends to make the homogenized mesh slightly stiffer in particular when bending deformation arises, (ii) violation of the periodicity assumption when replacing each cell by a single microstructure. This issue can be reduced by replacing each cell by a {\it tiling} of microstructures. This was verified on a cube made of a periodic arrangement of a single microstructure (see Figure \ref{fig:hom_cube_1}). And indeed, as we increase the resolution of the simulation grid, the error between the homogenized model and the full resolution version decreases and converges to similar values. }
+The differences observed between the homogenized model behaviour and the full resolution simulation can be explained by two major factors: (i) numeral stiffness when using larger elements which tends to make the homogenized mesh slightly stiffer in particular when bending deformation arises, (ii) violation of the periodicity assumption when replacing each cell by a single microstructure. This issue can be reduced by replacing each cell by a {\it tiling} of microstructures. This was verified on a cube made of a periodic arrangement of a single microstructure (see Figure \ref{fig:hom_cube_1}). And indeed, as we increase the resolution of the simulation grid, the error between the homogenized model and the full resolution version decreases and converges to similar values.
 
 \paragraph{Orthotropic materials}
 We tested the behavior of our algorithm in a 5-dimensional space by using the gamut of 2D orthotropic microstructures depicted in Figure \ref{fig:gamuts} (\emph{middle}). To this end, we used a regular lattice whose vertices on the left side where fixed and we applied parallel forces on the vertices of the opposite side. The goal in the test was to minimize the compliance of the structure. As can be seen in Figure \ref{plot:res} and in the accompanying video, we experimented with different force directions. Unsurprisingly, when a single cell is considered, the microstructure that we obtain has a structure that is aligned with the direction of the forces (see Figure \ref{plot:res}, \emph{left}). 
