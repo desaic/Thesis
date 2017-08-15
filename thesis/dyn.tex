@@ -242,7 +242,7 @@ We seek an $E_n$ that will match the numerical stiffness response of the simulat
 E_n \leftarrow \frac{\lambda_t}{\lambda^0_1}  E_m.
 \end{align}
 As validation we confirm that our coarsened FE simulations, initialized to the starting calibration pose, with 
-Young's modulus set to $E_n$, and stiffness damping set to the measured damping parameter, match both high-resolution simulation and the tracked calibration rig, up to viscosity---which we so far find unnecessary to model; see \autoref{fig:vibration_match}. 
+Young's modulus set to $E_n$, and stiffness damping set to the measured damping parameter, match both high-resolution simulation and the tracked calibration rig, up to viscosity---which we so far find unnecessary to model; see~\autoref{fig:vibration_match}. 
 
 Note that, in our experiments, increasing the number of mode shapes which must fall below our error threshold of $5\%$  Hausdorff distance does not improve simulation accuracy. Figure~\ref{fig:error} shows a comparison of DAC meshes created using $4$ and $10$ modes for the error threshold. The resulting simulations are indistinguishable from each other and both match measured experimental data equally well. 
 
@@ -263,13 +263,78 @@ In practice we observe that DAC captures object motions containing large contrib
 \end{figure}
 
 Figure~\ref{fig:vibration_match_plant} shows an example of DAC coarsening applied to plant and flamingo models. With DAC we accelerate the simulation of the time varying deformation of our plant object by 25X while achieving good approximation to the high-resolution simulation mesh; see Figure~\ref{table:suff}. Here Figure~\ref{table:suff} distinguishes between convergent FEM discretizations and accurate FEM discretizations for meshes used in our examples. Convergent discretizations are ones for which the spatial resolution is high enough so that the modal frequencies of the mesh have converged to their final values (changing by less than $1\%$ with respect to previous subdivision). Accurate discretizations are ones for which the resolution of the FE mesh is such that the modal frequencies are within $5\%$ of convergent values. In this paper all results are with respect to the coarser, accurate FE meshes. Even compared to these we achieve speedups of up to 79X. We also note that, if measurement data  is not available, DAC calibration can be carried out using high-resolution simulation data.
-
-\begin{figure}[h]
-	\includegraphics[width=0.45\textwidth]{figs/coarsening_runtime_sim}
+\begin{figure}
+	\includegraphics[width=0.95\textwidth]{figs/coarsening_runtime_sim}
 	\centering
 	\caption{Statistics for our DAC simulations compared with two choices of accurate FE: a convergent FE model, 
-		%(determined as the largest consistent time-step and spatial sizes), 
 		and a validated accurate FE model (validated as matching experimental behavior and modal frequencies are within $5\%$ of convergent values). For each simulation we report the model used (plant and jumper models), the mesh element size,  the average wall-clock time spent per dynamic time step, memory usage, and the number of elements in the simulated mesh. Timings were recorded on an Intel Xeon E5-2666 v3, 2.9Ghz with 4 CPU threads.
 	}
 	\label{table:suff}
+\end{figure}
+\section{Boundary Balancing Impact Model}
+\label{sec:BBI}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\columnwidth]{figs/BBI_Figures/Figure_14_BBI}
+	\caption{Impact model testing with a 3D-printed jumper dropped onto the ground. We show overlaid frames captured, left to right, from an experiment (left) and two corresponding simulations (at $h=10^{-4}s$) that respectively apply DKE (middle) and BBI (right) impact models. In experiment the fabricated jumper lands, bounces up and then rests upright on its feet (left). However, simulation with the DKE model (middle) rebounds too high, flips over and so incorrectly predicts that the jumper will fail by landing on its back after collision (middle). With our BBI model (right), our simulation qualitatively predicts the experimentally determined landing behavior for this design.}
+	\label{fig:collision_exp}
+\end{figure}
+
+With our DAC discretization in place, we will now derive a new, Boundary-Balancing Impact (BBI) model for FE that gains us accurate prediction of impact-response for the 3D-printed elastic materials we focus on in this work.
+
+\subsection{Complementarity Integration Revisited} 
+The nonsmooth Newmark complementarity integrator we reviewed in Section~\ref{sec:simPrelim} has several well-known flaws~\cite{Deuflhard:2008fu} that we illustrate next. In Figure~\ref{fig:BBI_block_compare_all} right, we drop a 3D-printed block from height of 3 cm onto a flat surface. As it is both stiff and highly damped it lands without perceptible rebound. Yet, when we simulate the same drop of the block with the Newmark complementarity integrator the block rebounds up to a height of 0.89 cm; see Figure~\ref{fig:BBI_block_compare_all} left. Errors on this scale are unacceptable in a fabrication design process where they can make the difference between success and failure - see Figure~\ref{fig:collision_exp}.
+
+What is going wrong in these examples? The Newmark discrete velocity update step in (\ref{eq:newmark_free_update}) gives rise to an arbitrary, undesirable (and for elastic materials) generally incorrect choice of restitution. Consider the impact of our material at contact with a normal $\vc n$. Here the complementarity constraints ensure that the new displacement $\delta^{t+1}$ along this normal are zero so that $\vc n^T \delta^{t+1} = 0$. However, although this nicely satisfies position constraints, upon substitution we see that $\vc n^T \vc v^{t+1} =  -\vc n^T \vc v^t$ so that Newmark gives an incorrect, fully elastic (coefficient of restitution $= 1$) effective impact response. Yet the impact response for elastica along an impact boundary should instead be inelastic with the normal velocity on impact along the elastic boundary dissipated completely~\cite{Doyen:2011gka}. In turn this results in much too large rebounds upon impact as we observe in Figures~\ref{fig:collision_exp} and \ref{fig:BBI_block_compare_all}. A related error for complementarity integrators manifests in commonly observed spurious oscillations in positions and tractions along contact boundaries. These oscillations are the combined result of instabilities in contact stresses, velocities and displacements. Notably, both of these issues arise with arbitrary impact geometries, not just in the planar example discussed here.
+
+\subsection{DKE Contact Stabilization} 
+To address these widely reported problems,~\citet{Deuflhard:2008fu} introduced a contact stabilization step to filter contact response with projection. They observe that contact forces acting on the material boundary should be balanced and so proposed a now-standard FEM contact-stabilization filter (DKE) that applies an L2-projection that zeroes out normal displacements along the boundary of materials at contact interfaces.  
+
+This projection on displacement is performed at the end of each time step, after the position update (\ref{eq:newmark_contact_implicit}) has been solved. This ensures a correct \emph{inelastic} response at the contact boundary and is effective in producing desirably stabilized contact tractions~\cite{Deuflhard:2008fu,Krause:2012im}. 
+Nevertheless, when we compare DKE against experiment (Figures~\ref{fig:collision_exp}, \ref{fig:BBI_block_compare_all}, and \ref{fig:BBI_block_compare_plant}), we see that the DKE projection likewise introduces unacceptably large rebound errors when compared with real-world results.
+
+\begin{figure}[h!]
+	\includegraphics[width=\columnwidth]{figs/BBI_Figures/Figure_3_BBI}	
+	\caption{Impact validation test. A 3D-printed, stiff elastic block is dropped face-first on the ground. Left-to-right we compare the simulated results of three FE impact models  - complementarity, DKE and our BBI model - with experimental results. We show configuration, at start, impact, and post impact maximum rebound height with details on stress distribution at impact, apex height reached, and (inset) the velocity profile for each simulation. As the effective restitution of elastica varies with angle of impact, see below in Figure~\ref{fig:cube_corner} for a comparable oblique drop experiment.}
+	\label{fig:BBI_block_compare_all}
+\end{figure}
+
+\begin{figure}[h!]
+	\includegraphics[width=0.9\columnwidth]{figs/BBI_Figures/Figure_16_BBI.pdf}	
+	\caption{\changed{Comparison of our BBI model to experiment for a 3D-printed cube dropped from an oblique initial orientation.}}
+	\label{fig:cube_corner}
+\end{figure}
+
+\subsection{Boundary Balancing Impact}
+To better understand why DKE projection does such a poor job of resolving impacts in our elastic materials, let us consider again our simple dropped block example in Figure~\ref{fig:BBI_block_compare_all}. We observe that by projecting out just the normal component of displacement along the boundary the DKE method artificially \emph{concentrates} \changed{high stresses} along the elements just inside the boundary. This can be seen in the impact row of Figure~\ref{fig:BBI_block_compare_all}. These concentrated stresses effectively load the near-boundary layers which then spring back, introducing a much too large response as seen in the \changed{final} row of Figure~\ref{fig:BBI_block_compare_all}.
+The problem here is that the L2-projection applied is material-oblivious and yet material properties clearly mediate impact response. Compliance distributes contact stresses quickly through an elastic material while, in damped materials, internal friction rapidly attenuates the response. 
+
+\changed{With these observations in mind we define a new Boundary Balancing Impact (BBI) model that can effectively impose boundary force-balance in a material-aware fashion.} Starting with our base time integrator we define a compliant, discretization- and material-aware metric for projection below. The resulting stabilizing impact model better duplicates results in our design applications and experiments. Upon completing each time step from $t-1$ to $t$ we replace the Newmark update in (\ref{eq:newmark_free_update}) with a compliant boundary projection update
+\begin{align}
+\begin{split}
+\vc c &= 2 \vc \delta^{t+1} - h \vc v^t, \\
+\vc A &= \vc M + \frac{h^2}{4} \vc K(\vc q^{t+1}) + \frac{h}{2} \vc D(\vc q^{t+1}) ,\\
+\vc d^* &= \argmin_{\vc d} \big\{ \frac{1}{2} \| \vc d - \vc c \|^2_{\vc A} : \vc N^T \vc d \geq 0 \big\},\\
+\vc v^{t+1} &= \frac{1}{h} \vc d^*,\\
+\vc q^{t+1} &= \vc q^t + \vc \delta^{t+1}.\\
+\end{split}
+\label{eq:newmark_predictor_proj}
+\end{align}
+
+This new impact model projects the explicit predicted velocity displacement, $\vc c$, to the nearest set satisfying force balance on the boundary with respect to the local approximation of both material \emph{stiffness} and \emph{damping}. We find that this effectively distributes the contact-stabilized displacement across the material from the boundary layers. The effect of impact is communicated to the material interior while still ensuring that impacts are correctly inelastic along the active contact boundary. \changed{This leads to} accurate predictions of real-world bouncing and rebounds. In our simple drop test we see in the impact row of Figure~\ref{fig:BBI_block_compare_all} that, at impact, response for this damped material has been correctly dissipated and the resulting normal displacement closely matches real world results in the apex row of Figure~\ref{fig:BBI_block_compare_all}. 
+
+As we consider a range of impact angles, as well as impact with more complex geometries, multi-material 3D-prints and self contact we see that BBI still consistently and more accurately captures impact-response behavior. See Figures ~\ref{fig:collision_exp}-\ref{fig:flamingo_contact}. These examples demonstrate the range and complexity of responses obtained by BBI coupling impact to stiff elastic materials with large deformations as well as objects composed of multiple materials undergoing both self-contact and stiction.
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{figs/BBI_Figures/Figure_1_BBI}	
+	\caption{A drop test of the 3D-printed plant model (digital material). We compare simulated results from Complementarity, DKE and our BBI model with experiment. BBI solely reproduces the observed impact behavior.}
+	\label{fig:BBI_block_compare_plant}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{figs/FlamingoContact}	
+	\caption{Drop tests of a multi-material 3D-printed flamingo model (Rigur and TangoBlackPlus) from a variety of orientations. While effective restitution of elastica varies with angle of impact, in all cases our BBI simulations agree with experiment.}
+	\label{fig:flamingo_contact}
+	\vspace{-10px}
 \end{figure}

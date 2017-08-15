@@ -239,7 +239,7 @@ Note that the resulting material distribution varies smoothly. By considering va
 	\caption{Error statistics (SI units). The size of one microstructure is set to $1\times1\times1$.}
 	{\begin{tabularx}{\linewidth}{ |X| X | X | X | X | }
 			\hline
-			Example & Mean displacement & Mean displacement difference & \multicolumn{2}{p{3.2cm}|}{\centering Elastic energy \newline homogenized/full resolution}\\ \hline
+			Example & Mean displacement & Mean displacement difference & Elastic energy \newline homogenized & Elastic energy \newline full resolution\\ \hline
 			Beam 1 & 6.47$\times10^{-3}$ & 6.04$\times10^{-4}$ & 6.85$\times10^{-5}$ & 6.17$\times10^{-5}$ \\
 			Beam 2 & 6.47$\times10^{-3}$ & 6.04$\times10^{-4}$ & 1.63$\times10^{-5}$ & 1.08$\times10^{-5}$ \\
 			Beam 3 & 5.07$\times10^{-3}$ & 4.97$\times10^{-4}$ & 2.38$\times10^{-4}$ & 2.07$\times10^{-4}$ \\
@@ -271,7 +271,7 @@ Note that the resulting material distribution varies smoothly. By considering va
 		\footnotesize
 		\caption{Statistics on the 3D-printed models. The last row uses the database of $64^3$ microstructures.} 
 		{
-			\begin{tabularx}{\linewidth}{ |X| X | X | p{1cm}| p{1cm}| }
+			\begin{tabularx}{\linewidth}{ |X| X | X | p{3cm}| p{3cm}| }
 				\hline
 				Example & Grid Size & \# Voxels & Time per FEM Solve [s] & Time per Step [s]\\ \hline
 				Beam   & 96$\times$24$\times$4  & 38M  &  0.7 & 5\\
@@ -304,7 +304,7 @@ Note that the resulting material distribution varies smoothly. By considering va
 		\end{figure}
 		\begin{figure}[h]
 			\centering
-			\includegraphics[width=.8\linewidth]{images/gripper_print.png}
+			\includegraphics[width=.6\linewidth]{images/gripper_print.png}
 			\caption{3D-printed functional grippers. By setting different target ratios of the rigid material, different designs can be obtained. 
 				When more soft material is used the grasping behavior of the gripper is obtained via out-of-plane bending (\emph{top}), whereas more rigid material is used, the gripper deformation remains planar (\emph{bottom}).} 
 			\label{fig:gripper_printed}
@@ -316,13 +316,13 @@ Note that the resulting material distribution varies smoothly. By considering va
 		We also designed two bridges of increasing resolutions. The first bridge was optimized using a lattice of half a million cells which corresponds to 1 billion voxels (Figure \ref{fig:top_bridge}). For the second bridge, we used the database of $64^3$ microstructures and a layout made of 4 million cells, which amounts to 1 trillion voxels. We initialized the topology optimization by running the algorithm on a lower resolution grid with 1.4 million elements and used the resulting parameters as initial material parameter values for the higher resolution optimization. 	
 		\begin{figure}
 			\centering	
-			\includegraphics[width=.8\linewidth]{images/bunny_two.png}
+			\includegraphics[width=.6\linewidth]{images/bunny_two.png}
 			\caption{Stanford bunny optimized for two loading cases. Two sets of external forces are applied to the back and chest of the bunny as indicated by the arrows, and the color indicates the material distribution (\emph{left}). Material parameters are mapped to microstructures to obtain an object that can be actually printed (right).
 				\label{fig:bunny}}
 		\end{figure}
 		\begin{figure}
 			\centering
-			\includegraphics[width=.8\linewidth]{images/bridge_three.jpg}
+			\includegraphics[width=.6\linewidth]{images/bridge_three.jpg}
 			\caption{Optimizing a bridge. The initial layout corresponds to a 128x64x32 regular grid. We apply uniform loads on the upper plane deck. We compute the material parameters and set cells with extremely low stiffness to void (\emph{top left}). We look up the microstructures and 3D print the bridge (\emph{top right}). We scaled the problem to 1 trillion voxels by using a lattice of 4 million elements where each element corresponds to a $64^3$ microstructure (bottom).}
 				\label{fig:top_bridge}
 		\end{figure}
