@@ -1,1 +1,12 @@
 \chapter{Conclusion}
+We presented a class of coarsening methods for finite element simulation of elastic materials.
+These methods speed up the simulation of non-linear elastic materials to be used in iterative design algorithms while still predictive enough to improve the design.
+The accuracy and efficiency of our methods are demonstrated by designing and fabricating functional 3D prints with specified static and dynamic deformation properties.
+
+Traditionally, engineers improve the accuracy of FEM simulation by adaptively refining the mesh until some convergence test is satisfied.
+The elements must be small enough to capture the geometric and material variations.
+Moreover, due to numerical stiffening, the element sizes must be a fraction of the feature sizes.
+Because of such requirements, accurate simulation of a detailed design can take from minutes to hours on a desktop computer with a single CPU.
+Homogenization and numerical coarsening methods try to overcome the efficiency problem by computing new material models for the coarse elements.
+Our coarsening approach generalizes the previous methods to handle general non-linear elastic materials and for dynamic scenarios. In theory, any basis function can be used to fit the behavior of coarse elements. We performed experiments with two basis functions:the Neo-Hookean constitutive model and a spring-like energy function for modeling direction of anisotropy.
+
