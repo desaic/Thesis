@@ -175,6 +175,22 @@ which also relies on a database to speed up computations.
 However, their work specifically targets minimum compliance problem in the structural design which allows them to approximate the macroscale behaviour of the microstructures with a
 particular strain-based interpolating function.
 \section{Thesis Overview}\label{ch1:desc}
-Chapter~\ref{ch2:ddfem} starts with the basic computational model for solid elastic materials.
-Building on that, we introduce data-drive finite elements or DDFEM.
-It is the first method in compute graphics that coarsens non-linear hetereogeneous 
+Chapter~\ref{ch2:ddfem} introduces the FEM method for simulating elastic materials.
+Building on existing material models, we introduce data-drive finite elements or DDFEM,
+the first simulation method optimized for geometric and material design problems.
+We describe a general method to model blocks of heterogeneous non-linear hyperelastic materials.
+We then provide example energy functions for blocks of Neo-Hookean materials.
+These coarse blocks can then be combined to approximate designs with constantly changing geometry and material assignment.
+Chapter~\ref{ch3:topopt} proposes to represent the space of material properties as a level set.
+The level set representation can be used to sample the space of heterogeneous materials more efficiently.
+For this study, we restrict the coarse material blocks to be composed of linear base materials.
+The coarse material blocks are assumed to be tiled with the same or similar blocks in a periodic pattern.
+With these assumptions, we can sample the space of coarse blocks with much higher resolution.
+These high resolution material blocks are called microstructures.
+We computed the material property space of cubic-symmetric microstructures and discovered families of microstructures that achieves extremal elastic properties.
+In addition, the level set representation is incorporated into topology optimization algorithms to automatically design objects made of microstructures instead of homogeneous material blocks.
+This two-scale topology optimization method allows us to design high-resolution objects such as a functional gripping mechanism and a bridge model with maximum stiffness.
+Chapter~\ref{ch4:desdyn} investigates the possibility of designing real-world high-speed dynamic mechanism using coarsened simulations.
+We propose dynamics-aware coarsening (DAC) to model the dynamic elastic behavior using coarse elements.
+For impact modeling, we propose boundary-balancing impact (BBI) to model the inelastic impact of elastic objects.
+With these methods, we optimize and fabricate jumping mechanisms that are challenging to design by hand.
