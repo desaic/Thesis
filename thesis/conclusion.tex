@@ -10,3 +10,33 @@ Because of such requirements, accurate simulation of a detailed design can take 
 Homogenization and numerical coarsening methods try to overcome the efficiency problem by computing new material models for the coarse elements.
 Our coarsening approach generalizes the previous methods to handle general non-linear elastic materials and for dynamic scenarios. In theory, any basis function can be used to fit the behavior of coarse elements. We performed experiments with two basis functions:the Neo-Hookean constitutive model and a spring-like energy function for modeling direction of anisotropy.
 
+To apply these simulation algorithms to design problems, we developed a set of tools for representing the material properties space of microstructures, optimizing material assignment within the feasible space, and designing mechanisms that undergo dynamic trajectories with friction and impact.
+These tools including the simulation algorithms are validated by numerical and fabrication experiments.
+DDFEM achieved two-orders of magnitude speed up while still capturing the macroscopic behavior much more accurately than the baseline methods.
+\section{Limitations and Future Work}
+Our method and application is only a first step towards efficient computational design of physical objects.
+There are many potential future directions for improvements, experiments and applications.
+\paragraph{More general material models}
+Our proposed material model still works with deformation gradients sampled at quadrature points.
+However, in general, the elastic energy function can be any function of the degrees of freedom satisfying conservation laws.
+This would allow more explicit modeling of higher order deformations such as bending and twisting.
+One can use a much broader class of functions such as a neural network that map from a vector of vertex displacements to an energy value.
+\paragraph{More Physical Phenomena}
+Our experiments focused on modeling the elastic properties.
+Engineering design problems cover a much wider range of physical properties: structures with zero thermal expansion for space applications, 
+efficient antenna designs from simulation of electric-magnetic field, 
+tougher composite materials by mixing soft and stiff materials and so on.
+Whether we can use similar coarsening techniques to speed up the simulation remains an open question.
+\paragraph{Incorporating Other Techniques}
+Our coarsening method does not exclude the application of other methods that improves the simulation speed.
+Since our coarsened discretization is the same as the high-resolution elements, we can combine our method with many types of techniques.
+For example, we use a GPU implementation of geometric multigrid method to greatly improve the simulation speed compared to a direct linear solver.
+For future work,
+We can also experiment with adaptive meshing to use even coarser elements at locations where less details are required. On the other hand, we can learn new material models for higher order elements when more details are required such as with bending and buckling.
+\paragraph{High frequency details}
+Our work focused on modeling the macroscopic behavior of objects such as the overall deformation and trajectories.
+High frequency details such as sound are unlikely to be captured accurately out of the box with our method. To improve the simulation accuracy of such effects, one can embed additional material information such as sound radiation models~\citep{schweickart2017animating} in the coarse elements.
+\paragraph{More Sophisticated Optimization}
+For proof of concept, we only experimented with well-tested optimization algorithms such as topology optimization. For dynamic problems, we applied gradient-based method to improve the design towards a local minimum.
+We envision future applications such as robot design to require much more complex optimization algorithms that samples and tweaks many types of design parameters such as control parameters, trajectory planning, geometry and material parameters etc.
+Such optimization algorithms would benefit even more from an efficient simulation due to a much larger design space to explore.
