@@ -31,7 +31,7 @@ Let us ignore the difficulty of implementing adaptive meshing and the per time s
 \emph{Reduced models} utilizing linear modes~\cite{James:2002:DDR,Hauser:2003:IDU} are widely applied to accelerate dynamic simulations. The key issue here is that linear modal models provide only a \emph{linear} approximation of the deformation space leading to inaccurate linearization artifacts, 
 such as swelling during rotation;
 see Figure~\ref{fig:modalModels}. Optimized quadrature approaches, in turn, can afford efficient integration of non-linear forcing functions, but do not alleviate these artifacts~\cite{An:2008:OCE} when relying on an underlying modal deformation space.
-Finally, nonlinear modal models~\cite{Barbic:subspace:2005} can alleviate some of these issues but so-far remain challenging to incorporate in the design process in comparison to their linear counterparts~\cite{Chinesta2013}. 
+Finally, nonlinear modal models~\cite{Barbic:subspace:2005} can alleviate some of these issues but so-far remain challenging to incorporate in the design process in comparison to their linear counterparts~\citep{Chinesta2013}. 
 
 \begin{figure}
 	\centering
@@ -218,7 +218,7 @@ Rather than refine, we keep our coarse mesh (as we have already ensured that our
 To do this, we rescale our coarse model stiffness so that its fundamental frequency matches an observed frequency. As we will see below, this simple analysis sufficiently recovers effective stiffness and damping to regain a predictive 
 nonlinear simulation with our coarse mesh. 
 
-From the geometric coarsening step above, we retain the numerical eigenvalues, $\lambda_i^0$, of our coarse mesh with corresponding deformation modes $m_i$ approximated linearly by the damped harmonic oscillator~\cite{Anonymous:TmbCyHDJ} 
+From the geometric coarsening step above, we retain the numerical eigenvalues, $\lambda_i^0$, of our coarse mesh with corresponding deformation modes $m_i$ approximated linearly by the damped harmonic oscillator~\cite{shabana:2012} 
 \begin{align}
 \ddot m_i = -(a + b \lambda_i ) \dot m_i - \lambda_i m_i,
 \end{align}
@@ -360,7 +360,7 @@ For each mechanism we begin with a dynamic, time-varying goal, e.g., for our \em
 
 Simulations suitable for fabrication design must accurately predict both when a design fails and when it succeeds, thus we require real world examples of each. Below we outline our approach to creating these mechanism examples for testing, discuss our identification results, and review our implementation. We then detail our experiments comparing DAC and BBI's simulated predictions for each design task below in \S\ref{sec:exp} and validate outcomes of the simulations against repeated user trials in a study discussed in \S\ref{sec:user}.
 
-\subsection{Creating Mechanism Examples} We focus our tests here on jumping-related mechanisms. The analysis and design of jumping mechanisms is an increasingly active~\cite{Anonymous:gFJEnD-w,bergbreiter2007design,Bingham:orient,Bergbreiter:2008te,Jung:2014fh,JeSungKoh:2013ga,Koh:2015cy,Vella:2015cw,ShuguangLi:2015kl}, challenging and practical domain that incorporates high-speed transient dynamics of stiff elastic materials undergoing impact and so is an ideal test case for DAC and BBI.
+\subsection{Creating Mechanism Examples} We focus our tests here on jumping-related mechanisms. The analysis and design of jumping mechanisms is an increasingly active~\citep{Churaman:2011,bergbreiter2007design,Bingham:orient,Bergbreiter:2008te,Jung:2014fh,JeSungKoh:2013ga,Koh:2015cy,Vella:2015cw,ShuguangLi:2015kl}, challenging and practical domain that incorporates high-speed transient dynamics of stiff elastic materials undergoing impact and so is an ideal test case for DAC and BBI.
 Research in jumping mechanisms has focused on efficient energy transfer into jump height, see e.g.,~\citet{MinkyunNoh:2012fv}
 with aligned research on a range of approaches for controlled jumping~\citep{Loepfe:2015ir,Bartlett:2015he,ShuguangLi:2015kl}. In all cases, to our knowledge, mechanisms have been developed via costly, manual iterations of hands-on experiment, re-design, fabrication and one-off simulations~\citep{Cho:2009jl,Bartlett:2015he}, while even the stable landing of dynamic jumps has remained highly challenging~\citep{Jung:2015gm}.
 
@@ -392,7 +392,7 @@ The mechanisms found by this process are our \emph{final} designs. We compare th
 All results are computed on an Amazon EC2 compute-optimized instance with 4 CPU threads (Intel Xeon E5-2666 v3, 2.9Ghz), while all mechanisms were printed on a Objet500.
 While DAC and BBI give us orders of magnitude speedups for predictive simulation of deforming dynamics, our experiments (see Supplemental) show that dynamic FE simulation is unnecessary when modeling initial loading as well as during some portions of free-flight. With careful book-keeping and mapping of state simpler and more efficient models can be employed during these phases to gain further speedup.
 When initially loading mechanisms, e.g., when pressing down a jumper in Figure~\ref{fig:simulationStage}, we observe that the process is effectively quasistatic and so simulate with an efficient quasistatic solver detailed in our Supplemental. Upon completion of the initial loading we map state to our full dynamic solver with DAC and BBI.
-We also track the time-varying elastic potential energy stored in simulated compliant objects. When damping causes this internal potential to fall to zero, e.g., during portions of free-flight, we switch from our full DAC discretization to a rigid body discretization. We use DMV~\cite{Moser:1991dl}, an efficient energy--momentum preserving rigid-body integrator, to then time step the system in SE(3) coordinates until the next collision is reached, at which point we map rigid-body state back to the DAC model to capture the new deformation dynamics at impact. See our Supplemental for details on this process.
+We also track the time-varying elastic potential energy stored in simulated compliant objects. When damping causes this internal potential to fall to zero, e.g., during portions of free-flight, we switch from our full DAC discretization to a rigid body discretization. We use DMV~\citep{Moser:1991dl}, an efficient energy--momentum preserving rigid-body integrator, to then time step the system in SE(3) coordinates until the next collision is reached, at which point we map rigid-body state back to the DAC model to capture the new deformation dynamics at impact. See our Supplemental for details on this process.
 
 \subsection{Identification}
 \begin{figure}[h!]
