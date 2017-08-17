@@ -15,7 +15,8 @@ Let us explore four potential solutions for constructing fast \emph{and} accurat
 
 \emph{Higher-order elements} offer us the opportunity to replace thin regions of our models with elements that capture higher-order deformation modes. While an attractive strategy, this poses two challenges. 
 First, due to changing design parameters, we will need to identify suitable regions on-the-fly in order to perform this replacement. 
-Second, coupling swapped-in higher-order elements to other element types introduces overhead. Consider, for example, replacing lower-order hexahedra with plate elements in these regions. We must then ensure continuity of displacements between plate-like portions of the design and thicker, volumetric portions. This, in turn, requires introducing difficult coupling constraints~\cite{Bergou2007,Martin:2010:USE}. Finally, even with such additional efforts, these substitutions may not always improve computational performance as high-order elements contain more DoFs than their low-order counterparts~\cite{Belytschko:2013tz}. 
+Second, coupling swapped-in higher-order elements to other element types introduces overhead. Consider, for example, replacing lower-order hexahedra with plate elements in these regions. We must then ensure continuity of displacements between plate-like portions of the design and thicker, volumetric portions.
+This, in turn, requires introducing difficult coupling constraints~\cite{Bergou2007,Martin:2010:USE}. Finally, even with such additional efforts, these substitutions may not always improve computational performance as high-order elements contain more DoFs than their low-order counterparts~\cite{Belytschko:2013tz}. 
 
 \begin{figure}
 	\centering
@@ -39,11 +40,16 @@ Finally, nonlinear modal models~\cite{Barbic:subspace:2005} can alleviate some o
 	\label{fig:modalModels}	
 \end{figure}
 
-We begin by observing that \emph{numerical coarsening} offers an exciting alternative for efficient yet predictive FE modeling. Coarsening methods effectively apply coarse resolution FE meshes as reduced DoF models and then seek material models that reproduce the behavior of a high-resolution FE counterpart. Analytical solutions for coarsening have been developed for linear material models (models where the stress varies linearly with strain)~\cite{Kharevych:2009cg,Nesme:2009:PTE,Torres:2016:HIC}.
+We begin by observing that \emph{numerical coarsening} offers an exciting alternative for efficient yet predictive FE modeling. Coarsening methods effectively apply coarse resolution FE meshes as reduced DoF models and then seek material models that reproduce the behavior of a high-resolution FE counterpart. Analytical solutions for coarsening have been developed for linear material models (models where the stress varies linearly with strain)~\cite{Kharevych2009,Nesme2009,Torres:2016:HIC}.
 Due to this linear assumption, and similarly to the linear modal models discussed above, we find them difficult to apply for the accurate modeling of the nonlinear materials required for 3D-printed objects.
-Even more recently, data-driven coarsening strategies~\cite{chen2015:ddfem} have been proposed to overcome the linear limitation of prior work. Unfortunately, while coarsening offers promise, prior work, to our knowledge, does not account dynamic effects, inertial properties, nor material damping characteristics.
-As we see in Figure~\ref{fig:coarse}, this causes even the most recent, nonlinear, data-driven coarsening approaches to produce highly inaccurate dynamic simulations.
-
+Unfortunately, while coarsening offers promise, prior work, to our knowledge, does not account dynamic effects, inertial properties, nor material damping characteristics.
+As we see in Figure~\ref{fig:coarse}, this causes even the nonlinear DDFEM to produce highly inaccurate dynamic simulations.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\columnwidth]{figs/DDFEM.pdf}	
+	\caption{Dynamics-oblivious coarsening is significantly inaccurate for dynamic simulation. Left: two twisted elastic bars, initialized to the same configuration, are time-stepped in a dynamic simulation with an energy based, data-driven coarsening (DDFEM) model (blue) and a high-resolution FEM mesh (green). Right: small localized errors in the material model of the DDFEM simulation aggregate across the mesh over time to quickly produce large global errors when compared to the high resolution solution.}
+	\label{fig:coarse}
+\end{figure}
 Building on the promise of coarsening techniques and inspired by recent developments in frequency matching for plausible computer animation~\cite{Li:2014:SEE,BinWang:2015fx}, we develop a new, dynamics-aware coarsening (DAC) method that, in contrast to prior approaches, provides well-over an order-of-magnitude performance enhancement, while maintaining fabrication-level accuracy when modeling highly dynamic motions subject to frictional contact. Our method does so without complex substructuring, does not require adaptive remeshing, accounts for dynamic effects including damping, and does not introduce prohibitive linear modeling artifacts and so is applicable to a wide selection of nonlinear constitutive models for 3D-printed materials.  
 
 \subsection{Impact Response for Elastic Materials}
