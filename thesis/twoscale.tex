@@ -277,7 +277,6 @@ Note that the resulting material distribution varies smoothly. By considering va
 				Beam   & 96$\times$24$\times$4  & 38M  &  0.7 & 5\\
 				Flexure & 32$\times$32$\times$16 & 67M  & 1 & 12\\
 				Gripper   & 64$\times$32$\times$8  & 67M  & 1.7 & 10\\	\hline
-				Bunny & 32$\times$32$\times$32 & 134M  & 0.6 & 4 \\
 				Bridge & 128$\times$64$\times$32 & 1074M  & 27 & 81\\
 				Bridge 2 & 320$\times$160$\times$80 & 1074G  & 1.3k & - \\
 				\hline
@@ -312,14 +311,7 @@ Note that the resulting material distribution varies smoothly. By considering va
 		\paragraph{Gripper}
 		We verified the functionality of our grippers by fabricating two of them. For these results we ran the optimization on high resolution meshes of the version that grasps the object when the extremities of the gripper are pressed (see Figure \ref{fig:gripper_printed}). By changing the parameter controlling the ratio of the soft material, different designs based on different mechanisms can be achieved. When more soft material is used the gripper achieves its target deformation thanks to out-of-plane bending, while for stiffer designs, the grasping motion is achieved via in-plane deformation.
 		\paragraph{Minimal Compliance Examples}
-		To demonstrate the scalability of our algorithm, we ran our topology optimization algorithm on a Stanford bunny (Figure \ref{fig:bunny}) made of more than 100 million voxels and subject to two load case scenarios.
-		We also designed two bridges of increasing resolutions. The first bridge was optimized using a lattice of half a million cells which corresponds to 1 billion voxels (Figure \ref{fig:top_bridge}). For the second bridge, we used the database of $64^3$ microstructures and a layout made of 4 million cells, which amounts to 1 trillion voxels. We initialized the topology optimization by running the algorithm on a lower resolution grid with 1.4 million elements and used the resulting parameters as initial material parameter values for the higher resolution optimization. 	
-		\begin{figure}
-			\centering	
-			\includegraphics[width=.6\linewidth]{images/bunny_two.png}
-			\caption{Stanford bunny optimized for two loading cases. Two sets of external forces are applied to the back and chest of the bunny as indicated by the arrows, and the color indicates the material distribution (\emph{left}). Material parameters are mapped to microstructures to obtain an object that can be actually printed (right).
-				\label{fig:bunny}}
-		\end{figure}
+		To demonstrate the scalability of our algorithm, we designed two bridges of increasing resolutions. The first bridge was optimized using a lattice of half a million cells which corresponds to 1 billion voxels (Figure \ref{fig:top_bridge}). For the second bridge, we used the database of $64^3$ microstructures and a layout made of 4 million cells, which amounts to 1 trillion voxels. We initialized the topology optimization by running the algorithm on a lower resolution grid with 1.4 million elements and used the resulting parameters as initial material parameter values for the higher resolution optimization.
 		\begin{figure}
 			\centering
 			\includegraphics[width=.6\linewidth]{images/bridge_three.jpg}
