@@ -255,7 +255,6 @@ Poisson's ratio $\nu$, and shear modulus $G$ or $\mu$.
 & & & & & \mu
 \end{pmatrix},\hat{E} = \frac{E}{(1-2\nu)(1+\nu)}.
 \]
-
 The advantage of the linear elasticity is that it assumes a linear relationship between stress and strain. This leads to a linear relationship between nodal displacements and nodal forces
 as follows
 \[
@@ -343,7 +342,7 @@ Even though techniques such as model reduction or numerical coarsening can
 achieve order-of-magnitude performance increases,
 they require expensive precomputation phases, typically on the order of minutes for large meshes.
 This precomputation requires knowledge of an
-object’s geometry and material composition a priori, something
+object's geometry and material composition a priori, something
 that is not known during a design task.
 When the user updates the model by changing the geometry or the material distribution,
 the preprocessing step must be run again.

@@ -1,0 +1,14 @@
+*.pdf
+thesis/main.aux
+*.aux
+*.bbl
+thesis/main.blg
+*.lof
+thesis/main.out
+*.log
+thesis/main.run.xml
+thesis/main.toc
+*.gz
+thesis/main.lot
+*.bcf
+*.aux
