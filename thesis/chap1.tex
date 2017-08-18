@@ -1,29 +1,42 @@
 \chapter{Introduction}
 Crafting the behavior of a deformable object is difficult---whether it is a biomechanically accurate character model or a new multimaterial
 3D printable design.
-Getting it right requires constant iteration,
-performed either manually or driven by an automated system.
+Getting it right requires constant iteration, performed either manually or driven by an automated system.
 These design iterations often require many expensive physical prototypes that takes months to make and test.
 
-Computational simulation tools allow user to tinker a virtual design and quickly preview the predicted physical performance without laboriously 
-constructing new prototypes.
-This saves time and cost in the design process.
-Of course, a simulation algorithm needs to be \textit{predictive} in the sense that simulated results should agree with real-world experiments.
+Computational simulation tools are used by researchers and engineers to tinker a virtual design without laboriously constructing new prototypes.
+The performance of a design is predicted using computation to save time and cost of design iterations (Figure~\ref{fig:bridgeDesign}).
+For such computational tools to be useful, the simulation algorithm needs to be \textit{predictive} so that simulated results agree with real-world experiments.
 As a minimal requirement, the simulation should correctly predict whether a significant design modification improves or decreases the physical performance.
-On top of being predictive, the simulation should be \textit{efficient} to provide interactive feedback to a designer so that he can quickly try different ideas for design improvement.
-Taking a step further, 
-a computational design algorithm can automatically tweak design parameters and evaluate the performance by keeping simulation tools in the loop.
-With a predictive simulation, a local optimization algorithm can find a local optimum of the design parameters that correspond to real-world improvement of the design.
-
-Our goal in this thesis is to develop predictive and efficient simulation tools to enable computational design optimization of deformable objects.
-The gold standard technique for estimating the mechanical behavior of a deformable object under load is the finite element method (FEM).
-While accurate, FEM is notoriously slow, making it a major bottleneck in the iterative design process.
+On top of being predictive, the simulation should be \textit{efficient} to provide interactive feedback to a designer so that he can quickly try different ideas for to improve a design.
+Taking a step further, a computational design algorithm can automatically tweak design parameters using a predictive simulation algorithm in the loop.
+Since the simulation is often run to evaluate hundreds or thousands of design variations, the simulation still needs to be fast so that it does not take days to solve a design problem.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/bridgeDesign.png}
+	\caption{Designing a model bridge using simulation tools.
+		The bridge is made of soft 3D-printing material. (a) Initial design.
+		(b) Simulation predicts that the bridge sags significantly.
+		(c) A designer adds supporting arch to the bridge.
+		(d) The bridge stands without significant deformation.}
+	\label{fig:bridgeDesign}
+\end{figure}
+The gold standard technique for simulating the mechanical behavior of a deformable object is the finite element method (FEM).
+While FEM is predictive to a high level of accuracy, it is notoriously slow, making it a major computational bottleneck in the iterative design process.
 This is because FEM is only accurate with a sufficiently high-resolution discretization.
 In order to apply FEM to design problems, we require simulation techniques that are fast and accurate even in the face of constant tinkering.
-We propose to improve efficiency of FEM simulation using low-resolution meshes while maintaining accuracy by computing new material models for the coarse finite elements.
+
+Our goal in this thesis is to develop predictive and efficient FEM simulation tools to enable computational design optimization of deformable objects.
+The key idea to achieve our goal is \textit{coarsening}.
+By combining fine elements into a coarse element, the same simulation algorithm uses a much smaller number of degrees of freedom.
+Since the time complexity for typical simulation algorithms grows superlinearly,
+coarsening methods can quickly boost the speed of simulation algorithm.
+The cost associated with coarsening is loss of accuracy,
+to address this problem, we propose several different techniques to compute new material models for the coarse elements.
+
 To test our simulation in practice, we implemented design optimization algorithms using our simulation for both static and dynamic senarios.
 For static simulation, we modify existing topology algorithms to handle coarse elements that contain microstructures.
-For dynamic problems, we use gradient-based optimization algorithm to find locally optimal designs.
+For dynamic problems, we use a gradient-based optimization algorithm to find locally optimal designs.
 
 \section{Computational Design}
 Computational design concerns itself with optimizing the shape and material assignment in an object in order to control its large scale behavior.
