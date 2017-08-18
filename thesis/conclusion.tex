@@ -1,22 +1,41 @@
 \chapter{Conclusion}
 We presented a class of coarsening methods for finite element simulation of elastic materials.
-These methods speed up the simulation of non-linear elastic materials to be used in iterative design algorithms while still predictive enough to improve the design.
+Our goal is to be able to use simulation and computational design algorithms to improve real-world designs.
+To that end, we developed simulation tools for non-linear elastic materials that are efficient enough to be used in iterative design algorithms and also predictive enough to improve real-world designs.
 The accuracy and efficiency of our methods are demonstrated by designing and fabricating functional 3D prints with specified static and dynamic deformation properties.
 
 Traditionally, engineers improve the accuracy of FEM simulation by adaptively refining the mesh until some convergence test is satisfied.
 The elements must be small enough to capture the geometric and material variations.
-Moreover, due to numerical stiffening, the element sizes must be a fraction of the feature sizes.
+Moreover, to combat numerical stiffening, the element sizes must be a fraction of the feature sizes.
 Because of such requirements, accurate simulation of a detailed design can take from minutes to hours on a desktop computer with a single CPU.
-Homogenization and numerical coarsening methods try to overcome the efficiency problem by computing new material models for the coarse elements.
-Our coarsening approach generalizes the previous methods to handle general non-linear elastic materials and for dynamic scenarios. In theory, any basis function can be used to fit the behavior of coarse elements. We performed experiments with two basis functions:the Neo-Hookean constitutive model and a spring-like energy function for modeling direction of anisotropy.
+In many design problems where efficiency is a concern, it is often sufficient to correct the material models without refining the coarse elements.
+Homogenization and numerical coarsening methods are examples of this strategy where they use different rules to compute new material models for the coarse elements.
+Our coarsening approach generalizes the previous methods to handle non-linear elastic materials and dynamic scenarios.
+The energy functions of coarse elements are compactly represented as scaling parameters of different basis terms.
+Our simulation relies on a precomputation stage that construct a database of fine element combinations and their corresponding material parameters.
+At runtime, our algorithm quickly finds the proper material parameters for a block of fine elements.
+Blocks of elements are replaced by corresponding coarse elements to reduce the problem size to only a fraction of the original problem size.
+The coarse elements are simulated using precomputed material properties to maintain accuracy.
+Concretely, DDFEM achieved two-orders of magnitude speed up while still capturing the macroscopic behavior much more accurately than the baseline methods.
+DAC achieved a 79x speed up of dynamic simulation while matching the trajectories of simulation and physical measurement.
 
-To apply these simulation algorithms to design problems, we developed a set of tools for representing the material properties space of microstructures, optimizing material assignment within the feasible space, and designing mechanisms that undergo dynamic trajectories with friction and impact.
-These tools including the simulation algorithms are validated by numerical and fabrication experiments.
-DDFEM achieved two-orders of magnitude speed up while still capturing the macroscopic behavior much more accurately than the baseline methods.
+To apply our simulation to computational design algorithms, we developed a set of tools for the intermediate steps.
+The level set representation of the material property gamut is one such example.
+It enables efficient sampling and expansion of the material property gamut.
+With the gamut of 3D cubic-symmetric microstructures, we performed more analysis to identify similarities between structures with extremal properties.
+This study leads to the discovery of $5$ families of auxetic microstructures.
+The level set gamut is also used in our two-scale topology optimization algorithms to constrain the material parameters assigned to each cell.
+The modified topology optimization algorithm can optimize much more complex models since each cell now contains material parameters that can be mapped to precomputed microstructures.
+We can scale up our problem size and successfully optimize a bridge model with a trillion voxels, a resolution approaching 3D printer capabilities.
+Another example is our new impact model BBI.
+It corrects the overly energetic rebound behavior of objects undergoing inelastic impact.
+This makes the simulation algorithm to be predictive enough to produce the same qualitative landing behavior.
+
+In addition to being used in computational design algorithms, our simulation is extensively validated by experiments with fabricated objects.
 \section{Limitations and Future Work}
 Our method and application is only a first step towards efficient computational design of physical objects.
 There are many potential future directions for improvements, experiments and applications.
-\paragraph{More general material models}
+\paragraph{More General Material Models}
 Our proposed material model still works with deformation gradients sampled at quadrature points.
 However, in general, the elastic energy function can be any function of the degrees of freedom satisfying conservation laws.
 This would allow more explicit modeling of higher order deformations such as bending and twisting.
@@ -27,15 +46,17 @@ Engineering design problems cover a much wider range of physical properties: str
 efficient antenna designs from simulation of electric-magnetic field, 
 tougher composite materials by mixing soft and stiff materials and so on.
 Whether we can use similar coarsening techniques to speed up the simulation remains an open question.
-\paragraph{Incorporating Other Techniques}
+\paragraph{Incorporating Other Numerical Techniques}
 Our coarsening method does not exclude the application of other methods that improves the simulation speed.
-Since our coarsened discretization is the same as the high-resolution elements, we can combine our method with many types of techniques.
-For example, we use a GPU implementation of geometric multigrid method to greatly improve the simulation speed compared to a direct linear solver.
+Since our coarsened discretization is the same type as the high-resolution elements, we can combine our method with many types of techniques.
+For example, we already use a GPU implementation of geometric multigrid method to greatly improve the simulation speed compared to a direct linear solver.
 For future work,
 We can also experiment with adaptive meshing to use even coarser elements at locations where less details are required. On the other hand, we can learn new material models for higher order elements when more details are required such as with bending and buckling.
-\paragraph{High frequency details}
+\paragraph{High Frequency Vibration}
 Our work focused on modeling the macroscopic behavior of objects such as the overall deformation and trajectories.
-High frequency details such as sound are unlikely to be captured accurately out of the box with our method. To improve the simulation accuracy of such effects, one can embed additional material information such as sound radiation models~\citep{schweickart2017animating} in the coarse elements.
+Our assumption is that only the low frequency vibrations have sufficient amplitude to influence the macroscopic trajectories.
+High frequency vibration such as sound are unlikely to be captured accurately out of the box with our current method.
+To improve the simulation accuracy of such effects, one can embed additional material information such as sound radiation models~\citep{schweickart2017animating} in the coarse elements.
 \paragraph{More Sophisticated Optimization}
 For proof of concept, we only experimented with well-tested optimization algorithms such as topology optimization. For dynamic problems, we applied gradient-based method to improve the design towards a local minimum.
 We envision future applications such as robot design to require much more complex optimization algorithms that samples and tweaks many types of design parameters such as control parameters, trajectory planning, geometry and material parameters etc.
