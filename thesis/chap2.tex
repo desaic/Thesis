@@ -362,7 +362,7 @@ that removes these limitations and is thus extremely well suited
 to the types of design problems discussed above.
 We divide an object into a set of deformable voxels using embedded finite
 elements and coarsen these voxels hierarchically.
-A custom metamaterial database is populated with materials that minimize the error incurred by coarsening.
+A custom coarse element database is populated with materials that minimize the error incurred by coarsening.
 This database is learned once in a completely offline fashion and depends only on the set of materials to be used by the deformable object and not on the actual material distribution
 and geometry.
 At runtime we use the database to perform fast coarsening of an FEM mesh in a way that is agnostic to changes in geometry and material composition of the object.
