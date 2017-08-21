@@ -135,9 +135,9 @@ where $\vr{v}$ is a unit-length direction of anisotropy and $C_k$ is the scaling
 
 \subsection{Force Space Sampling}
 \label{sec:force_space_sampling}
-As mentioned previously, we take a sampling-based approach to metamaterial fitting. In order to fit our model (\autoref{eq:materialModel2}) to $V^0$ we first draw a number of samples from the deformation space of $\set{E}^0$ and compute $V^0$ for each sample.
+As mentioned previously, we take a sampling-based approach to coarse material fitting. In order to fit our model (\autoref{eq:materialModel2}) to $V^0$ we first draw a number of samples from the deformation space of $\set{E}^0$ and compute $V^0$ for each sample.
 If a user has prior knowledge of the set of meshes and simulations that they will require, then the best way to draw the samples is to run a number of anticipated simulations with various material combinations.
-In this paper, we provide a more general method to draw samples for a metamaterial.
+In this paper, we provide a more general method to draw samples for a material model.
 Initially, we attempted sampling by applying a random deformation to the corners of $\mathit{E}^1$; however, this led to many infeasible samples for very stiff materials.
 In order to alleviate this problem we perform sampling in the force space.
 
@@ -153,7 +153,7 @@ Each sample is then a tuple $\left\{\vr{u}^0, \, V^0\right\}$ (\autoref{fig:samp
 
 \subsection{Fitting}
 \label{sec:fitting}
-Given a set of deformation samples, $\left\{ \vr{u}^0, \,V^0\right\}$, we perform a least squares fit to determine the parameters, $\vr{p}^*$, for a given metamaterial (\autoref{fig:fitting}):
+Given a set of deformation samples, $\left\{ \vr{u}^0, \,V^0\right\}$, we perform a least squares fit to determine the parameters, $\vr{p}^*$, for material model(\autoref{fig:fitting}):
 \begin{align}
 \vr{p}^*= \underset{\vr{p}^1}{\operatorname{argmin}} \, \sum_{s=1}^{n_s}\left(V_s^0- \, V^1\left(\vr{r}\left(\vr{u}_s^0\right), \, \vr{p}^1\right)\right)^2,
 \label{eq:fitting}
@@ -172,12 +172,12 @@ We find the principal axes of the ellipse (via SVD) and use them as directions o
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\columnwidth]{images/fitting.pdf}
-	\caption{ Metamaterial potential energy functions are fitted to the deformation-energy samples using a least-squares optimization.}
+	\caption{ Coarse potential energy functions are fitted to the deformation-energy samples using a least-squares optimization.}
 	\label{fig:fitting}
 \end{figure}
-\paragraph{Regularization} Since vastly different material assignments, $^0\set{M}_k$, can produce the same metamaterial, our na\"{i}ve cost function (\autoref{eq:fitting}) can produce very large parameter values and even non-physical negative ones.
+\paragraph{Regularization} Since vastly different material assignments, $^0\set{M}_k$, can produce the same coarse material, our na\"{i}ve cost function (\autoref{eq:fitting}) can produce very large parameter values and even non-physical negative ones.
 For example, consider a homogeneous material assignment at the high-resolution level.
-The same metamaterial can be achieved by interleaving hard and soft materials at each fine element or by assigning a single, well chosen material to all fine elements.
+The same coarse material can be achieved by interleaving hard and soft materials at each fine element or by assigning a single, well chosen material to all fine elements.
 To overcome this, we add a regularization term to control the parameter ranges and prevent overfitting of the training samples.
 Our modified error function takes the following form:
 \begin{equation}
@@ -191,20 +191,20 @@ In our experiments, since the base energy functions are linear with respect to t
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\columnwidth]{images/compression}
-	\caption{Database compression step adds metamaterials to a compressed database by a farthest point sampling strategy.}
+	\caption{Database compression step adds coarse materials to a compressed database by a farthest point sampling strategy.}
 	\label{fig:compression}
 \end{figure}
 
 \subsection{Database Compression}
 \label{sec:compression}
 Given $n$ materials in the palette, the number of material combinations in a 2$\times$2$\times$2 block is $n^8$. In modern hardware, it is impossible to compute and store all material combinations even for a moderately-sized palette with $100$ materials.
-In order to compress the number of materials stored in our metamaterial database, we select a small number of representative material combinations and remove all others. We compare materials in a feature space. In order to construct metamaterial feature vectors, we first select a common subset of deformations from all computed deformation samples. We then evaluate the potential energies of each metamaterial at each deformation sample. The stacked vector of energies becomes a metamaterial feature vector. 
+In order to compress the number of materials stored in our coarse material database, we select a small number of representative material combinations and remove all others. We compare materials in a feature space. In order to construct coarse material feature vectors, we first select a common subset of deformations from all computed deformation samples. We then evaluate the potential energies of each coarse material at each deformation sample. The stacked vector of energies becomes a coarse material feature vector. 
 
 Since our base materials differ in stiffness by orders of magnitude, we take the logarithm to measure the difference in ratio.
 Let $D$ be the $L^2$ norm of log-energies between the two materials given by
 \begin{equation}
 D(A,B)=\sqrt{\sum_s (\log(V^{A}_{s})-\log(V^{B}_{s}))^2},
-\end{equation} where $A$ and $B$ denote two distinct metamaterials in the database. 
+\end{equation} where $A$ and $B$ denote two distinct coarse materials in the database. 
 Given the distance metric, we can select $k$ representatives materials using farthest point sampling~\cite{eldar1997farthest}. We randomly choose an initial metamaterial and then repeatedly select the material combination furthest away from any previous representatives -- continuing until we obtain $k$ representatives (\autoref{fig:compression}). This compression algorithm chooses $k$ samples that equally cover the metamaterial energy space, helping to preserve good behavior in our coarse simulations. 
 \subsection{Hierarchical Coarsening}
 While one level of coarsening can yield significant speed-ups, DDFEM can also be applied hierarchically.
