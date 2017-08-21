@@ -205,10 +205,10 @@ Let $D$ be the $L^2$ norm of log-energies between the two materials given by
 \begin{equation}
 D(A,B)=\sqrt{\sum_s (\log(V^{A}_{s})-\log(V^{B}_{s}))^2},
 \end{equation} where $A$ and $B$ denote two distinct coarse materials in the database. 
-Given the distance metric, we can select $k$ representatives materials using farthest point sampling~\cite{eldar1997farthest}. We randomly choose an initial metamaterial and then repeatedly select the material combination furthest away from any previous representatives -- continuing until we obtain $k$ representatives (\autoref{fig:compression}). This compression algorithm chooses $k$ samples that equally cover the metamaterial energy space, helping to preserve good behavior in our coarse simulations. 
+Given the distance metric, we can select $k$ representatives materials using farthest point sampling~\cite{eldar1997farthest}. We randomly choose an initial coarse material and then repeatedly select the material combination furthest away from any previous representatives -- continuing until we obtain $k$ representatives (\autoref{fig:compression}). This compression algorithm chooses $k$ samples that equally cover the coarse material energy space, helping to preserve good behavior in our coarse simulations. 
 \subsection{Hierarchical Coarsening}
 While one level of coarsening can yield significant speed-ups, DDFEM can also be applied hierarchically.
-As discussed in~\autoref{sec:compression}, the exponential growth of metamaterials palettes at each level makes it prohibitively expensive to perform fitting.
+As discussed in~\autoref{sec:compression}, the exponential growth of coarse material palettes at each level makes it prohibitively expensive to perform fitting.
 We address this by changing our coarsening strategy. 
 Instead of choosing $\set{E}^0$ to be a 2$\times$2$\times$2 block we choose it to be a 2$\times$1$\times$1 block, which we coarsen. We construct an intermediate database of materials and compress. 
 We then choose $\set{E}^0$ to be a 1$\times$2$\times$1 block, coarsen and compress, and finally a 1$\times$1$\times$2 block, coarsen and compress. Intermediate compression greatly reduces the number of samples we need to generate in order to populate the material parameter database for the next coarsening level. 
@@ -221,8 +221,8 @@ It is important to note that our intermediate databases only store lookup tables
 \end{figure}
 \section{Runtime Simulation}
 \label{sec:runtime}
-Once our metamaterial database, $\set{P}^1$, has been constructed we can use it to perform fast online coarsening. 
-Initially, the user loads geometry which is embedded in a hexahedral grid for simulation. Prior to simulation we iterate over all 2$\times$2$\times$2 blocks of hexahedral elements and perform mesh coarsening by replacing these 8 elements with a single coarse element. We perform a database lookup into $\set{P}^1$, using the material ID numbers of the 8 original elements, to quickly retrieve the optimal metamaterial for this coarse element. Database lookup is fast (even using our unoptimized, single-threaded implementation), and this is what makes DDFEM so appealing.
+Once our coarse material database, $\set{P}^1$, has been constructed we can use it to perform fast online coarsening. 
+Initially, the user loads geometry which is embedded in a hexahedral grid for simulation. Prior to simulation we iterate over all 2$\times$2$\times$2 blocks of hexahedral elements and perform mesh coarsening by replacing these 8 elements with a single coarse element. We perform a database lookup into $\set{P}^1$, using the material ID numbers of the 8 original elements, to quickly retrieve the optimal coarse material for this coarse element. Database lookup is fast (even using our unoptimized, single-threaded implementation), and this is what makes DDFEM so appealing.
 We achieve significant simulation speed-up from coarsening, retain accuracy in the simulation, and reduce the cost of material coarsening at runtime to a negligible amount.
 	Our material model can be used in any simulation algorithm suitable for non-linear elasticity. In our experiments, we use Coin-IpOpt~\cite{ipopt} to implement static and dynamics simulations with tolerance (``tol'' option) set to $0.5$. We use Pardiso as our linear solver.
 	For timing purposes, we limit Pardiso to single thread mode.
@@ -410,7 +410,7 @@ All the results shown here are simulated using nonlinear constitutive models at 
 	$400$ representatives at each intermediate level.}
 
 \subsection{Database}
-One advantage of our compact metamaterial representation is the small amount of storage it requires. In fact we require only $6\times8=48$ floating-point values for each material at the first coarsening level and $6\times64=384$ values for the second level.
+One advantage of our compact coarse material representation is the small amount of storage it requires. In fact we require only $6\times8=48$ floating-point values for each material at the first coarsening level and $6\times64=384$ values for the second level.
 (For each finer element, $^0\vr{p}$ contains 2 material moduli plus $C, \vr{v}$.)
 For further recursive levels, we can limit ourselves to $320$ values per material.
 Our current 3 material database is $4$ megabytes in size.
@@ -436,7 +436,7 @@ We also examine the behavior of DDFEM during bending (\autoref{fig:bending}). Ye
 	One might expect no benefit from the second level of coarsening since the 
 	number of quadrature points remains constant. 
 	However, the number of CG iterations is roughly proportional to the number of vertices in the simulation mesh and thus the coarse model converges more quickly~(\autoref{fig:cg}).
-	Since our  metamaterial models are not restricted to use
+	Since our coarse material models are not restricted to use
 	a fixed number of quadrature points,
 	one could design coarse models that are more tailored towards
 	assembly-free solvers by reducing the number of quadrature points and simplifying the strain energy expressions.
@@ -481,12 +481,12 @@ We also examine the behavior of DDFEM during bending (\autoref{fig:bending}). Ye
 \paragraph{Anisotropic material distribution} Next we explore the ability of DDFEM to handle highly anisotropic material distributions (\autoref{fig:fiberPull}). Specifically, we embed a helical set of stiff fibers in a soft, non-linearly elastic matrix. Pulling on the object induces a twisting. Again, at one coarsening level DDFEM captures this anisotropic behavior well, much better than the naive approach, and gains a \emph{51 times} speed up over the high-resolution simulation. Worth noting is that the DDFEM bar is slightly softer in the $y$-direction. This kind of inaccuracy should be expected. Since our method builds a low-dimensional approximation of a potential energy function we cannot hope to accurately reproduce the complete behavior of the high-resolution simulation.  What is important is that DDFEM captures the salient global behavior, in this case, the twisting of the bar. 
 \paragraph{Geometry and material design} We present three examples of using DDFEM for geometry and material design. In the first example, we edit the material composition of the sole of a running shoe in order to stabilize it. \autoref{fig:shoe} shows the effect of the three material edits as well as relative speed up achieved over the full resolution simulation and coarsening time. DDFEM performance is always an order of magnitude more than that of the high-resolution simulation, and, most importantly, our coarsening times are on the order of milliseconds. We stress that our current implementation is completely single threaded and that coarsening, which in our case involves a simple database lookup, is inherently parallel.
 In the second example, we add a supporting arch to a bridge. Prior to the addition of the support structure, the bridge sags catastrophically. The fast coarsening of DDFEM allows us to achieve an 8 fold increase in simulation performance using a single coarsening pass. In the third example, we add a rigid skeleton to a deformable character (George) in order  to control his pose. Here our single threaded, data-driven coarsening only takes ~200ms.  
-\begin{figure*}
+\begin{figure}
 	\centering
 	\includegraphics[width=0.90\textwidth]{images/DesignExampleShoe}
-	\caption{Designing a shoe sole: We compare the performance of {\DDFEM} to that of {\HiRes} in the context of a material design problems. Large images show the effect of material changes on the sole of the shoe, which is being deformed under a ``foot-like'' pressure field. Inset images show the materials assigned to the shoe sole and the embedded finite element simulation mesh. Numbers within arrows show coarsening times between editing steps and the numbers in the upper left corner of each image show the relative performance of {\DDFEM} to  {\HiRes}. While the {\DDFEM} sole is made up of many metamaterials, we display it as a single color to distinguish it from the {\HiRes}.}
+	\caption{Designing a shoe sole: We compare the performance of {\DDFEM} to that of {\HiRes} in the context of a material design problems. Large images show the effect of material changes on the sole of the shoe, which is being deformed under a ``foot-like'' pressure field. Inset images show the materials assigned to the shoe sole and the embedded finite element simulation mesh. Numbers within arrows show coarsening times between editing steps and the numbers in the upper left corner of each image show the relative performance of {\DDFEM} to  {\HiRes}. While the {\DDFEM} sole is made up of many coarse material, we display it as a single color to distinguish it from the {\HiRes}.}
 	\label{fig:shoe}
-\end{figure*}
+\end{figure}
 
 \begin{figure}
 	\centering
@@ -513,7 +513,7 @@ In the second example, we add a supporting arch to a bridge. Prior to the additi
 Finally, we test the accuracy of our simulation against fabricated results, created using a Stratysys Object Connex 500 multimaterial 3D printer. We fabricated a bar with embedded helical fibers as well as our George character and applied specified loads to both. We show qualitative comparison of the deformed configurations of these real-world examples to our simulated results (\emph{2 levels of coarsening}-\autoref{fig:experiments}). Note that the simulation does an excellent job of predicting the deformed configuration of both objects.
 
 \section{Limitations and Future Work}
-Because DDFEM relies on a database compression step to combat the combinatorial explosion of metamaterials,  accuracy is heavily influenced by the set of representative metamaterials. Finding a better way to select metamaterial structures is an interesting area of future work.
+Because DDFEM relies on a database compression step to combat the combinatorial explosion of coarse materials,  accuracy is heavily influenced by the set of representative coarse materials. Finding a better way to select coarse structures is an interesting area of future work.
 Second, in our attempt to make our method geometry independent, some accuracy when dealing with partially filled boundary finite elements is sacrificed. Adding a parameterized boundary representation to the method, in order to more correctly handle non-axis aligned boundary conditions, could also be explored. Third, the method acts on discrete materials. While we believe that this is reasonable, considering the way that engineers and designers approach material design, a method that coarsens continuous spaces of non-linear materials could be beneficial.   
 
 Many avenues of future work are promising. First, one could explore topologically aware meshing (i.e. in the same vein as~\citet{Nesme2009}) to allow better handling of models with large empty regions.
