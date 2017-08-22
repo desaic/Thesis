@@ -102,7 +102,15 @@ Having introduced the broad strokes of the DDFEM scheme, we move on to a detaile
 
 \section{Coarse Material Database Construction}
 \label{sec:database}
-We construct our coarse material database using a potential energy fitting approach. This is valid due to the hyperelastic materials that make up our material palettes. Material fitting considers 2$\times$2$\times$2 blocks of high-resolution hexahedral elements (denoted $\set{E}^0$). For each element $E_k^0\in \, \set{E}^0$, its material is referred to as $\set{M}_k^0\in \, \set{P}^0$. (Note that $\set{E}$ refers to a set of elements and $E$ refers to a single element.) Given $\set{E}^0$, we can sample its deformation space, and using $\set{M}_k^0$, compute the potential energy $V^0$ for each sample.  Now we must find a coarse material model that, when applied to a single coarse element $\mathit{E}^1$ best approximates $V^0$.  This is accomplished by fitting a coarse potential energy function , $V^1$, to the set of deformation/energy samples. The fitted energy is stored in the coarse material database and indexed by the material indices of $\set{M}^0$.
+We construct our coarse material database using a potential energy fitting approach.
+This is valid due to the hyperelastic materials that make up our material palettes.
+Material fitting considers 2$\times$2$\times$2 blocks of high-resolution hexahedral elements (denoted $\set{E}^0$).
+For each element $E_k^0\in \, \set{E}^0$, its material is referred to as $\set{M}_k^0\in \, \set{P}^0$. 
+Note that $\set{E}$ refers to a set of elements and $E$ refers to a single element.
+Given $\set{E}^0$, we can sample its deformation space, and using $\set{M}_k^0$, compute the potential energy $V^0$ for each sample.
+Now we must find a coarse material model that, when applied to a single coarse element $\mathit{E}^1$ best approximates $V^0$.
+This is accomplished by fitting a coarse potential energy function , $V^1$, to the set of deformation/energy samples.
+The fitted energy is stored in the coarse material database and indexed by the material indices of $\set{M}^0$.
 
 \subsection{Coarse Material Model}
 Our fitting approach depends on choosing a good coarse material model.
@@ -111,7 +119,7 @@ In order to ensure that our model meets the criteria for a material energy funct
 V^1(\vr{u}^1, \, \vr{p}^1) = \sum_{k=1}^8 w_k \, V_k^0(\vr{u}_k^0, \, \vr{p}_k^1, \, \vr{X}_k^1),
 \label{eq:materialModel}
 \end{align}
-where $V_k^0$ is the strain energy density of $\set{M}_k^0$ at quadrature point position $\vr{X}_k^1$ (\autoref{fig:coarseFine}). Here $\vr{u}^1$ is the vector of nodal displacements associated with $^1\mathit{E}$ while $^0\vr{u}_k$ are displacements for the $k^{th}$ element at level $0$ reconstructed using trilinear interpolation from $\vr{u}^1$. The vector $\vr{p}^1$ stores the material parameters for the coarse materials and consists of the stacked material parameter vectors for each base material in $\set{M}_k^0$, themselves denoted by $\vr{p}_k^1$.  $w_k$ is the standard Gaussian quadrature weight.
+where $V_k^0$ is the strain energy density of $\set{M}_k^0$ at quadrature point position $\vr{X}_k^1$ (\autoref{fig:coarseFine}). Here $\vr{u}^1$ is the vector of nodal displacements associated with $\mathit{E}^1$ while $\vr{u}_k^0$ are displacements for the $k^{th}$ element at level $0$ reconstructed using trilinear interpolation from $\vr{u}^1$. The vector $\vr{p}^1$ stores the material parameters for the coarse materials and consists of the stacked material parameter vectors for each base material in $\set{M}_k^0$, themselves denoted by $\vr{p}_k^1$.  $w_k$ is the standard Gaussian quadrature weight.
 We note that our model incurs slight computational overhead at runtime because we must evaluate potential energy functions at 8 quadrature points.
 However, the speed improvement gained by coarsening makes the remaining, per-quadrature point expense negligible.
 
@@ -143,7 +151,9 @@ In order to alleviate this problem we perform sampling in the force space.
 
 For each element $\mathit{E}^0\in \, \set{E}^0$ we apply a set of randomly generated forces.
 We solve an elastostatic problem to compute the deformation of $\set{E}^0$, using constraints to remove rigid motion. Recall that this is fast because $^0\set{E}$ consists of just 8 elements.
-Each sample is then a tuple $\left\{\vr{u}^0, \, V^0\right\}$ (\autoref{fig:sampling}) where $^0\vr{u}$ are the nodal displacements of $^0\set{E}$, and $^0V$ is the strain energy density value of this deformed configuration.
+Each sample is then a tuple $\left\{\vr{u}^0, \, V^0\right\}$ (\autoref{fig:sampling}) 
+where $^0\vr{u}$ are the nodal displacements of $\set{E}^0$,
+and $V^0$ is the strain energy density value of this deformed configuration.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\columnwidth]{images/sampling.pdf}
