@@ -1,6 +1,6 @@
 DDFEM is a combination of embedded finite elements and hierarchical
 coarsening.
-In this section, we discuss the problem of coarsening
+In the remainder of this section, we discuss the problem of coarsening
 and introduce the notion of a material palette. We conclude by
 summarizing the two main stages of DDFEM—offline coarse material
 construction and online coarsening.
@@ -17,7 +17,7 @@ subsets of fine elements with applied materials to coarse elements
 with new, optimized materials. Our goal is to precompute these
 optimized materials so that coarsening is fast at runtime. Below we
 discuss how to make such a precomputation tractable beginning with
-our choice of Finite Element simulation methodology.
+our choice of finite element simulation methodology.
 \paragraph{Conforming vs. embedded finite elements}
 The defining feature of conforming finite element methods is that the simulation
 mesh is aligned with the geometry of the object being simulated.
