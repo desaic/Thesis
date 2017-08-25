@@ -1,0 +1,104 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Medium Length Professional CV
+% LaTeX Template
+% Version 2.0 (8/5/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Trey Hunner (http://www.treyhunner.com/)
+%
+% Important note:
+% This template requires the resume.cls file to be in the same directory as the
+% .tex file. The resume.cls file provides the resume style used for structuring the
+% document.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{resume} % Use the custom resume.cls style
+
+\usepackage[left=0.75in,top=0.6in,right=0.75in,bottom=0.6in]{geometry} % Document margins
+\newcommand{\tab}[1]{\hspace{.2667\textwidth}\rlap{#1}}
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\name{Desai Chen} % Your name
+\address{32 Vassar Street} % Your address
+\address{Cambridge, MA 02139} % Your secondary addess (optional)
+\address{(412) 608-7941 \\ desaic@csail.mit.edu} % Your phone number and email
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Education}
+
+\textbf{Ph.D. in Computer Science}, MIT, Cambridge, MA,\hfill  expected 2017\\
+\textbf{M.S. in Computer Science}, MIT, Cambridge, MA, \hfill 2013\\
+\textbf{B.S. in Computer Science}, Carnegie Mellon University, Pittsburgh, PA, \hfill 2011
+
+\end{rSection}
+%----------------------------------------------------------------------------------------
+%	TECHNICAL STRENGTHS SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Ph.D. thesis}
+
+\begin{tabular}{ @{} >{\bfseries}l @{\hspace{6ex}} p{14cm} }
+title &  {\sl Multiscale Methods for Fabrication Design} \\
+supervisor & Wojciech Matusik \\
+description & Fast and sufficiently accurate FEM coarsening methods for static and dynamic problems with applications in 3D printing materials and mechanisms.
+\end{tabular}
+
+\end{rSection}
+
+%----------------------------------------------------------------------------------------
+%	WORK EXPERIENCE SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Experience}
+
+\begin{rSubsection}{MIT CSAIL}{2011-2017}{}{}
+\item Algorithms for simulating, designing and optimizing objects for 3D printing
+in the computational fabrication group.
+\end{rSubsection}
+
+
+%------------------------------------------------
+
+\begin{rSubsection}{Adobe Research}{summer 2015}{}{}
+\item Material characterization, simulation and optimization of 3D-printed jumping mechanisms.
+\end{rSubsection}
+
+\begin{rSubsection}{Johns Hopkins CLSP}{summer 2010}{}{}
+\item Improving unsupervised part-of-speech tagging using posterior regularization.
+\end{rSubsection}
+
+\begin{rSubsection}{CMU LTI}{2009-2011}{}{}
+\item Semantic tagging of sentences using supervised methods.
+\item Unsupervised part-of-speech tagging using bilingual data.
+\end{rSubsection}
+
+\end{rSection}
+
+%----------------------------------------------------------------------------------------
+\begin{rSection}{Publications}
+\item Two-Scale Topology Optimization with Microstructures. Bo Zhu, Mélina Skouras, Desai Chen, Wojciech Matusik. {\it ACM Trans. Graph.} (TOG 2017).
+\item Dynamics-Aware Numerical Coarsening for Fabrication Design. Desai Chen, David I. Levin, Wojciech Matusik, Danny M.Kaufman.  {\it ACM Trans. Graph.} (SIGGRAPH 2017).
+\item An Interaction-Aware, Perceptual Model For Non-Linear Elastic Objects. Michal Piovarči, David I.W. Levin, Jason Rebello, Desai Chen, Roman Ďurikovič, Hanspeter Pfister, Wojciech Matusik, Piotr Didyk. {\it ACM Trans. Graph.} (SIGGRAPH 2016).
+\item Simit: A Language for Physical Simulation Fredrik Kjolstad, Shoaib Kamil, Jonathan Ragan-Kelley, David I.W. Levin, Shinjiro Sueda, Desai Chen, Etienne Vouga, Danny M. Kaufman, Gurtej Kanwar, Wojciech Matusik, Saman Amarasinghe. {\it ACM Trans. Graph.} (TOG 2016).
+\item Data-Driven Finite Elements for Geometry and Material Design Desai Chen, David I.W. Levin, Shinjiro Sueda, Wojciech Matusik. {\it ACM Trans. Graph.} (SIGGRAPH 2015).
+\item Spec2Fab: A Reducer-Tuner Model for Translating Specifications to 3D Prints Desai Chen, David I.W. Levin, Piotr Didyk, Pitchaya Sitthi-amorn, Wojciech Matusik. {\it ACM Trans. Graph.} (SIGGRAPH 2013).
+\item Computing and Fabricating Multiplanar Models. Desai Chen, Pitchaya Sitthi-amorn, Justin T. Lan, and Wojciech Matusik {\it  Comput. Graph. Forum.} (EUROGRAPHICS 2013).
+\item Unsupervised Bilingual POS Tagging with Markov Random Fields. Desai Chen, Chris Dyer, Shay B. Cohen, and Noah A. Smith. In Proceedings of the EMNLP Workshop on Unsupervised Learning in NLP (UNSUP 2011).
+\item SEMAFOR: Frame Argument Resolution with Log-Linear Models. Desai Chen, Nathan Schneider, Dipanjan Das, and Noah A. Smith. In Proceedings of the International (ACL) Workshop on Semantic Evaluations (SemEval 2010).
+\item Probabilistic Frame-Semantic Parsing. Dipanjan Das, Nathan Schneider, Desai Chen, and Noah A. Smith. In Proceedings of the North American Chapter of the Association for Computational Linguistics Human Language Technologies Conference (NAACL 2010).
+\end{rSection}
+
+
+\end{document}
