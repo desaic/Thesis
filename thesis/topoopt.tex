@@ -24,11 +24,11 @@ We fabricate several of our designs to demonstrate practical applications of our
 The main contributions of our work can be summarized as follows:
 \begin{itemize}
 	\item We present a fully automatic method for computing the space of material properties achievable by microstructures made of a given set of base materials.
-	\item We propose a generic and efficient topology optimization algorithm capable of handling objects with a trillion voxels. The key of our approach is a reformulation of the problem to work directly on continuous variables representing the material properties of microstructures. This allows us to cast topology optimization as a reasonably sized constrained optimization problem that can be efficiently solved with state of the art solvers.
+	\item We propose a generic and efficient topology optimization algorithm capable of handling objects with a trillion voxels. The key of our approach is a reformulation of topology optimization to work directly on continuous variables representing the material properties of microstructures. This allows us to greatly reduce the problem scale for it to be efficiently solved with state of the art solvers.
 	\item We validate our method on a set of test cases and demonstrate its versatility by applying it to various design problems of practical interest.
 \end{itemize}
 \section{Overview}
-Given as input a set of base materials, an object layout, and functional objectives, the goal of our system is to compute the material distribution inside the object in order to optimize these functional objectives. In our approach, we do not solve the problem directly, instead we work with microstructures made of the base materials and the space of physical material properties spanned by them. The complete pipeline of our system, illustrated in Figure \ref{fig:overview}, can be decomposed into three stages.
+Given as input a set of base materials, an object layout, and functional objectives, the goal of our system is to compute the material distribution inside the object in order to optimize these functional objectives. In our approach, we do not solve the problem directly, instead we work with microstructures made of the base materials. The complete pipeline of our system has three stages (Figure \ref{fig:overview}).
 \begin{figure}
 	\centering
 	\includegraphics[width=.95\linewidth]{figs/Overview.pdf}
@@ -49,14 +49,13 @@ In the last stage, we generate a printable result by replacing each cell in the 
 
 \section{Material Space Exploration}
 \label{sec:sampling}
-
-\begin{figure*}[t]
+\begin{figure}
 	\centering
 	\includegraphics[width=.95\linewidth]{figs/topsampling.pdf}
 	\caption{One cycle of computing the microstructure gamut. 
 		Given a set of samples, we compute a signed distance function approximating the material gamut (\emph{left}) and randomly perturb microstructures lying near the boundary to provide new seeds to the continuous algorithm (\emph{middle left}). We then update the distance field and use the gradient of the signed distance function at the the boundary to define new target material points (\emph{middle right}). These target material points are used in a continuous optimization that generates new samples (\emph{right}).} 
 	\label{fig:lssampling}
-\end{figure*}
+\end{figure}
 
 The first step in our pipeline is to determine the space of physical properties that can be achieved when combining the base materials into microstructures of a predefined size.
 
