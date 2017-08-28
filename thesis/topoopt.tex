@@ -1,15 +1,26 @@
 \chapter{Computational Design with Microstructures}
 \label{ch3:topopt}
-Many engineering problems focus on the design of complex structures that needs to meet high level objectives such as the capability to support localized stresses, optimal tradeoffs between compliance and mass, minimal deformation under thermal changes, etc. One very popular approach to design such structures is topology optimization.
-Topology optimization generally refers to discretizing the object of interest into small elements and optimizing the material distribution over these elements in such a way that the functional goals are satisfied \cite{bendsoe2004topology}. Traditionally, topology optimization focused on designs made of homogeneous materials and was concerned with macroscopic changes in the object geometry.
-With the advent of multi-material 3D printing techniques, it is now possible to play with materials at a much higher resolution, allowing to obtain much finer designs and, thus, improved functional performances.
-Unfortunately, standard techniques for topology optimization do not scale well and they cannot be run on objects with billions of voxels. This is because the number of variables to optimize increases linearly with the number of cells in the object. Since many current 3D printers have a resolution of 600DPI or more, a one billion voxel design occupies only a 1.67 inch cube.
+Many engineering problems are formulated as high level objectives such as the ability to support certain weight, optimal tradeoffs between compliance and mass, minimal deformation under temperature changes, etc. A popular approach to design such structures is topology optimization.
+Topology optimization generally refers to discretizing the object of interest into small elements and optimizing the material distribution over these elements such that the functional goals are satisfied \cite{bendsoe2004topology}.
+Traditionally, topology optimization focuses on designs made of homogeneous materials and is concerned with macroscopic changes in the object geometry.
+With the advent of multi-material 3D printing techniques, it is now possible to assign materials at a much higher resolution, allowing much finer designs and improved functional performances.
+Unfortunately, standard techniques for topology optimization do not scale well and they cannot be run on objects with billions of voxels.
+This is because the number of variables to optimize increases linearly with the number of cells in the object.
+Since many current 3D printers have a resolution of 600DPI or more, a one billion voxel design occupies only a 1.67 inch cube.
 
-Most previous algorithms working in the material space focused on optimizing a single material property such as density or material stiffness, for which analytical formulas describing the property bounds exist \cite{Allaire93Bounds}. On the contrary, optimizing the structure and material distribution of an object in a high dimensional material property space remains an open problem. In this work, we propose a new computational framework for topology optimization with microstructures that supports design spaces of multiple dimensions. We start by computing the gamut of the material properties of the microstructures by alternating stochastic sampling and continuous optimization. This gives us a {\it discrete} representation of the set of achievable material properties, from which we can construct a {\it continuous} gamut representation using a level set field. We then reformulate the topology optimization problem in the continuous space of material properties and propose an efficient optimization scheme that finds the optimized distributions of multiple material properties simultaneously inside the gamut.
+Most previous algorithms use a single material property variable such as density or material stiffness in each cell,
+for which analytical formulas describing the property bounds exist \cite{Allaire93Bounds}.
+On the contrary, optimizing the structure and material distribution of an object in a high dimensional material property space remains an open problem.
+In this work, we propose a new computational framework for topology optimization with microstructures that supports design spaces of multiple dimensions.
+We start by computing the gamut of the material properties of the microstructures by alternating stochastic sampling and continuous optimization.
+This gives us a {\it discrete} representation of the set of achievable material properties, 
+from which we can construct a {\it continuous} gamut representation using a level set.
+We then reformulate the topology optimization problem in the continuous space of material properties and propose an efficient optimization scheme that finds the optimized distributions of multiple material properties simultaneously inside the gamut.
 Finally, in order to obtain fabricable designs, we map the optimal material properties back to discrete microstructures from our database.
 
-Our general formulation can be applied to a large variety of problems. We demonstrate its efficacy by designing and optimizing objects in different material spaces using isotropic, cubic and orthotropic materials. We apply our algorithm to various design problems dealing with diverse functional objectives such as minimal compliance and target strain distribution. Furthermore, our approach utilizes the high-resolution of current 3D printers by supporting designs with trillions of voxels. We fabricate several of our designs, thus, demonstrating the practicality of our approach.
-
+Our general formulation can be applied to a large variety of problems. We demonstrate its efficacy by designing and optimizing objects in different material spaces using isotropic, cubic and orthotropic materials. We apply our algorithm to a diverse range of functional objectives such as minimal compliance and target strain distribution. 
+Furthermore, our approach utilizes the high-resolution of current 3D printers by supporting designs with one trillion voxels.
+We fabricate several of our designs to demonstrate practical applications of our method in 3D printing.
 The main contributions of our work can be summarized as follows:
 \begin{itemize}
 	\item We present a fully automatic method for computing the space of material properties achievable by microstructures made of a given set of base materials.
