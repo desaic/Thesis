@@ -59,8 +59,8 @@
 %\def\all{all}
 %\ifx\files\all \typeout{Including all files.} \else \typeout{Including only \files.} \includeonly{\files} \fi
 
-\newcommand{\vr}[1]{\mbox{$\bm{#1}$}}
-\newcommand{\vc}[1]{\mbox{\textbf{{$\mathsf #1$}}}}
+\newcommand{\vr}[1]{\bm{#1}}
+\newcommand{\vc}[1]{\mathbf {#1}}
 \definecolor{RED}{rgb}{1.0,0.0,0.0}
 \definecolor{BLACK}{rgb}{0.0,0.0,0.0}
 \definecolor{WHITE}{rgb}{1.0,1.0,1.0}
@@ -114,10 +114,10 @@
 \input{ddfem}
 \include {topoopt}
 \input{discovery}
-%\input{twoscale}
-%\include{dyn}
-%\include{Conclusion}
-\appendix
+\input{twoscale}
+\include{dyn}
+\include{Conclusion}
+%\appendix
 %\include{appa}
 %\include{appb}
 \include{biblio}

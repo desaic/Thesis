@@ -87,14 +87,14 @@ To capture stiff elastic response of 3D-printed materials we use the neo-Hookean
 time discretization 
 
 \begin{align}
-\vc M \vc \delta^{t+1} &= \vc b^t +  \tfrac{h^2}{4} \vc F(\vc q^{t+1}) -\tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1},
+\vc M \vr \delta^{t+1} &= \vc b^t +  \tfrac{h^2}{4} \vc F(\vc q^{t+1}) -\tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1},
 \label{eq:newmark_free}
 %
 \end{align}
 \begin{align}
 \begin{split}
-\vc q^{t+1} &= \vc q^t + \vc \delta^{t+1},\\
-\vc v^{t+1} &= \tfrac{2}{h} \vc \delta^{t+1} - \vc v^t,
+\vc q^{t+1} &= \vc q^t + \vr \delta^{t+1},\\
+\vc v^{t+1} &= \tfrac{2}{h} \vr \delta^{t+1} - \vc v^t,
 \end{split}
 \label{eq:newmark_free_update}
 \end{align}
@@ -151,7 +151,7 @@ Contact and friction forces can be inexpensively modeled explicitly~\citep{Belyt
 This is a fully implicit time-stepping model that couples frictional contact with internal energies and forcing in each solve.
 \begin{align}
 \begin{split}
-\vc M \vc \delta^{t+1} &= \vc b^t +  \tfrac{h^2}{4} \vc F(\vc q^{t+1}) -\tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1} + \tfrac{h^2}{2} \vc N \alpha +  \tfrac{h^2}{2}  \vc T \beta.
+\vc M \vr \delta^{t+1} &= \vc b^t +  \tfrac{h^2}{4} \vc F(\vc q^{t+1}) -\tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1} + \tfrac{h^2}{2} \vc N \alpha +  \tfrac{h^2}{2}  \vc T \beta.
 \label{eq:newmark_contact_implicit}
 \end{split}
 \end{align}
@@ -324,11 +324,11 @@ The problem here is that the L2-projection applied is material-oblivious and yet
 With these observations in mind we define a new Boundary Balancing Impact (BBI) model that can effectively impose boundary force-balance in a material-aware fashion. Starting with our base time integrator we define a compliant, discretization- and material-aware metric for projection below. The resulting stabilizing impact model better duplicates results in our design applications and experiments. Upon completing each time step from $t-1$ to $t$ we replace the Newmark update in (\ref{eq:newmark_free_update}) with a compliant boundary projection update
 \begin{align}
 \begin{split}
-\vc c &= 2 \vc \delta^{t+1} - h \vc v^t, \\
+\vc c &= 2 \vr \delta^{t+1} - h \vc v^t, \\
 \vc A &= \vc M + \frac{h^2}{4} \vc K(\vc q^{t+1}) + \frac{h}{2} \vc D(\vc q^{t+1}) ,\\
 \vc d^* &= \argmin_{\vc d} \big\{ \frac{1}{2} \| \vc d - \vc c \|^2_{\vc A} : \vc N^T \vc d \geq 0 \big\},\\
 \vc v^{t+1} &= \frac{1}{h} \vc d^*,\\
-\vc q^{t+1} &= \vc q^t + \vc \delta^{t+1}.\\
+\vc q^{t+1} &= \vc q^t + \vr \delta^{t+1}.\\
 \end{split}
 \label{eq:newmark_predictor_proj}
 \end{align}
