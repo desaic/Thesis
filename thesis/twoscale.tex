@@ -71,14 +71,18 @@ In contrast, the stiffness matrix in our objective function is directly computed
 Like in standard algorithms, we regularized the problem to avoid checkerboard solutions by applying a smoothing kernel on the material properties that favors smooth variations of the material parameters over the object layout.
 Our optimizer supports multiple objectives by linearly combining weighted objective functions.
 \section{Mapping Material Properties to Microstructures}
-\begin{wrapfigure}{r}{0.2\linewidth}
- 	\makebox[\textwidth][l]{\hspace{-0.4cm} \includegraphics[width=1.0\linewidth]{images/TranslatedMicrostructureVertical.png}}
-\end{wrapfigure}
+\begin{figure}
+	\centering
+ 	\includegraphics[width=0.4\linewidth]{images/TranslatedMicrostructure.png}
+ 	\caption{Under periodic boundary conditions, a microstructure pattern can be translated while preserving exactly the same material properties.
+		These variants with the same properties givens us room to select structures while taking into account boundary connectivity.}
+ 	\label{fig:translateMic}
+\end{figure}
 After running the topology optimization algorithm, we generate a printable result by replacing each cell in the object lattice by a microstructure whose material properties match the optimal ones.
 
 Material properties of the microstructures are computed using the homogenization theory which is more accurate with a smooth transition between the geometries of neighboring cells.
 While smoothness in the material parameters can be easily enforced, it does not imply topological similarity of nearby microstructures. 
-For example, any translation of a given microstructure in a periodic tiling will result in a microstructure geometrically different but with exactly the same mechanical properties. 
+For example, any translation of a given microstructure in a periodic tiling will result in a microstructure geometrically different but with exactly the same mechanical properties (Figure~\ref{fig:translateMic}). 
 Fortunately, our database is very dense and multiple microstructures generally map to similar points in the material property space, offering several variants. To further increase the number of possibilities, we also incorporate an additional exemplar for each microstructure by translating it by half its size, which preserves its cubic or orthotropic symmetry without changing its properties (see inset Figure). We then run a simple but effective algorithm that picks the microstructure exemplars that minimize the boundary material mismatch across adjacent cells. We quantify this mismatch by $\mathcal{I}=\sum_{i=1}^{N_c} \mathcal{I}_i$, where $\mathcal{I}_i$ is the contribution associated to the cell $i$ and corresponds to the number of boundary voxels filled with materials that are different from the ones of the voxels' immediate neighbours across the interfaces.
 
 Our algorithm proceeds as follows:
