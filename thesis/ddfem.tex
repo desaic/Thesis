@@ -155,15 +155,14 @@ V^1(\vr{u}^1, \, \vr{p}^1) = \sum_{k=1}^8 w_k \, V_k^0(\vr{u}_k^0, \, \vr{p}_k^1
 \end{align}
 where $V_k^0$ is the strain energy density of $\set{M}_k^0$ at quadrature point position $\vr{X}_k^1$ (\autoref{fig:coarseFine}). Here $\vr{u}^1$ is the vector of nodal displacements associated with $\mathit{E}^1$ while $\vr{u}_k^0$ are displacements for the $k^{th}$ element at level $0$ reconstructed using trilinear interpolation from $\vr{u}^1$.
 The coarse materials $\vr{p}^1=(\vr{p}_1^1,...,\vr{p}_k^1)$ consists of the stacked material parameter vectors for each base material in $\set{M}_k^0$, themselves denoted by $\vr{p}_k^1$.  $w_k$ is the standard Gaussian quadrature weight.
-
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\textwidth]{images/coarseFine.pdf}
 	\caption{The relationship between high-resolution and coarsened elements. At each quadrature point $\vr{X}_k^1$, the coarse element copies the corresponding energy density function $V_k^0$ from the high-resolution element.}
 	\label{fig:coarseFine}
 \end{figure}
-
-We observe that even if the individual base material models are isotropic, the coarse material can become anisotropic by assigning different material parameters at the quadrature points. We counter this by augmenting the coarse material model with an anisotropic term, which improves fitting.
+We observe that even if the individual base material models are isotropic, the coarse element can become anisotropic by assigning different material parameters at the quadrature points.
+We propose to improve the fitting by augmenting the coarse material model with an anisotropic term.
 The complete model is then given by
 \begin{align}
 \begin{split}
