@@ -1,12 +1,19 @@
 \section{Topology Optimization}
 \label{sec:topoOpt}
-A classic topology optimization problem consists of optimizing the shape and structure of a given object defined by a prescribed domain in order to minimize some cost function. For example, the standard topology optimization minimizes the compliance of the object while satisfying the static equilibrium and the total weight constraint.
-Since the topology of the object is unknown {\it a priori}, a method of choice is to define the shape of the object through its material distribution and to locally work with material densities. To this end, the design layout is voxelized and a density variable is assigned to every cell of the discretized domain. By penalizing intermediate values for these densities, a binary distribution corresponding to the object's final layout can be eventually obtained.
+A classic topology optimization problem consists of optimizing the shape and structure of a given object defined by a prescribed domain in order to minimize a given cost function.
+For example, topology optimization can minimize the compliance of the object while satisfying the static equilibrium and the total weight constraint.
+Since the shape of the object is unknown {\it a priori}, only a design domain is specified as input.
+The design layout is voxelized and a density variable is assigned to every cell of the discretized domain.
+A high density corresponds to assigning material to a cell while a low density value implies a cell should be empty.
+By penalizing intermediate values for these densities, a binary distribution corresponding to the object's final shape and material can be eventually obtained.
 
 In this work, we extend the traditional topology optimization algorithm in multiple ways.
-First, we do not compute a binary material distribution at the cell level as commonly done. 
+First, we do not compute a binary material distribution at the cell level as commonly done.
 Instead, we leverage our database of microstructures and ask for each cell to be filled with one of the microstructures.
-By doing so we change the topology of the object at a finer scale, i.e. within each cell. This is done by working with the macro-scale material properties of the microstructures instead of their geometry directly. The second difference is that our algorithm can be used with parametrizations of the material property space that are more complex than the single density parameter per cell that is commonly used in the standard topology optimization algorithm. Indeed, in our generalized topology optimization problem, each cell $c_i$ contains an n-dimensional material parameter $\bp_i\in \mathcal{R}^n$. We use $\bp$ to denote the stacked vector of material parameters in all cells.
+This is done by working with the macro-scale material properties of the microstructures instead of their geometry directly.
+The second difference is that our algorithm can be used with parametrizations of the material property space that are more complex than the single density parameter per cell that is commonly used in topology optimization algorithms.
+In our generalized formulation, each cell $c_i$ contains an n-dimensional material parameter $\bp_i\in \mathcal{R}^n$.
+We use $\bp$ to denote the stacked vector of material parameters in all cells.
 Given a signed distance function $\Phi(\bp_i)$ that defines the gamut,
 our new topology optimization problem is then written as
 \begin{equation}
