@@ -73,11 +73,36 @@ sensitivity filter~\citep{sigmund:2007} is applied in gamut sampling step to avo
 	\label{fig:pprfamilies}
 \end{figure}
 \begin{figure}
-\includegraphics[width=\columnwidth]{images/fiveFamilies.png}
+\includegraphics[width=0.95\columnwidth]{images/fiveFamilies.png}
 \caption{Five microstructure families identified by nonlinear dimensionality reduction (NLDR). Structures with similar properties in the gamut (a) are selected to study their commonalities. We focused on structures with negative Poisson's ratio (auxetics) since they exhibit more complex structures. Auxetic families are identified in the embedding space numbered from 1 to 5 (b). Families with similar topologies are located closer in the embedding space. Three example structures from family 5 show underlying connection between seemingly distinct structures through gradual morphing of shape.}
 \label{fig:families}
 \end{figure}
 Here we focus on analysis of auxetic structures since families with positive Poisson's ratios are relatively simple (Figure~\ref{fig:pprfamilies}). Five families with significant number of members (Figure~\ref{fig:families}) are discovered using three Isomap embedding dimensions. We confirmed that Isomap associates seemingly distant structures through intermediate structures. For example, structure 5-1 and 5-3 from family 5 have very different beam thicknesses resulting in large geometric distance. However, the embedding reveals that there is a sequence of structures such as 5-2 that make the connection between them.
+
+Three structures with different material properties from each family are printed to verify simulation accuracy.
+All structures are printed using an EOS SLS printer with elastic material PEBA2301.
+The printer required a minimum feature size of $0.9mm$ for wire diameters and $0.8mm$ for wall thicknesses.
+To satisfy the printing constraints, each cell is scaled to a side length of $2.54mm$.
+Simpler structures from Template 1-3 are printed using a 2x2x2 grid arrangement while more complex families are printed using a 3x3x1 arrangement to allow support material to escape.
+The base printing material is measured using an Instron 5944 with tensile tests instead of compression tests since a solid block of base material is too stiff for our equipment.
+The Poisson’s ratio is measured using a video camera fixed on the test machine (Figure~\ref{fig:measure}).
+Even though all samples are printed using the same printer and the same materials, the Young’s modulus of the prints is highly variable.
+More specifically, the stiffest sample has a Young’s modulus which is twice as high as the one of the softest samples.
+On the other hand, the Poisson’s ratio of the base print material is measured to be $0.34$ and has a much lower variance of $0.02$ in the sample set.
+The 3D structures are measured using a compression test at a speed of $2mm/min$ with $6mm$ maximum strain.
+The compression plates are lubricated with oil to reduce friction.
+Significant variance in Poisson’s ratio is observed due to several factors in manufacturing and measurement.
+An additional challenge is that the printer does not reliably reproduce the geometry specified by input files.
+In practice, the printed models are thickened by $0.1-0.4mm$, which is significant compared to the thinnest feature size in our microstructures.
+This stiffens the joints and reduces Poisson’s ratios.
+The effect is exacerbated by incomplete support removal.
+The support material is the same as the print material in powder form, which sticks to the print easily especially around hard-to-reach internal corners.
+We believe that the discrepancy can be reduced in the future by using more precise printing technologies with soluble support material.
+\begin{figure}
+	\includegraphics[width=0.5\columnwidth]{images/measure.png}
+	\caption{Test apparatus (a) for measuring Young’s modulus and Poisson’s ratio using tensile (b) and compression (c) tests. The Poisson’s ratio is calculated using vertical displacements and horizontal displacements. The vertical displacement is read from both the tensile test machine and the camera for redundancy. The horizontal displacement is measured using the camera only.}
+	\label{fig:measure}
+\end{figure}
 \begin{figure}
 	\includegraphics[width=\columnwidth]{images/mTemplates.png}
 	\caption{Sampled coverage of microstructure templates in the gamut. (a) Extracting a skeleton (middle) from a representative structure (top). The skeleton represents the topology of the structure. A beam network is derived from the skeleton by placing a cuboid on each edge of the skeleton. Since we enforce cubic symmetry, the beams in a single tetrahedron determine the entire beam network. A template can generate a new structure (bottom) that approximates the original structure. (b) Coverage of each template in the material property space. (c) Reducing template parameter dimensions with principal component regression. The first two reduced parameters approximately correspond to varying the Young's modulus and Poisson's ratio of a structure. }
@@ -123,8 +148,8 @@ This means that their deformations consistently follow the same pattern for diff
 \end{figure}
 Our process automatically discovered two types of auxetic mechanisms: slanted columns and rotating triangles (Figure~\ref{fig:auxeticMech}). The slanted column mechanism transforms vertical compression to horizontal motions. The rotating triangles transform vertical compression into a winding deformation that pulls the right end of the mechanism towards the center of the microstructure.
 Their motions are shown in supplementary video S3.
-While rotating triangles bear resemblance to existing 2D structures~\citep{alderson2010elastic} known as chiral structures (Supplementary Fig. 6d), its extension to 3D cubic structure with large shear modulus has never before been constructed. Additionally, the entire mechanism is discovered entirely automatically without imposing any artificial design restrictions --- all microstructures are built from voxels. To inspire future applications of these mechanisms, we report the loading behavior of the mechanisms. These auxetic mechanisms are the most active parts in the microstructures. They act like joints that connect the more rigid scaffolding in microstructures. Because of this, they undergo the most deformation and concentrate a large amount of stress. For the rotating triangles, the stress is concentrated on the connections around the triangle. We computed the maximum principal strain in the structure with respect to the vertical compressive loading to provide insights into the strength of the block.
-At the maximal compressive loading $(7\%)$, the maximum principal strain in the structure is $7\%$. Calculation using a reported Young's modulus of 80MPa yields a von Mises stress of 6.72MPa (Fig. 4e) while our print material has a reported strength of 8.5MPa. The printed structures are approaching the strength limit under the load. Since the available material is relatively weak even compared to common materials such as ABS plastics and rubber, we believe that structural strength can be improved significantly with future manufacturing materials.
+While rotating triangles bear resemblance to existing 2D structures~\citep{alderson2010elastic} known as chiral structures (Supplementary Fig. 6d), its extension to 3D cubic structure with large shear modulus has never before been constructed. Additionally, the entire mechanism is discovered entirely automatically without imposing any artificial design restrictions---all microstructures are built from voxels. To inspire future applications of these mechanisms, we report the loading behavior of the mechanisms. These auxetic mechanisms are the most active parts in the microstructures. They act like joints that connect the more rigid scaffolding in microstructures. Because of this, they undergo the most deformation and concentrate a large amount of stress. For the rotating triangles, the stress is concentrated on the connections around the triangle. We computed the maximum principal strain in the structure with respect to the vertical compressive loading to provide insights into the strength of the block.
+At the maximal compressive loading $(7\%)$, the maximum principal strain in the structure is $7\%$. Calculation using a reported Young's modulus of $80MPa$ yields a von Mises stress of $6.72MPa$ (Fig. 4e) while our print material has a reported strength of $8.5MPa$. The printed structures are approaching the strength limit under the load. Since the available material is relatively weak even compared to common materials such as ABS plastics and rubber, we believe that structural strength can be improved significantly with future manufacturing materials.
 
 We have shown a computational method that combines discrete sampling, continuous optimization and dimensionality reduction methods for automatic discovery of new microstructure families and mechanisms that would have been challenging to design manually.
 The discovered structures are suitable for manufacturing as they avoid thin features and distribute deformation over beams instead. They also span a wide range of shear moduli, allowing engineers to balance between different macroscopic properties. While our case study focuses on elastic material properties, the technique may be applied to other physical properties whenever predictive simulation exists. Our computational pipeline paves the way to discovery of structures that balance mechanical, thermal, optical, acoustic and electromagnetic properties. Moreover, it advances the understanding of underlying mechanisms that are crucial to extremal properties.
