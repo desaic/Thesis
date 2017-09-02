@@ -94,11 +94,12 @@ Fortunately, our database is very dense and multiple microstructures generally m
 
 Our algorithm proceeds as follows:
 \begin{itemize}
-\item For each cell, we define a list of possible candidates by picking all the microstructures mapping to material points lying in the vicinity of the optimal material point and we randomly initialize the cell with one of the candidates.
-\item We compute the mismatch energy $\mathcal{I}_i$ associated to each cell $i$ and sort the cells according to their energy. 
-\item We pick the first cell in the sorted list, i.e. the one with the highest energy and assign to it the microstructure candidate that decreases the energy the most. If we cannot decrease the cell energy, we move to the next cell in the list.
-\item We update the mismatch energies of all the impacted cells and we update the priority list.
-\item We repeat the last two steps until the mismatch energy $\mathcal{I}$ cannot be decreased anymore.
+\item For each cell, select a list of possible candidates by picking all the microstructures with material properties in the vicinity of the optimal material parameter and initialize the cell with a random candidates.
+\item Compute the mismatch energy $\mathcal{I}_i$ associated to each cell $i$ and sort the cells according to their energy. 
+\item Pick the first cell in the sorted list, i.e. the one with the highest energy and assign to it the microstructure candidate that decreases the energy the most.
+If the cell energy does not decrease, move to the next cell in the list.
+\item Update the mismatch energies of all the impacted cells and we update the priority list.
+\item Repeat the last two steps until the mismatch energy $\mathcal{I}$ cannot be decreased anymore.
 \end{itemize}
 
 \section{Results and Discussion}
