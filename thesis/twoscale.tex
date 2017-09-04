@@ -71,11 +71,11 @@ We have experimented with the same objective as the one used in the standard top
 \mathcal{C}_c(\mathbf{e},\mathbf{u})=\mathbf{u}^T \bK(\mathbf{e}) \mathbf{u}.
 \label{eq:mc}
 \end{equation}
-In the commonly used SIMP algorithm, the stiffness matrix $\bK_i$ of each cell $i$ depends on the artificial density value $\rho_i$
+In the commonly used SIMP formulation, the stiffness matrix $\bK_i$ of each cell $i$ depends on the artificial density value $\rho_i$
 through an analytical formula such as $\bK_i = \rho_i^3\bK_0$ where $\bK_0$ corresponds to the stiffness matrix of the base material.
 In contrast, the stiffness matrix in our objective function is directly computed from the material parameters of the material space and forced to correspond to a realizable material thanks to our gamut constraints.
 
-Like in standard algorithms, we regularized the problem to avoid checkerboard solutions by applying a smoothing kernel on the material properties that favors smooth variations of the material parameters over the object layout.
+Similar to existing algorithms, we regularized the problem to avoid checkerboard solutions by applying a smoothing kernel on the material properties that favors smooth variations of the material parameters over the object layout.
 Our optimizer supports multiple objectives by linearly combining weighted objective functions.
 \section{Mapping Material Properties to Microstructures}
 \begin{figure}
@@ -103,9 +103,19 @@ If the cell energy does not decrease, move to the next cell in the list.
 \end{itemize}
 
 \section{Results and Discussion}
-We first analyzed our microstructure sampling algorithm for 2D and 3D microstructure gamuts. Then we used these precomputed gamuts and we designed and optimized a wide variety of objects with our topology optimization algorithm.
+We first analyzed our microstructure sampling algorithm for 2D and 3D microstructure gamuts. 
+Then we used these precomputed gamuts to design and optimize a wide variety of objects with our topology optimization algorithm.
 \subsection{Microstructure Sampling}
-We evaluated our method on two- and three-dimensional microstructures made of one or two materials. For the 2D case we considered patterns with cubic and orthotropic mechanical behaviors that can be described with 4 parameters (3 elasticity parameters and density) and 5 parameters (4 elasticity parameters and density) respectively. In 3D we computed the gamut corresponding to cubic structures with 4 parameters. In all cases, the size of the lattice for the microstructures was set to 16 in every dimension. We used isotropic base materials whose Young's modulus differed by a factor of 1000 and having 0.48 as Poisson's ratio. We initially computed the databases for two-material microstructures, but also adapted these databases for microstructures made of a void and a stiff material. In the later case, we replaced the softer material by void, filter out all the microstructures with disconnected components and, in the 3D case, filled the enclosed voids and recomputed the homogenized properties. We provide a comparison between the initial and postprocessed databases in the supplementary material. The resulting postprocessed gamuts are also depicted in Figure \ref{fig:gamuts}. 
+We evaluated our method on 2D and 3D microstructures made of one or two materials.
+For the 2D case we considered patterns with cubic and orthotropic symmetry that can be described by 4 parameters (3 elasticity parameters and density) and 5 parameters (4 elasticity parameters and density) respectively.
+In 3D we computed the gamut corresponding to cubic structures with 4 parameters.
+In all cases, the microstructure resolution is set to 16.
+We used two isotropic base materials with Young's modulus differed by a factor of $1000$.
+They both have a Poisson's ratio of $0.45$.
+We initially computed the databases for two-material microstructures, but also adapted these databases for microstructures made of a void and a stiff material.
+In the later case, we replaced the softer material by void, filter out all the microstructures with disconnected components and, in the 3D case, filled the enclosed voids and recomputed the homogenized properties.
+We provide a comparison between the initial and postprocessed databases in the supplementary material.
+The resulting gamuts are also depicted in Figure \ref{fig:gamuts}. 
 Our databases contain 274k, 388k and 88k 2D cubic, 2D orthotropic and 3D cubic microstructures respectively and took from 15 hours to 93 hours to compute, which correspond to 68, 19 and 5 sampling cycles, respectively.
 \begin{figure}
 	\centering
@@ -113,31 +123,56 @@ Our databases contain 274k, 388k and 88k 2D cubic, 2D orthotropic and 3D cubic m
 	\includegraphics[width=.24\linewidth]{images/2D_ortho.png} 
 	\includegraphics[width=.24\linewidth]{images/3D_cubic.png}
 	\includegraphics[width=.24\linewidth]{images/3D_cubic_Panetta.png}
-	\caption{Gamuts computed with our discrete-continuous sampling scheme for 2D cubic structures (\emph{left}) , 2D orthotropic structures (\emph{second from left}), 3D cubic structures (\emph{second from right}) and 3D cubic structures with 0.35 as Poisson's ratio (\emph{right}). The plots show the results for the projection of the gamuts on the plane defined by the macroscale Young's modulus along the x axis (normalized by the Young's modulus of the stiffest base material) and the Poisson's ratio corresponding to a contraction along the y-direction when the material is stretched along the x-direction.
+	\caption{Gamuts computed with our discrete-continuous sampling scheme for 2D cubic structures (\emph{left}),
+	2D orthotropic structures (\emph{second from left}),
+	3D cubic structures (\emph{second from right}) and 3D cubic structures with 0.35 as Poisson's ratio (\emph{right}).
+	The plots show the results for the projection of the gamuts on the plane defined by the macroscale Young's modulus along the x axis (normalized by the Young's modulus of the stiffest base material) and the Poisson's ratio corresponding to a contraction along the y-direction when the material is stretched along the x-direction.
 		The blue dots correspond to the generated samples,the orange dots correspond to the microstructures from~\citet{Schumacher:2015} and the yellow dots correspond to the microstructures from~\citet{Panetta:2015}.}
 	\label{fig:gamuts}
 \end{figure}
 We first compared our results to the ones obtained by~\citet{Schumacher:2015}
-and observed a significant increase in the coverage of the material space, even for 2D microstructures where we used a coarser discretization. This comforts us with the idea that topology optimization only, while helpful to locally improve the microstructure geometries, is suboptimal when one aims to discover the entire gamut of physical properties. The diversity of the microstructures that we obtained is also much richer, thus providing a larger set of options for the practical use of microstructures. Note that they employed some regularization to avoid thin features. For $16^3$ microstructures, we found regularization unnecessary since they are manifold and have a minimal feature size  of 1/16 of the lattice size, which is the same order of magnitude as the thinnest parts of Schumacher's microstructures.
-For completeness, we also compared our database of 3D microstructures to the one of~\citet{Panetta:2015} at $16^3$ and $64^3$ grid resolutions (Figure \ref{fig:gamuts}, \emph{right}). Our initial database was computed with 0.48 as Poisson's ratio and is shown in the supplementary material. For this comparison, we then recomputed the material properties of the microstructures using the same Poisson's ratio as Panetta's, i.e 0.35, which affects the extremal values of the obtained gamut.
-For the $64^3$ microstructures, we used morphological operations in the discrete step and sensitivity filtering with a radius of 3 voxels in the continuous step to limit the minimum feature size to 1/32 of the lattice size~\citep{sigmund:2007}. Note that this comparison is provided for reference only since our microstructures are cubic while Panetta's are isotropic (a subset of cubic). Furthermore, they target a different 3D printing technology with self-supporting constraints not imposed here.
+and observed a significant increase in the coverage of the material space, even for 2D microstructures with a coarser discretization.
+This comforts us with the idea that topology optimization alone, while helpful to locally improve the microstructure geometries,
+is suboptimal for discovering the entire gamut of physical properties.
+The diversity of the microstructures that we obtained is also much richer,
+thus providing a larger set of options for the practical use of microstructures.
+Note that they employed some regularization to avoid thin features.
+For $16^3$ microstructures, we found regularization unnecessary since they are manifold and have a minimal feature size of 1/16 of the lattice size, 
+which is the same order of magnitude as the thinnest parts of Schumacher's microstructures.
+For completeness, we also compared our database of 3D microstructures to the one of~\citet{Panetta:2015} at $16^3$ and $64^3$ grid resolutions (Figure \ref{fig:gamuts}, \emph{right}).
+Our initial database was computed with $0.48$ as Poisson's ratio.
+For this comparison, we then recomputed the material properties of the microstructures using the same Poisson's ratio as Panetta's at $0.35$,
+which affects the extremal values of the obtained gamut.
+For the $64^3$ microstructures, we used morphological operations in the discrete step and sensitivity filtering with a radius of 3 voxels in the continuous step to limit the minimum feature size to 1/32 of the lattice size~\citep{sigmund:2007}.
+Note that this comparison is provided for reference only since our microstructures are cubic while Panetta's are isotropic (a subset of cubic).
+Furthermore, they target a different 3D printing technology with self-supporting constraints not imposed here.
 Finally, we also obtained a dense sampling in the interior of the space, as a result of the randomness inherent to our approach. This reduces the need of running costly optimization in these areas and occurs even if we do not explicitly enforce any sampling there.
 
-We also experimented with three-material 2D cubic microstructures (two solid materials with Young's moduli differing by a factor of 1000 and with 0.48 as Poisson's ratio, plus a void material). The resulting database contains about 800k microstructures that can potentially be printed. The corresponding gamut and some examples of the generated microstructures are shown in Figure \ref{fig:Cubic2D_3Materials}.
+We also experimented with three-material 2D cubic microstructures.
+Two of the materials are solids with Young's moduli differing by a factor of 1000 and with 0.48 as Poisson's ratio, plus a void material.
+The resulting database contains about 800k microstructures that can potentially be printed.
+The corresponding gamut and some examples of the generated microstructures are shown in Figure \ref{fig:Cubic2D_3Materials}.
 \begin{figure}
 	\centering
 	\includegraphics[width=.5\linewidth]{images/Cubic2D_3Materials.png}
-	\caption{Gamut corresponding to 2D cubic microstructures made of two materials and void. The Young's modulus of the microstructures is plotted using a logarithmic scale. We show above some examples of microstructures lying near the estimated boundary of the gamut, i.e. with extreme material properties. The dark color corresponds to the softer material, while the light grey color is used for the stiffer material.}
+	\caption{Gamut corresponding to 2D cubic microstructures made of two materials and void. The Young's modulus of the microstructures is plotted using a logarithmic scale. We show above some examples of microstructures lying near the estimated boundary of the gamut, i.e. with extreme material properties.
+	The dark color corresponds to the softer material, while the light grey color is used for the stiffer material.}
 	\label{fig:Cubic2D_3Materials}
 \end{figure}
 \subsection{Topology Optimization}
 We tested our topology optimization algorithm on a number of simple test cases and large scale examples. Detailed analysis and discussion of the results is provided below.
 
 \paragraph{Impact of the Material Space}
-We evaluated the impact of the chosen material space on a 2D cantilever beam with optimized minimum compliance. We tested our topology optimization algorithm on isotropic, cubic and orthotropic gamuts as well as with the virtual materials used in the traditional SIMP approach and for which the stiffness of the material $E=\rho^p E_0$, $p \geq 1$ is a function of the density $\rho$ of the cell and the stiffness of the base material $E_0$. We also tested our algorithm on an analytical gamut with allowed stiffnesses $E$ defined by $E\leq \rho^3 E_0$. The results are shown in Figure \ref{fig:defo_cvg}. It can be noted that, as the dimension of the material space increases, the final energy of the system decreases. This is to be expected since higher dimensional space means larger gamuts.
+We evaluated the impact of the chosen material space on a 2D cantilever beam with optimized minimum compliance.
+We tested our topology optimization algorithm with isotropic, cubic and orthotropic gamuts as well as the virtual materials used in the traditional SIMP approach.
+In the SIMP method, the stiffness of the material is $E=\rho^p E_0$, $p \geq 1$, where $E_0$ is the base stiffness and $\rho$ is the material density variable.
+We also tested our algorithm on an analytical gamut with allowed stiffnesses $E$ defined by $E\leq \rho^3 E_0$.
+The results are shown in Figure \ref{fig:defo_cvg}.
+It can be noted that, as the dimension of the material space increases, the final energy of the system decreases. This is to be expected since higher dimensional space means larger gamuts.
 Thus, when using cubic materials, the minimum compliance objective function reaches 3\% lower energy than the standard SIMP method with power index 3.
-This difference reaches 11\% when we use orthotropic materials.
-It is worth noting that the lowest elastic energy is achieved when we use the traditional SIMP method with $p=1$ (as shown in Figure \ref{plot:cvg}). However, this solution does not correspond to a realizable structure since some of the optimized materials do not correspond to any microstructure.
+This difference reaches $11\%$ when we use orthotropic materials.
+It is worth noting that the lowest elastic energy is achieved when we use the traditional SIMP method with $p=1$ (as shown in Figure \ref{plot:cvg}).
+However, this solution does not correspond to a realizable structure since some of the optimized materials do not correspond to any microstructure.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.95\textwidth]{images/cantilever.png}
@@ -155,10 +190,10 @@ It is worth noting that the lowest elastic energy is achieved when we use the tr
 \end{figure}
 \begin{figure}
 	\centering
-	\includegraphics[width=.5\linewidth]{images/bar_visio_new.png}
+	\includegraphics[width=.95\linewidth]{images/bar_visio_new.png}
 	\caption{
-		Optimizing a beam to take an ``S'' shape under compression.
-		A beam with homogeneous material can only compress uniformly (left column).
+		Optimizing a beam to take an ``S'' shape under compression (left column).
+		A beam with homogeneous material can only compress uniformly (middle column).
 		The optimized beam can deform as requested (right column).
 		Target displacements are set on the horizontal boundary cells.
 		The color plot for the bottom beams shows the deformation error of each cell defined by Equation~\ref{eq:td}.
@@ -167,10 +202,11 @@ It is worth noting that the lowest elastic energy is achieved when we use the tr
 
 \paragraph{Matching Quality}
 	We evaluated for different examples the matching quality of the target deformation optimization.
-	For the first test, we forced a beam to take an `S' shape when undergoing tensile forces (Figure \ref{fig:beam_S_shape}). In order to avoid overfitting, we applied target displacements on the vertices of the boundary cells only. As depicted in the figure, the use of microstructures largely improves the global shape of the beam, which closely matches the target deformed shape. This becomes even more striking when compared to the behavior of a beam made of a homogeneous material.
-		We also validated our algorithm by designing a soft ray whose wings can flap using a compliant mechanism (see Figure \ref{fig:ray} and accompanying video). Boundary conditions are applied on two circular areas located along the spine of the ray. Each disk has one degree of freedom for deformation, namely contracting or expanding along the disk normals. This mechanism resembles the one of many hydraulics-driven soft robots. We define two target deformation objectives corresponding to the flapping of the wings up and down, when alternatively contracting and expanding the two disks' boundaries. By running our multi-objective topology optimization framework, we can compute an optimized material design that can achieve both deformation modes when the corresponding boundary conditions are exerted.
+	For the first test, we requested a beam to make an ``S'' shape when under tension (Figure \ref{fig:beam_S_shape}). In order to avoid overfitting, we applied target displacements on the vertices of the boundary cells only. As depicted in the figure, the use of microstructures largely improves the global shape of the beam, which closely matches the target deformed shape. This becomes even more striking when compared to the behavior of a beam made of a homogeneous material.
+	We also validated our algorithm by designing a soft ray whose wings can flap using a compliant mechanism (see Figure \ref{fig:ray} and accompanying video). Boundary conditions are applied on two circular areas located along the spine of the ray. Each disk has one degree of freedom for deformation, namely contracting or expanding along the disk normals.
+	This mechanism resembles one of many pneumatics-driven soft robots. We define two target deformation objectives corresponding to the flapping of the wings up and down, when alternatively contracting and expanding the two disks' boundaries. By running our multi-objective topology optimization framework, we can compute an optimized material design that can achieve both deformation modes when the corresponding boundary conditions are exerted.
 
-\begin{figure}[t]
+\begin{figure}
 	\centering
 	\includegraphics[width=.6\linewidth]{images/ray.png}
 	\caption{Designing a soft ray. The wings of the ray flap up and down when cells on its spine contract and expand.
@@ -212,43 +248,30 @@ To this end, we designed several grippers that can grasp objects by moving their
 \end{figure}
 
 We evaluated the accuracy of our algorithm on several optimized structures by comparing the deformation obtained when using the optimized homogenized material properties for each cell to the one obtained by a high resolution simulation in which every cell is replaced by its mapped microstructure.
-We first evaluated the accuracy on a deformable bar, one side of which was rigidly attached while the other was subject to different sets of external conditions (see Figure \ref{fig:hom_beam}). We used a $8\times2\times2$ lattice to represent the bar with homogenized cells, which translates into a $128\times32\times32$ grid for the full resolution mesh. Similar stretching, bending and shearing behaviors were obtained for both sets of models. From a quantitative point of view, the differences amount to 5-10\% in terms of average vertex displacement and 9\%-33\% in terms of elastic deformation energy (see Table \ref{tab:hom}). We further evaluated the effects of material patterns by running a similar comparison on a cube made of periodic layers of similar microstructures and with random assignments of microstructures (Figure \ref{fig:hom_cube_2}).  As reported in Table \ref{tab:hom}, we show that the ratio between the magnitudes of the average vertex displacement differences is between 4\% and 7\%, and the elastic energy difference is between 10\% and 19\%.
+We first evaluated the accuracy on a deformable bar, one side of which was rigidly attached while the other was subject to different sets of external conditions (see Figure \ref{fig:hom_beam}). We used a $8\times2\times2$ lattice to represent the bar with homogenized cells, which translates into a $128\times32\times32$ grid for the full resolution mesh. Similar stretching, bending and shearing behaviors were obtained for both sets of models. From a quantitative point of view, the differences amount to 5-10\% in terms of average vertex displacement and $9\%-33\%$ in terms of elastic deformation energy (see Table \ref{tab:hom}). We further evaluated the effects of material patterns by running a similar comparison on a cube made of periodic layers of similar microstructures and with random assignments of microstructures (Figure \ref{fig:hom_cube_2}).  As reported in Table \ref{tab:hom}, we show that the ratio between the magnitudes of the average vertex displacement differences is between $4\%$ and $7\%$, and the elastic energy difference is between 10\% and 19\%.
 
 Finally, we also compared the behaviors of one of the grippers (Figure \ref{fig:gripper_validate}). The original optimized gripper is made of 3k elements while the high resolution version is made of 4M voxels.
 Overall, the two models exhibit similar global deformation behaviors, in particular in the tip area. Some differences can be observed on the left side of the gripper for which the high-resolution model exhibits a lower effective material stiffness than its homogenized counterpart. With the same displacement boundary conditions applied, the high-resolution model deforms about 25\% more than the homogenized model.
-	
-	\begin{figure}[t]
-		\centering
-		\includegraphics[width=.6\linewidth]{images/gripper_cmp.png}	
-		\caption{Comparison of a simulated gripper with homogenized material properties (\emph{inset picture, left}) to the one using full microstructures (\emph{main picture, left}). The figures on the right show the vector field of vertex displacement of the two models. The blue-to-red colors represent the magnitudes of the displacements.}
-			\label{fig:gripper_validate}
-	\end{figure}
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=.8\linewidth]{images/hom_cube_peri.png}	
-		\caption{Simulation of a cube made of a periodic arrangement of a single microstructure at different resolutions. Inset pictures correspond to the model with homogenized material properties, while main pictures correspond to the full resolution simulations.}
-			\label{fig:hom_cube_1}
-	\end{figure}
-	
-The differences observed between the homogenized model behaviour and the full resolution simulation can be explained by two major factors: (i) numeral stiffness when using larger elements which tends to make the homogenized mesh slightly stiffer in particular when bending deformation arises, (ii) violation of the periodicity assumption when replacing each cell by a single microstructure. This issue can be reduced by replacing each cell by a {\it tiling} of microstructures. This was verified on a cube made of a periodic arrangement of a single microstructure (see Figure \ref{fig:hom_cube_1}). And indeed, as we increase the resolution of the simulation grid, the error between the homogenized model and the full resolution version decreases and converges to similar values.
-
-\paragraph{Orthotropic materials}
-We tested the behavior of our algorithm in a 5-dimensional space by using the gamut of 2D orthotropic microstructures depicted in Figure \ref{fig:gamuts} (\emph{middle}). To this end, we used a regular lattice whose vertices on the left side where fixed and we applied parallel forces on the vertices of the opposite side. The goal in the test was to minimize the compliance of the structure. As can be seen in Figure \ref{plot:res} and in the accompanying video, we experimented with different force directions. Unsurprisingly, when a single cell is considered, the microstructure that we obtain has a structure that is aligned with the direction of the forces (see Figure \ref{plot:res}, \emph{left}). 
-For a higher resolution lattice this is no longer true and the resulting overall structure becomes less intuitive (see Figure \ref{plot:res}, \emph{right}). 
-Note that the resulting material distribution varies smoothly. By considering various alternative for each material point, our tiling algorithm is able to map the material properties to microstructures which are well connected. 
-
 \begin{figure}
 	\centering
-	\includegraphics[width=0.95\textwidth]{images/ortho_square.png}
-	\caption{Optimizing the orthotropic material parameters of a single cell (\emph{left}) and a $32\times32$ lattice of cells (\emph{right}) subject to directional forces. The vertices on the left side of the layout are fixed while forces are applied on the right vertices as depicted by the red arrows. Our simple but effective tiling algorithm allows to nicely transition between microstructures of smoothly material properties (\emph{right, top}).}
-	\label{plot:res}
+	\includegraphics[width=.8\linewidth]{images/hom_cube_peri.png}	
+	\caption{Simulation of a cube made of a periodic arrangement of a single microstructure at different resolutions. Inset pictures correspond to the model with homogenized material properties, while main pictures correspond to the full resolution simulations.}
+	\label{fig:hom_cube_1}
 \end{figure}
-
+\begin{figure}
+	\centering
+	\includegraphics[width=.6\linewidth]{images/gripper_cmp.png}	
+	\caption{Comparison of a simulated gripper with homogenized material properties (\emph{inset picture, left}) to the one using full microstructures (\emph{main picture, left}). The figures on the right show the vector field of vertex displacement of the two models. The blue-to-red colors represent the magnitudes of the displacements.}
+		\label{fig:gripper_validate}
+\end{figure}	
+The differences observed between the homogenized model behaviour and the full resolution simulation can be explained by two major factors: (i) numeral stiffness when using larger elements which tends to make the homogenized mesh slightly stiffer in particular when bending deformation arises, (ii) violation of the periodicity assumption when replacing each cell by a single microstructure. This issue can be reduced by replacing each cell by a {\it tiling} of microstructures. This was verified on a cube made of a periodic arrangement of a single microstructure (see Figure \ref{fig:hom_cube_1}). And indeed, as we increase the resolution of the simulation grid, the error between the homogenized model and the full resolution version decreases and converges to similar values.
 \begin{table}
 	\centering
 	\footnotesize
-	\caption{Error statistics (SI units). The size of one microstructure is set to $1\times1\times1$.}
+	\caption{Error of simulation using homogenized materials (SI units). 
+	The simulated shapes are shown in Figure~\ref{fig:hom_beam},
+	\ref{fig:hom_cube_2}, \ref{fig:hom_cube_1} and \ref{fig:gripper_validate}
+	The size of one microstructure is set to $1\times1\times1$.}
 	{\begin{tabularx}{\linewidth}{ |X| X | X | X | X | }
 			\hline
 			Example & Mean displacement & Mean displacement difference & Elastic energy \newline homogenized & Elastic energy \newline full resolution\\ \hline
@@ -259,15 +282,24 @@ Note that the resulting material distribution varies smoothly. By considering va
 			Cube 1 & 3.62$\times10^{-3}$ & 2.86$\times10^{-4}$ & 3.64$\times10^{-3}$ & 3.20$\times10^{-3}$ \\
 			Cube 2 & 4.35$\times10^{-3}$ & 1.94$\times10^{-4}$ & 6.82$\times10^{-3}$ & 5.94$\times10^{-3}$ \\
 			Cube 3 & 5.42$\times10^{-3}$ & 4.22$\times10^{-4}$ & 7.81$\times10^{-3}$ & 6.32$\times10^{-3}$ \\
-			Gripper& 1.32$\times10^{-2}$ & 6.90$\times10^{-3}$ & 8.67$\times10^{-3}$ & 5.70$\times10^{-3}$ \\
 			Cube 4 & 5.22$\times10^{-3}$ & 4.89$\times10^{-4}$ & 2.08$\times10^{-2}$ & 1.63$\times10^{-2}$ \\
 			Cube 5 & 5.21$\times10^{-3}$ & 2.17$\times10^{-4}$ & 1.89$\times10^{-2}$ & 1.63$\times10^{-2}$ \\
 			Cube 6 & 5.21$\times10^{-3}$ & 1.32$\times10^{-4}$ & 1.82$\times10^{-2}$ & 1.63$\times10^{-2}$ \\
+			Gripper& 1.32$\times10^{-2}$ & 6.90$\times10^{-3}$ & 8.67$\times10^{-3}$ & 5.70$\times10^{-3}$ \\
 			\hline
-		\end{tabularx} }
-		\label{tab:hom}
-	\end{table}
-	
+	\end{tabularx} }
+	\label{tab:hom}
+\end{table}
+\paragraph{Orthotropic materials}
+We tested the behavior of our algorithm in a 5-dimensional space by using the gamut of 2D orthotropic microstructures depicted in Figure \ref{fig:gamuts} (\emph{middle}). To this end, we used a regular lattice whose vertices on the left side where fixed and we applied parallel forces on the vertices of the opposite side. The goal in the test was to minimize the compliance of the structure. As can be seen in Figure \ref{plot:res} and in the accompanying video, we experimented with different force directions. Unsurprisingly, when a single cell is considered, the microstructure that we obtain has a structure that is aligned with the direction of the forces (see Figure \ref{plot:res}, \emph{left}). 
+For a higher resolution lattice this is no longer true and the resulting overall structure becomes less intuitive (see Figure \ref{plot:res}, \emph{right}). 
+Note that the resulting material distribution varies smoothly. By considering various alternative for each material point, our tiling algorithm is able to map the material properties to microstructures which are well connected. 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/ortho_square.png}
+	\caption{Optimizing the orthotropic material parameters of a single cell (\emph{left}) and a $32\times32$ lattice of cells (\emph{right}) subject to directional forces. The vertices on the left side of the layout are fixed while forces are applied on the right vertices as depicted by the red arrows. Our simple but effective tiling algorithm allows to nicely transition between microstructures of smoothly material properties (\emph{right, top}).}
+	\label{plot:res}
+\end{figure}
 	\subsection{3D-Printed Designs}
 	
 	Leveraging our two-scale approach, we used our topology optimization algorithm to generate a wide variety of high resolution models that we 3D-printed. We used a Stratasys Objet Connex 500 and the two base materials \emph{Vero Clear} and \emph{Tango Black Plus} and used the database containing the three-dimensional cubic microstructures. The sizes and computation times of the resulting models are outlined in Table \ref{tab:results}. 
