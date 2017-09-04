@@ -24,38 +24,44 @@ s.t. : \quad & \mathcal{F}(\mathbf{\bp},\mathbf{u})=0 & \\
 \label{eq:op}
 \end{aligned}
 \end{equation}
-where $\mathcal{S}$ is a real-valued objective function that depends on the material parameters and the displacement vector $\bu$ of the entire object at the elasticity equilibrium.
+where $\mathcal{S}$ is a real-valued objective function that depends on the material parameters and the displacement vector $\bu$.
+$\bu$ is an auxiliary vector for expressing elasticity equilibrium constraint and other displacement objectives.
 The equality constraint $\mathcal{F}=0$ requires $\bu$ to satisfy the elasticity equilibrium and the inequality constraint $\Phi\leq0$ guarantees that the material properties of each cell stay inside the precomputed gamut.
-
-In our examples, the material parameter $\bp$ consists of the density $\rho$ and the elasticity parameters $\be$.
-We split our objective function into an elasticity term $\mathcal{C}(\vect{e},\bf u)$ that controls the deformation behavior (see Section \ref{sec:obj}) and an optional density term $\mathcal{V}(\rho)$ that controls the overall mass of the object.The density term can be written as
+The static equilibrium constraint is written as 
 \begin{equation}
-\mathcal{V}(\rho)=(\sum_{i=1}^{N_c}\rho_iV_i-\hat{M})^2\label{eq:vol},
+\mathcal{F}(\mathbf{e},\mathbf{u})=K(\mathbf{p})\mathbf{u}-\bf f_{ext}=0,
+\end{equation}
+where $\bf f_{ext}$ are the external loads applied to the object and
+$K(\mathbf{p})$ is the stiffness matrix determined by the material parameters.
+
+The gamut constraint for a point $\mathbf{p}_i$ in the material property space is described by an $n$-dimensional level set function $\Phi(\mathbf{p})$.
+We have $\Phi(\mathbf{p}_i)<0$ for a point inside the gamut, $\Phi(\mathbf{p}_i)>0$ for a point outside the gamut, and $\Phi(\mathbf{p}_i)=0$ for a point on the boundary of the gamut.
+The value of $\Phi$ represents the $n$-dimension Euclidean distance to the level set boundary.
+The gradient of $\Phi$ are evaluated by a finite difference operation on the signed distance field.
+
+In our examples, the material parameter $\bp$ consists of the ratio $\rho$ of the rigid material and the elasticity parameters $\be$.
+The objective function contains two types of terms: an elasticity term $\mathcal{C}(\vect{e},\bf u)$ that controls the deformation behavior (see Section \ref{sec:obj}) and an optional density term $\mathcal{V}(\rho)$ that controls the overall mass of the object.
+The density term is
+\begin{equation}
+\mathcal{V}(\rho)=(\sum_{i=1}^{N_c}\rho_iV_i-\hat{M})^2,
+\label{eq:vol}
 \end{equation}
 where $V_i$ is the cell volume and $\hat{M}$ is the target overall mass.
-When one of the base material is void, the use of the density term allows to modify the topology of the object at a larger scale than the one of the microstructures, and thus to change the external shape of the object. 
-In fact, even for multi-material designs involving base materials with similar mass densities, we noted that we could use the density term to encourage the presence of soft material in the structure. By removing the external cells entirely made of the soft material, we could then decrease the mass of the structure without significantly changing its mechanical behaviour.
+When one of the base material is void, the use of the density term allows to modify the topology of the object at a larger scale than the one of the microstructures, and thus to change the external shape of the object.
+In fact, even for multi-material designs involving base materials with similar mass densities, we noted that we could use the density term to encourage the presence of soft material in the structure.
+By removing the external cells entirely made of the soft material, we could then decrease the mass of the structure without significantly changing its mechanical behaviour.
 Alternatively, the density term can also be used to control other quantities related to the ratios of the different materials such as the cost of the object.
 For specific problems, we can also add spatially-varying weight control terms to Equation \ref{eq:vol}.
 For example, we can control the target weight of each individual cell by adding a local term $(\rho_i-\hat{\rho}_i)^2V_i$.
 
-Assuming static equilibrium, the elasticity constraint is written as 
-\begin{equation}
-\mathcal{F}(\mathbf{e},\mathbf{u})=K(\mathbf{e})\mathbf{u}-\bf f_{ext}=0,
-\end{equation}
-where $\bf f_{ext}$ are the external loads applied to the object.
-
-The gamut constraint for a point $\mathbf{p}_i$ in the material property space is described by an $n$-dimensional level set function $\Phi(\mathbf{p})$.
-We have $\Phi(\mathbf{p}_i)<0$ for a point inside the gamut, $\Phi(\mathbf{p}_i)>0$ for a point outside the gamut, and $\Phi(\mathbf{p}_i)=0$ for a point on the boundary of the gamut.
-The value of $\Phi$ represents the $n$-dimension Euclidean distance to the level set boundary. %This distance can be linearly interpolated from the precomputed signed distance field.
-The gradient of $\Phi$ are evaluated by a finite difference operation on the signed distance field.
-
-We used a standard gradient-based numerical optimizer (Ipopt~\citep{ipopt} in our implementation) to solve Equation \ref{eq:op}. We enforced the elasticity equilibrium constraint using the adjoint method. The optimizer only needs to take the function values of $\mathcal{S}$ and $\Phi$ along with their gradients as input.
+We used a gradient-based numerical optimizer (Ipopt~\citep{ipopt} in our implementation) to solve Equation \ref{eq:op}. We enforced the elasticity equilibrium constraint using the adjoint method. The optimizer only needs to take the function values of $\mathcal{S}$ and $\Phi$ along with their gradients as input.
 
 \subsection{Elasticity Objectives}\label{sec:obj}
-We used two different types of objective functions for the elasticity term in our topology optimization algorithm. These two types of objectives allowed us to design a wide range of objects.
-\paragraph*{Target Deformation}\label{sec:strain}
-Our algorithm takes a vector of nodal target displacements and boundary conditions (external forces, fixed points, etc.) as input. Then, it automatically optimizes the material distribution over the object domain to achieve the desired linear deformation assuming a linear elastic behavior.
+We used two types of objective functions for the elasticity term in our topology optimization algorithm.
+These two types of objectives allowed us to design a wide range of objects.
+\paragraph{Target Deformation}\label{sec:strain}
+Our algorithm takes a vector of nodal target displacements and boundary conditions (external forces, fixed points, etc.) as input.
+Then, it automatically optimizes the material distribution over the object domain to achieve the desired linear deformation assuming a linear elastic behavior.
 
 We define the deformation objective as
 \begin{equation}
@@ -75,7 +81,8 @@ In the commonly used SIMP algorithm, the stiffness matrix $\bK_i$ of each cell $
 through an analytical formula such as $\bK_i = \rho_i^3\bK_0$ where $\bK_0$ corresponds to the stiffness matrix of the base material.
 In contrast, the stiffness matrix in our objective function is directly computed from the material parameters of the material space and forced to correspond to a realizable material thanks to our gamut constraints.
 
-Like in standard algorithms, we regularized the problem to avoid checkerboard solutions by applying a smoothing kernel on the material properties that favors smooth variations of the material parameters over the object layout.
+Like previous work, we regularized the problem to avoid checkerboard solutions by applying a smoothing kernel on the 
+gradient to favor smooth variations of the material parameters over the object layout.
 Our optimizer supports multiple objectives by linearly combining weighted objective functions.
 \section{Mapping Material Properties to Microstructures}
 \begin{figure}
@@ -86,11 +93,15 @@ Our optimizer supports multiple objectives by linearly combining weighted object
  	\label{fig:translateMic}
 \end{figure}
 After running the topology optimization algorithm, we generate a printable result by replacing each cell in the object lattice by a microstructure whose material properties match the optimal ones.
-
 Material properties of the microstructures are computed using the homogenization theory which is more accurate with a smooth transition between the geometries of neighboring cells.
 While smoothness in the material parameters can be easily enforced, it does not imply topological similarity of nearby microstructures. 
 For example, any translation of a given microstructure in a periodic tiling will result in a microstructure geometrically different but with exactly the same mechanical properties (Figure~\ref{fig:translateMic}). 
-Fortunately, our database is very dense and multiple microstructures generally map to similar points in the material property space, offering several variants. To further increase the number of possibilities, we also incorporate an additional exemplar for each microstructure by translating it by half its size, which preserves its cubic or orthotropic symmetry without changing its properties (see inset Figure). We then run a simple but effective algorithm that picks the microstructure exemplars that minimize the boundary material mismatch across adjacent cells. We quantify this mismatch by $\mathcal{I}=\sum_{i=1}^{N_c} \mathcal{I}_i$, where $\mathcal{I}_i$ is the contribution associated to the cell $i$ and corresponds to the number of boundary voxels filled with materials that are different from the ones of the voxels' immediate neighbours across the interfaces.
+Fortunately, our database is very dense and multiple microstructures generally map to similar points in the material property space, offering several variants.
+To further increase the number of possibilities, we also incorporate an additional exemplar for each microstructure by translating it by half its size, which preserves its cubic or orthotropic symmetry without changing its properties.
+We then run a simple but effective algorithm that picks the microstructure exemplars that minimize the boundary material mismatch across adjacent cells.
+We quantify this mismatch by 
+\[\mathcal{I}=\sum_{i=1}^{N_c} \mathcal{I}_i,\]
+where $\mathcal{I}_i$ is the contribution associated to the cell $i$ and corresponds to the number of boundary voxels filled with materials that are different from the ones of the voxels' immediate neighbours across the interfaces.
 
 Our algorithm proceeds as follows:
 \begin{itemize}
