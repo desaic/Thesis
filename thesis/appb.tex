@@ -1,19 +1,249 @@
-\chapter{Figures}
+\chapter{Implementation and Additional Experiments for Dynamics}
+\section{Dynamic Contact-Impact Solver}
+\label{sec:iter_dyn_solver}
+\paragraph{Implicit time stepping method} 
+At each time step our implicit contact method must jointly satisfy the discrete equations of motion
+%
+\begin{align}
+\begin{split}
+\vc M \vc \delta^{t+1} & - \vc b^t - \tfrac{h^2}{4} \vc F(\vc q^{t+1}) + \tfrac{h^2}{4} \vc D(\vc q^{t+1}) \vc v^{t+1} \\
+&- \tfrac{h^2}{2} \vc N \alpha -  \tfrac{h^2}{2}  \vc T \beta = 0, 
+\label{eq:ap_newmark_contact_implicit}
+\end{split}
+\end{align}
+updates
+\begin{align}
+\begin{split}
+\vc b^t &= h \vc M \vc v^t + \tfrac{h^2}{4} \vc F( \vc q^t) -\tfrac{h^2}{4} \vc D( \vc q^t) \vc v^t, \\
+\vc q^{t+1} &= \vc q^t + \vc \delta^{t+1},
+\end{split}
+\end{align}
+%
+contact conditions\footnote{$\vc x \perp \vc y$ is the \emph{complementarity condition} $\vc x_i \vc y_i = 0,\ \forall i$.} 
+%
+\begin{align}
+0 \leq \alpha \perp \vc N^T \delta^{t+1} \geq 0, 
+\label{eq:ap_contact_conditions}
+\end{align}
+%
+variational maximal dissipation conditions
+%
+\begin{align}
+\begin{split}
+\min_{\beta} \{ \beta^T \vc T^T (\tfrac{2}{h} \delta^{t+1} - \vc v^t) : \mu_k \bar{\alpha}_k \geq \|\bar{\beta}_k\|, \> \forall k \in \mathcal{C} \}, 
+\label{eq:ap_max_diss_transform}
+\end{split}
+\end{align} 
+%
+and the impact projection
+%
+\begin{align}
+\begin{split}
+\vc c &= 2 \vc \delta^{t+1} - h \vc v^t, \\
+\vc A &= \vc M + \frac{h^2}{4} \vc K(\vc q^{t+1}) + \frac{h}{2} \vc D(\vc q^{t+1}) ,\\
+\vc d^* &= \argmin_{\vc d} \big\{ \| \vc d - \vc c \|^2_{\vc A} : \vc N^T \vc d \geq 0 \big\},\\
+\vc v^{t+1} &= \frac{1}{h} \vc d^*,\\
+\end{split}
+\label{eq:ap_newmark_predictor_proj}
+\end{align}
+to convergence with an iterative solver.
 
-\vspace*{-3in}
+\paragraph*{Modified Newton-Raphson with frictional contact}
+To construct our solver we first consider time-stepping without contact forces. At each time step we seek a displacement update $\delta^{t+1}$ satisfying 
+\begin{align}
+\vc f(\delta^{t+1}) = \vc M \delta^{t+1} - \vc b^t - \tfrac{h^2}{4} \vc F(\vc q^{t+1}) + \tfrac{h^2}{4}  \vc D(\vc q^{t+1}) \vc v^{t+1}=0,
+\end{align}
+%
+with 
+\begin{align}
+\begin{split}
+\vc q^{t+1} &= \vc q^t + \vc \delta^{t+1},\\
+\vc v^{t+1} &= \tfrac{2}{h} \vc \delta^{t+1} - \vc v^t.
+\end{split}
+\end{align}
+%
+Ignoring $\frac{\partial \vc D}{\partial \vc q}$ we set
+\begin{align}
+\vc H(\delta)  = \vc M + \frac{h^2}{4} \vc K(\vc q^t + \delta) + \frac{h}{2} \vc D(\vc q^t + \delta).
+\end{align}
+and have $\nabla \vc f \simeq \vc H$. In the following we will reserve superscripting with indexing $t$ for time step increments and superscripting with indexing $i$ for iteration increments. Modified Newton-Raphson then approximates the linearization of $\vc f$, at iterate $i$, around $\delta^i$
+as 
+\begin{align}
+\vc f(\delta^{i+1}) \simeq   \vc f(\delta^i) + \vc H(\delta^i) (\delta^{i+1} - \delta^{i}).
+\end{align}
+We then find the improved estimate of displacement $\delta^{i+1}$ by line search on the descent direction
+\begin{align}
+\delta^{i} - \vc H(\delta^i)^{-1} \vc f(\delta^i).
+\end{align}
+%as a descent direction for line search to obtain a final $\delta_{i+1}$.
+%We apply a line search by bi-section to avoid instability of Newton's method.
 
-\begin{figure}
-\vspace{2.4in}
-\caption{Armadillo slaying lawyer.}
-\label{arm:fig1}
-\end{figure}
-\clearpage
-\newpage
+With contact, at each Newton iterate we are now solving for updated triples of both displacement and boundary contact and friction forces, $(\delta, \vc \alpha, \vc \beta)$. 
+Applying the same modified linearization of (\ref{eq:ap_newmark_contact_implicit}) about $\delta^{i-1}$ then gives 
+\begin{align}
+\vc f(\delta^{i-1}) + \vc H(\delta^{i-1}) (\delta^i - \delta^{i-1}) - \tfrac{h^2}{2} \vc N \alpha -  \tfrac{h^2}{2}  \vc T \beta = 0,
+\end{align}
+Setting 
+\begin{align}
+\begin{split}
+%\vc r(\delta) &=  \vc b^t + \tfrac{h^2}{4} \vc F(\vc q^{t} + \delta) + \tfrac{h^2}{4} \vc D(\vc q^{t} + \delta) (2\delta - \vc v^{t}) \\
+%& -  \big[ \frac{h^2}{4} \vc K(\vc q^{t}+\delta) + \frac{h}{2} \vc D(\vc q^{t} + \delta) \big] \delta 
+\vc r(\delta) &=  \vc b^t + \tfrac{h^2}{4} \vc F(\vc q^{t} + \delta) - \tfrac{h^2}{4} \vc D(\vc q^{t} + \delta) (\frac{2}{h}\delta - \vc v^{t}) \\
+& +  \big[ \frac{h^2}{4} \vc K(\vc q^{t}+\delta) + \frac{h}{2} \vc D(\vc q^{t} + \delta) \big] \delta 
+\end{split}
+\end{align}
+at each Newton iterate, the linearized contacting system we want to solve is then 
+\begin{align}
+\begin{split}
+& \vc H(\delta^{i-1}) \delta^i =  \vc r(\delta^{i-1}) + \tfrac{h^2}{2} \vc N \alpha +  \tfrac{h^2}{2}  \vc T \beta,\\
+& 0 \leq \lambda \perp \vc N^T \delta_{i+1} \geq 0,\\
+& \min_{\beta} \{ \beta^T \vc T^T (\tfrac{2}{h} \delta^{t+1} - \vc v^t) : \mu_k \bar{\alpha}_k \geq \|\bar{\beta}_k\|, \> \forall k \in \mathcal{C} \}
+\end{split}
+\end{align}
+or, equivalently 
+\begin{align}
+\begin{split}
+0 \leq \lambda \perp & \tfrac{h^2}{2} \vc N^T \vc H(\delta^{i-1})^{-1}  \vc N \alpha  \\
+&+ \vc N^T \vc H(\delta^{i-1})^{-1} \big[\vc r(\delta^{i-1}) +  \tfrac{h^2}{2}  \vc T \beta \big] \geq 0,\\
+\min_{\beta} \{ \beta^T & \vc T^T (\tfrac{2}{h} \delta^{t+1} - \vc v^t) : \mu_k \bar{\alpha}_k \geq \|\bar{\beta}_k\|, \> \forall k \in \mathcal{C} \}
+\end{split}
+\end{align}
+with the update $ \delta^i =  \vc H(\delta^{i-1})^{-1} \big[\vc r(\delta^{i-1}) + \tfrac{h^2}{2} \vc N \alpha +  \tfrac{h^2}{2}  \vc T \beta \big]$.
 
-\begin{figure}
-\vspace{2.4in}
-\caption{Armadillo eradicating national debt.}
-\label{arm:fig2}
-\end{figure}
-\clearpage
-\newpage
+\paragraph*{Inner-loop solve of Newton steps}
+To solve each Newton step we first backsolve to get 
+\begin{align}
+\begin{split}
+&\tilde{\vc N} = \vc H(\delta^{i-1})^{-1}  \vc N, \\
+&\tilde{\vc D} =\vc H(\delta^{i-1})^{-1}  \vc D, \\
+&\tilde{\vc r} = \vc H(\delta^{i-1})^{-1}  \vc r(\delta^{i-1})
+\end{split}
+\label{eq:newton_quant}
+\end{align}
+The solution then simplifies a bit further to finding
+\begin{align}
+\begin{split}
+0 \leq \lambda \perp & \vc N^T \tilde{\vc N} \alpha  + \tilde{\vc N}^T \big[ \tfrac{2}{h^2} \tilde{\vc r} +  \tilde{\vc T} \beta \big] \geq 0,\\
+\min_{\beta} \{ \beta^T & \vc T^T  \tilde{\vc T} \beta + \beta^T \vc T^T  \big[ \tilde{\vc N} \alpha  + \tfrac{2}{h^2} \tilde{\vc r} - \tfrac{1}{h} \vc v^t \big] \\
+& : \> \mu_k \bar{\alpha}_k \geq \|\bar{\beta}_k\|, \> \forall k \in \mathcal{C} \}.
+\label{eq:simple_NCP}
+\end{split}
+\end{align}
+We then solve the Newton step Gauss-Seidel fashion. Each Gauss-Seidel pass  iteratively holds all unknowns except for forces at a single contact $k \in \mathcal{C}$ fixed. We solve for the forces at $k$, update them and then move on to the next $k+1\in \mathcal{C}$. We run multiple Gauss-Seidel passes through the system until convergence is reached satisfying (\ref{eq:simple_NCP}). 
+
+To solve for the updated forces $(\bar{\alpha}_k^{i+1}, \bar{\beta}_k^{i+1})$ for contact $k \in \mathcal{C}$ in Gauss-Seidel pass $i+1$ we compute
+\begin{align}
+\begin{split}
+\vc d_k &=  \sum_{j<k} \tilde{\vc n}_j \alpha_j^{i+1} +  \sum_{j>k} \tilde{\vc n}_j \alpha_j^i \\
+& \> \> \> + \sum_{j<k}  \tilde{\vc T}_j \beta_j^{i+1} + \sum_{j>k} \tilde{\vc T}_j \beta_j^i+ \frac{2}{h^2} \tilde{\vc r}_k \in \mathbb{R}^n.
+\end{split}
+\end{align}
+Substituting in (\ref{eq:simple_NCP}) we then solve the single-point frictional-contact problem at contact k. This is just the small, three-dimensional problem to find $(\bar{\alpha}_k^{i+1}, \bar{\beta}_k^{i+1}) \in \mathbb{R}^3$ satisfying
+\begin{align}
+\begin{split}
+0 \leq \bar{\alpha}_k^{i+1} \perp  \vc n_k^T & \tilde{\vc n}_k \bar{\alpha}_k^{i+1}  + \vc n_k^T \tilde{\vc T}_k \bar{\beta}_k^{i+1} + \vc n_k^T \vc d_k \geq 0,\\
+\bar{\beta}_k^{i+1} = \argmin_{\bar{\beta}_k} \{ &\bar{\beta}_k \vc T_k^T  \tilde{\vc T}_k \bar{\beta}_k + \bar{\beta}_k \vc T_k^T(\tilde{\vc n}_k \bar{\alpha}_k^{i+1} +   \vc d_k- \tfrac{1}{h} \vc v^t) \\
+&  : \> \mu_k \alpha^{i+1}_k \geq \|\bar{\beta}_k\|\}.
+\end{split}
+\end{align}
+We then update to $(\bar{\alpha}_k^{i+1}, \bar{\beta}_k^{i+1})$ and move on to contact $k+1$.
+
+On convergence of this \emph{inner} Gauss-Seidel iteration to optimal $(\alpha^*,\beta^*)$ we update to the next Newton step displacement estimate to
+\begin{align}
+\delta^i = \tilde{\vc r} + \tfrac{h^2}{2} \tilde{\vc N} \lambda^* + \tfrac{h^2}{2}\tilde{\vc T} \beta^*
+\end{align} 
+We form the new needed quantities for the next Newton step in (\ref{eq:newton_quant}) and then solve the next Newton step with Gauss-Seidel. On convergence of the \emph{outer} Newton iteration to satisfying (\ref{eq:ap_newmark_contact_implicit}), (\ref{eq:ap_contact_conditions}), and (\ref{eq:ap_max_diss_transform}) we then perform the Impact projection in (\ref{eq:ap_newmark_predictor_proj}) described below and then move to the next time step. 
+
+\paragraph*{Impact model solve}
+To solve the BBI impact projection step in (\ref{eq:ap_newmark_predictor_proj}) we can reuse the already computed \emph{final} compliant term from the last iterate in (\ref{eq:newton_quant}). In dual form our BBI impact projection is equivalent to solving the system 
+\begin{align}
+\begin{split}
+0 \leq \lambda \perp & \vc N^T \tilde{\vc N} \lambda  + \tilde{\vc N}^T \vc c \geq 0,\\
+\label{eq:impact_proj}
+\end{split}
+\end{align}
+and applying a final velocity update 
+\begin{align}
+\vc v^{t+1} \leftarrow \frac{1}{h} (\vc c + \tilde{\vc N} \lambda),  
+\end{align}
+with $\vc c$ given from (\ref{eq:ap_newmark_predictor_proj}). We solve the linear-complementarity problem in (\ref{eq:impact_proj}) with projected Gauss-Seidel. 
+\section{SE(3) Projections}
+
+During free-flight motion we can project each body's FE state to a fitted rigid body model equipped with rotational $\vr R \in SO(3)$ and translational $\vr t \in \mathbb{R}^3$ degrees of freedom. Per body we choose coordinates so that $\vr R$ rotates from principal-axis--aligned body frame to world frame and $\vr t$ gives the location of center of mass.
+Corresponding angular and linear momenta are $\vr \pi, \> \vr l \in \mathbb{R}^3$, with diagonal inertia tensor $I$ and mass $m$. Nodal positions of material points $\vr x_i$ during rigid motion are then $\vr x^t_i = \vr t^t + \vr R^t (\vr x^0_i - \vr t^0)$. We set corresponding momenta 
+%$\vc p^t = 
+to $(\vr p_1^T, ..., \vr p_n^T)^T  = \vc M \vc v^t \in \mathbb{R}^{3n}$, stack nodal vertices as $\vc Q = (\vr x_1, ..., \vr x_n) \in \mathbb{R}^{3 \times n}$ and then project to rigid state with
+%
+\begin{align}
+\begin{split}
+\label{eq:FE_to_SE3}
+&\vr R^t \leftarrow \argmin_{\vr T \in SO(3)} || \vr T \vc Q^t  - \vc Q^0 ||_F,\\
+&\vr \pi^t \leftarrow \sum_{i = 1}^n (\vr x_i^t - \vr t^t) \times \vr p^t_i, \> \>  \> \> \vr l^t \leftarrow \sum_{i= 1}^n \vr p^t_i, \\
+%&\vr p^t \leftarrow \sum_x \vr p_x, \\ 
+&\vr I  \leftarrow \int_{\Omega^0} \rho(\vr x) [\vr x] [\vr x]^T  dV, \> \> \> \> m  \leftarrow \int_{\Omega^0} \rho(\vr x) dV.
+\end{split}
+\end{align}
+
+We then timestep rigid body state forward through free-flight with DMV~\cite{Moser:1991dl}, an energy--momentum preserving rigid-body integrator, until the next collision is reached. Upon collision we again need to model elastic behavior and so project back to closest FE state with nodal positions and velocities 
+
+\begin{align}
+\begin{split}
+&\vr x^t_i \leftarrow \vr t^t + \vr R^t (\vr x^0_i - \vr t^0),\\
+&\vr v^t_i \leftarrow \tfrac{1}{m} \vr l^t - \vr R^t (\vr x^0_i - \vr t^0) \times (\vr I^{-1}{\vr \pi}^t).
+\end{split}
+\end{align}
+
+Comparing the output trajectories between the full FEM simulation and our hybrid projection trajectory we find a tight match throughout.
+We show the trajectories obtained from full FEM and the hybrid for our \emph{jumping-over} example. Both simulations are initialized to the same configuration and terminate at first impact. Here the jumper traces out an approximately $20$cm long trajectory while the two simulated trajectories differ in the $L^{\infty}$-norm by $0.63$ mm for the linear trajectory, i.e., center of mass, and $0.02$ radians in rotational pose over the trajectory.
+\section{Static Contact Solver}
+\label{sec:iter_static_solver}
+
+\paragraph{Loading model}
+We observe in experiment that initial loading processes are effectively quasistatic, with no-slip at contacts. We then model the loading phase with a custom static solver that finds equilibrium state subject to satisfying no-penetration contact constraints $\vc p \geq 0$ and an assumption of infinite (no-slip) friction. 
+We solve for a $ \delta$ that gives the constrained equilibrium system maximizing frictional work
+\begin{align}
+\begin{split}
+% - \nabla W(\vc q^0 + \delta)  =  F(\vc q^0 + \delta)
+F(\vc q^0 + \delta) + \vc N \alpha + \vc T \beta + \vc F_{load} = 0, \\ 
+0 \leq \alpha \perp \vc p( \vc q^0 + \delta) \geq 0,\\
+%\alpha^T \vc D^T \delta = 0.
+\alpha \perp {\vc T}^T \delta, \> \forall k \in \mathcal{C}.
+\end{split}
+\label{eq:static_var}
+\end{align}
+
+\paragraph{Static solver} Our static solver applies a direct solution approach to compute nodal positions $\vc q$ subject to external loads $\vc F_{ext}$ with infinite-friction (no-slip) unilateral breaking contact. 
+%requiring $\vc F(\vc q) = \vc F_{ext}$.
+At each iteration step $i$, we initialize a Newton-Raphson search direction $\delta^i$ 
+\[
+\vc K(\vc q^{i})\delta^i = \vc F_{ext} - \vc F(\vc q^{i}).
+\]
+subject to Dirichlet boundary conditions fixing a set of previously identified \emph{active} contacting boundary vertices identified in the prior iterate. 
+At each iteration we apply a projected line search. We first analyze the depth-component of all the previously identified active contacting points $\vc q_{j}$. If $\vc q_{j}$ penetrates an obstacle, we half the step size of the search direction until the penetration depth for that point is less than $10^{-2} \times dx$ where $dx$ is characteristic rest element size in our discretization. After applying the line search, we then update the set of active contacting vertices as follows and take the next iterate step.
+Initially, all vertices touching an obstacle boundary are treated as fixed vertices.
+We then update the active set of contacting vertices by examining force consistency on all vertices currently contacting the boundary. If the force on a contacting boundary vertex opposes the contacting normal direction, we free it by removing it from the active set; if a contacting boundary vertex was previously free and is now penetrating, we project it back to the contact boundary surface and add it to the active set. We run this solve to convergence satisfying equilibrium in (\ref{eq:static_var}).
+
+We verify our static solver with respect to full dynamic FEM simulation modeling loading with frictional contact. We find that the relative geometric difference between solutions is $0.2\%$ (Hausdorff distance) while the relative difference between
+internal energies is $0.4\%$, with an overall 15X speedup gain from the static solver over the dynamic FEM loading simulation.
+
+\section{Stiffness Consistent Mass Matrix}
+
+We assemble our full mass matrix from element mass matrices. Within each element $e$, we integrate
+\[
+\mathbf{M}_e = \int_{\Omega_e} \sum_{i=1}^8\rho_e \mathbf{N}_i(\xi)\mathbf{N}_i^T(\xi)d\Omega
+\]
+using 2-point Gauss quadrature.
+Here $\mathbf{N}_i$s are the tri-linear shape functions used for our FE calculations including stress computation. Thus the mass matrix is stiffness-consistent and consistently captures both linear and angular momentum of the system.
+
+\section{Constraint assembly}
+\label{sec:constraint_assembly}
+
+For each contact $k \in \mathcal C$, the relative acceleration between material points $\vr x_i$ and $\vr x_j$ (at contact $k$) can be expressed via the map $\vc \Gamma_k: \dot{\vc q} \rightarrow \dot{\vr x}_i - \dot{\vr x}_j$. If $\vr y \in \mathbb{R}^3$ is a force applied to point $\vr x_i$, and an equal but opposite force is applied to point $\vr x_j$, $ \vc \Gamma_k ^T \vr y$ is the resulting generalized force applied to the contacting system.
+%
+For contact $k$, the map $\vc \Gamma_k$ is the sparse matrix with non-zero entries corresponding to nodes participating in the contacting vertex or vertices.
+%
+For nodal vertex-boundary contact, a single identity entry corresponding to the node's DoFs is sufficient. For vertex-quadrilateral contacts, we compute the signed identity entries for the five participating face node DoFs weighted by the bilinear weights of the contacting points in the face quadrilateral.
+\section{Experiments on Choosing Predictive Simulation}
+Accurate physical modeling of transient dynamics with contact is validated by experiment and generally requires simulation at close to convergent spatial and temporal grid sizes. This makes even a single forward dynamic simulation run in 3D prohibitively expensive. 
+On the other end of the spectrum physically based animation methods seek efficiency by pushing simulations towards maximally stable time-step sizes and coarsest possible spatial meshes to obtain visually appealing but generally highly inaccurate dynamics.
+Here we detail our experiments and investigations towards designing predictive and efficient simulation of high-speed dynamics under frictional contact, impact, loading and free-flight suitable for fabrication design.
