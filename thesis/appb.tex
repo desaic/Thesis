@@ -171,7 +171,6 @@ with $\vc c$ given from (\ref{eq:ap_newmark_predictor_proj}). We solve the linea
 
 During free-flight motion we can project each body's FE state to a fitted rigid body model equipped with rotational $\vr R \in SO(3)$ and translational $\vr t \in \mathbb{R}^3$ degrees of freedom. Per body we choose coordinates so that $\vr R$ rotates from principal-axis--aligned body frame to world frame and $\vr t$ gives the location of center of mass.
 Corresponding angular and linear momenta are $\vr \pi, \> \vr l \in \mathbb{R}^3$, with diagonal inertia tensor $I$ and mass $m$. Nodal positions of material points $\vr x_i$ during rigid motion are then $\vr x^t_i = \vr t^t + \vr R^t (\vr x^0_i - \vr t^0)$. We set corresponding momenta 
-%$\vc p^t = 
 to $(\vr p_1^T, ..., \vr p_n^T)^T  = \vc M \vc v^t \in \mathbb{R}^{3n}$, stack nodal vertices as $\vc Q = (\vr x_1, ..., \vr x_n) \in \mathbb{R}^{3 \times n}$ and then project to rigid state with
 %
 \begin{align}
