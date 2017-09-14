@@ -1,26 +1,28 @@
 \chapter{Introduction}
-Crafting the behavior of a deformable object is difficult---whether it is a biomechanically accurate character model or a new multimaterial
-3D printable design.
-Getting it right requires constant iteration, performed either manually or driven by an automated system.
+Controlling the behavior of a deformable object is difficult---
+whether it is a biomechanically accurate character model or a high performance
+3D printable microstructure.
+Getting it right requires constant iteration, either performed manually or driven by an automated system.
 These design iterations often require many expensive physical prototypes that takes months to make and test.
-
-Computational simulation tools are used by researchers and engineers to tinker a virtual design without laboriously constructing new prototypes.
-The performance of a design is predicted using computation to save time and cost of design iterations (Figure~\ref{fig:bridgeDesign}).
-For such computational tools to be useful, the simulation algorithm needs to be \textit{predictive} so that simulated results agree with real-world experiments.
-As a minimal requirement, the simulation should correctly predict whether a significant design modification improves or decreases the physical performance.
-On top of being predictive, the simulation should be \textit{efficient} to provide interactive feedback to a designer so that he can quickly try different ideas for to improve a design.
-Taking a step further, a computational design algorithm can automatically tweak design parameters using a predictive simulation algorithm in the loop.
-Since the simulation is often run to evaluate hundreds or thousands of design variations, the simulation still needs to be fast so that it does not take days to solve a design problem.
-\begin{figure}
+\begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=0.8\textwidth]{images/bridgeDesign.png}
 	\caption{Designing a model bridge using simulation tools.
-		The bridge is simulated using material parameters of a soft 3D-printing material. (a) Initial design.
+		The bridge is made of a soft 3D-printing material. (a) Initial design.
 		(b) Simulation predicts that the bridge sags significantly.
 		(c) A designer adds supporting arch to the bridge.
 		(d) The bridge stands without significant deformation.}
 	\label{fig:bridgeDesign}
 \end{figure}
+
+Researchers and engineers use computational simulation tools to tinker with a virtual design without laboriously constructing new prototypes.
+The performance of a design is predicted using computation to save time and cost of design iterations (Figure~\ref{fig:bridgeDesign}).
+For such computational tools to be useful, the simulation algorithm needs to be \textit{predictive} so that simulated results agree with real-world experiments.
+As a minimal requirement, the simulation should correctly predict whether a significant design modification improves or decreases the physical performance.
+On top of being predictive, the simulation should be \textit{efficient} to provide interactive feedback to a designer so that he can quickly try different ideas for to improve a design.
+
+Taking a step further, a computational design algorithm can automatically tweak design parameters using a predictive simulation algorithm in the loop.
+Since the simulation is often run to evaluate hundreds or thousands of design variations, the simulation still needs to be fast so that it does not take days to solve a design problem.
 The gold standard technique for simulating the mechanical behavior of a deformable object is the finite element method (FEM).
 While FEM is predictive to a high level of accuracy, it is notoriously slow, making it a major computational bottleneck in the iterative design process.
 This is because FEM is only accurate with a sufficiently high-resolution discretization.
@@ -31,25 +33,29 @@ The key idea to achieve our goal is \textit{coarsening}.
 By combining fine elements into a coarse element, the same simulation algorithm uses a much smaller number of degrees of freedom.
 Since the time complexity for typical simulation algorithms grows superlinearly,
 coarsening methods can quickly boost the speed of simulation algorithm.
-The cost associated with coarsening is loss of accuracy,
-to address this problem, we propose several different techniques to compute new material models for the coarse elements.
+The cost associated with coarsening is loss of accuracy.
+To address this problem, we propose several different techniques to compute new material models for the coarse elements.
 
-To test our simulation in practice, we implemented design optimization algorithms using our simulation for both static and dynamic senarios.
-For static simulation, we modify existing topology algorithms to handle coarse elements that contain microstructures.
+To test our simulation in practice, we implemented design optimization algorithms using our simulation for both static and dynamic scenarios.
+For static simulation, we modify existing topology optimization algorithms to handle coarse elements that contain microstructures.
 For dynamic problems, we use a gradient-based optimization algorithm to find locally optimal designs.
+
+Our work draws inspiration from a diverse range of related works in computer graphics and engineering.
+This chapter provides a brief review of related works on computational design, efficient FEM simulation, and topology optimization.
+We will conclude this chapter by laying out thesis overview and contributions.
 
 \section{Computational Design}
 Computational design concerns itself with optimizing the shape and material assignment in an object in order to control its large scale behavior.
-Advances in computational design, physical modeling and rapid manufacturing 
+Advances in computational design, physical modeling and rapid prototyping 
 have enabled the automated design and fabrication of objects with customized physical properties.
-The range of media and applications addressed in previous literature is very diverse spanning optical properties, inertia, strength, elasticity etc.
+The range of fabrication methods and applications addressed in previous literature is very diverse spanning optical properties, inertia, strength, elasticity etc.
 In the area of designing optical properties, \citet{Hasan:2010:PRO} and
 \citet{Dong:2010:FSS} provided methods for printing objects with desired subsurface scattering properties. Objects have been made to reflect or bend light to create custom images \citep{papas11goal,Weyrich:2009,kiser2013}.
 The inertia tensor of an object has been designed for stable standing~\citep{Prevost:2013kb}, floating~\citep{musialski-2015}
 and spinning~\citep{Bacher:2014}.
-The aerodynamic behavior of rigid mechanisms have been considered to design  paper airplanes~\citep{Umetani:2014}, kites~\citep{Martin:2015}, and multi-copters~\citep{Du:2016}.
+The aerodynamic behavior of rigid mechanisms can be controlled for designing paper airplanes~\citep{Umetani:2014}, kites~\citep{Martin:2015}, and multi-copters~\citep{Du:2016}.
 For 3D-printed objects, many researchers have investigated how to improve structural strength~\citep{Stava:2012,Zhou:2013,Langlois:2016,Wu:2016,Ulu:2017}.
-More complex mechanisms have been designed to achieve specified motions using kinematics~\citep{Zhu:2012,Coros:2013:CDM,Bacher:2015,Megaro:2017}.
+More complex 3D-printed mechanisms have been designed to achieve specified kinematic motions~\citep{Zhu:2012,Coros:2013:CDM,Bacher:2015,Megaro:2017}.
 
 The most relevant line of work is the design and fabrication of deformable objects with prescribed behavior under load.
 The behavior is usually controlled by altering the material
