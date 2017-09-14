@@ -172,7 +172,16 @@ V^1(\vr{u}^1, \, \vr{p}^1, \, C) &= \sum_{k=1}^8 \bigg( w_k \, V_k^0(\vr{u}^0, \
 \end{split}
 \end{align}
 where $\vr{v}$ is a unit-length direction of anisotropy and $C_k$ is the scaling parameter at the $k^{th}$ quadrature point. 
-
+The gradient of the anisotropic term is
+\[
+\frac{d( \sqrt{\vr{v}^T\vr{F}^T\vr{F}\vr{v}} - 1)^2}{d\mathbf{F}}
+=(1-\frac{1}{\|\mathbf{F}\mathbf{v}\|})\mathbf{F}\mathbf{v}\mathbf{v}^T.
+\]
+The second order gradient in the direction of a given $\delta \mathbf{F}$ is
+\[
+\left((1-\frac{1}{\|\mathbf{F}\mathbf{v}\|})\mathbf{I} 
++ \frac{1}{\|\mathbf{F}\mathbf{v}\|^3}\vr{F}\vr{v}\vr{v}^T\vr{F}^T\right)\delta\mathbf{F}^T\mathbf{v}\mathbf{v}^T.
+\]
 \subsection{Force Space Sampling}
 \label{sec:force_space_sampling}
 As mentioned previously, we take a sampling-based approach to coarse material fitting. In order to fit our model (\autoref{eq:materialModel2}) to $V^0$ we first draw a number of samples from the deformation space of $\set{E}^0$ and compute $V^0$ for each sample.
@@ -195,12 +204,15 @@ and $V^0$ is the strain energy density value of this deformed configuration.
 
 \subsection{Fitting}
 \label{sec:fitting}
-Given a set of deformation samples, $\left\{ \vr{u}^0, \,V^0\right\}$, we perform a least squares fit to determine the parameters, $\vr{p}^*$, for material model(\autoref{fig:fitting}):
+Given a set of deformation samples, $\left\{ \vr{u}^0, \,V^0\right\}$, we perform a non-negative least squares fit to determine the parameters, $\vr{p}^*$, for material model(\autoref{fig:fitting}):
 \begin{align}
 \vr{p}^*= \underset{\vr{p}^1}{\operatorname{argmin}} \, \sum_{s=1}^{n_s}\left(V_s^0- \, V^1\left(\vr{r}\left(\vr{u}_s^0\right), \, \vr{p}^1\right)\right)^2,
 \label{eq:fitting}
 \end{align}
 where $\vr{r}$ constructs $\vr{u}^1$ from $\vr{u}^0$, $n_s$ is the total number of samples, and $s$ indexes all samples. In our experiments we use the simplest form of $\vr{r}$ choosing it to extract the displacements of the corners of $\set{E}^0$.
+The material parameters are all constrained to be positive to improve simulation stability.
+Since the material parameters have physical meanings such as Young's modulus and spring stiffness,
+the non-negativity constraint specifies that the coarse material is made of traditional base materials.
 
 \paragraph{Fitting in the Presence of Anisotropy}
 If performed naively this optimization is nonlinear because we must simultaneously solve for $\vr{v}_k$, the preferred direction of anisotropy. This can severely slow the fitting procedure, especially in cases where it would otherwise be a linear least squares problem (i.e if all fine-scale materials are Neo-Hookean or a similarly simple material model).
