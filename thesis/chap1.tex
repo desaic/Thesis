@@ -19,42 +19,43 @@ Researchers and engineers use computational simulation tools to tinker with a vi
 The performance of a design is predicted using computation to save time and cost of design iterations (Figure~\ref{fig:bridgeDesign}).
 For such computational tools to be useful, the simulation algorithm needs to be \textit{predictive} so that simulated results agree with real-world experiments.
 As a minimal requirement, the simulation should correctly predict whether a significant design modification improves or decreases the physical performance.
-On top of being predictive, the simulation should be \textit{efficient} to provide interactive feedback to a designer so that he can quickly try different ideas for to improve a design.
+On top of being predictive, the simulation should be \textit{efficient} to provide interactive feedback to a designer so that she can quickly try different ideas to improve a design.
 
 Taking a step further, a computational design algorithm can automatically tweak design parameters using a predictive simulation algorithm in the loop.
-Since the simulation is often run to evaluate hundreds or thousands of design variations, the simulation still needs to be fast so that it does not take days to solve a design problem.
+Since the simulation often needs to evaluate hundreds or thousands of design variations, the simulation still needs to be fast so that it does not take days to solve a design problem.
 The gold standard technique for simulating the mechanical behavior of a deformable object is the finite element method (FEM).
 While FEM is predictive to a high level of accuracy, it is notoriously slow, making it a major computational bottleneck in the iterative design process.
-This is because FEM is only accurate with a sufficiently high-resolution discretization.
-In order to apply FEM to design problems, we require simulation techniques that are fast and accurate even in the face of constant tinkering.
+The slowness is because FEM is accurate only with a sufficiently high-resolution discretization.
+To apply FEM to design problems, we require simulation techniques that are fast and accurate even in the face of constant tinkering.
 
 Our goal in this thesis is to develop predictive and efficient FEM simulation tools to enable computational design optimization of deformable objects.
 The key idea to achieve our goal is \textit{coarsening}.
 By combining fine elements into a coarse element, the same simulation algorithm uses a much smaller number of degrees of freedom.
 Since the time complexity for typical simulation algorithms grows superlinearly,
-coarsening methods can quickly boost the speed of simulation algorithm.
+coarsening methods can quickly boost the speed of simulation algorithms.
 The cost associated with coarsening is loss of accuracy.
 To address this problem, we propose several different techniques to compute new material models for the coarse elements.
 
 To test our simulation in practice, we implemented design optimization algorithms using our simulation for both static and dynamic scenarios.
-For static simulation, we modify existing topology optimization algorithms to handle coarse elements that contain microstructures.
+For statics, we modify existing topology optimization algorithms to handle coarse elements that contain microstructures.
 For dynamic problems, we use a gradient-based optimization algorithm to find locally optimal designs.
 
 Our work draws inspiration from a diverse range of related works in computer graphics and engineering.
-This chapter provides a brief review of related works on computational design, efficient FEM simulation, and topology optimization.
-We will conclude this chapter by laying out thesis overview and contributions.
+The next sections provide a brief review of related works on computational design, efficient FEM simulation, and topology optimization.
+We then conclude this chapter by laying out thesis overview and contributions.
 
 \section{Computational Design}
 Computational design concerns itself with optimizing the shape and material assignment in an object in order to control its large scale behavior.
 Advances in computational design, physical modeling and rapid prototyping 
 have enabled the automated design and fabrication of objects with customized physical properties.
-The range of fabrication methods and applications addressed in previous literature is very diverse spanning optical properties, inertia, strength, elasticity etc.
+The range of fabrication methods and applications addressed in previous literature is very diverse spanning optical properties, inertia, aerodynamic, strength, kinematics, elasticity etc.
+
 In the area of designing optical properties, \citet{Hasan:2010:PRO} and
 \citet{Dong:2010:FSS} provided methods for printing objects with desired subsurface scattering properties. Objects have been made to reflect or bend light to create custom images \citep{papas11goal,Weyrich:2009,kiser2013}.
 The inertia tensor of an object has been designed for stable standing~\citep{Prevost:2013kb}, floating~\citep{musialski-2015}
 and spinning~\citep{Bacher:2014}.
-The aerodynamic behavior of rigid mechanisms can be controlled for designing paper airplanes~\citep{Umetani:2014}, kites~\citep{Martin:2015}, and multi-copters~\citep{Du:2016}.
-For 3D-printed objects, many researchers have investigated how to improve structural strength~\citep{Stava:2012,Zhou:2013,Langlois:2016,Wu:2016,Ulu:2017}.
+The aerodynamic behavior of rigid mechanisms has been controlled to design paper airplanes~\citep{Umetani:2014}, kites~\citep{Martin:2015}, and multi-copters~\citep{Du:2016}.
+Many researchers have investigated how to improve structural strength of 3D-printed objects~\citep{Stava:2012,Zhou:2013,Langlois:2016,Wu:2016,Ulu:2017}.
 More complex 3D-printed mechanisms have been designed to achieve specified kinematic motions~\citep{Zhu:2012,Coros:2013:CDM,Bacher:2015,Megaro:2017}.
 
 The most relevant line of work is the design and fabrication of deformable objects with prescribed behavior under load.
@@ -64,14 +65,15 @@ composition and shape of the designs.
 layered soft structures with prescribed non-linear static deformation behavior.
 \citet{Chen:2014:ANM} optimized the rest shape of a deformable object such that 
 it deforms the right way under gravity.
-Later, researchers use material composition and geometry to control 
+Other researchers have used material composition and geometry to control 
 articulated characters~\citep{Bickel:2012,Skouras13Computational}.
 Like these works, one of our goals is to efficiently design compliant objects 
-with desired deformation behavior. These work assume a small set of available 
+with desired deformation behavior.
+These works assume a small set of available 
 base materials such a stiff and a soft material.
 To expand the range of material building blocks, the base materials are 
 organized into larger structures known as microstructures.
-These microstructures are then used in design optimization loop to 
+These microstructures are then used in design optimization loops to 
 compose objects with specified compliant 
 properties~\citep{Schumacher:2015,Panetta:2015,Zhu:2017:TTO}.
 
@@ -82,30 +84,29 @@ Efficient FEM simulation plays an important role in automating the design proces
 We can broadly partition the space of approaches for
 optimizing FEM simulation into two categories. We term the first
 category numerical approaches. These methods use fast matrix inversion
-techniques and other insights about the algebra of the finite
-element method to increase its performance. Simulators based on
-the multigrid method~\citep{Peraire1992,Zhu2010,McAdams2011}
-and Krylov subspace techniques~\citep{Patterson2012}
-have yielded impressive performance increases. Other hierarchical
-numerical approaches, as well as highly parallel techniques, have
+techniques and other insights about the algebra of the FEM to increase its performance.
+Simulators based on the multigrid method~\citep{Peraire1992,Zhu2010,McAdams2011}
+and Krylov subspace techniques~\citep{Patterson2012} have yielded impressive performance increases.
+Other hierarchical numerical approaches, as well as highly parallel techniques, have
 also been applied to improve the time required to perform complex
-simulations~\citep{Farhat1991,Mandel1993}. Finally, \citet{Bouaziz:2014} propose specially designed energy functions and an
+simulations~\citep{Farhat1991,Mandel1993}.
+Finally, \citet{Bouaziz:2014} have proposed specially designed energy functions and an
 alternating time-integrator for efficient simulation of dynamics.
 
-The second set of methods are reduction approaches. These algorithms
-attempt to intelligently decouple or remove degrees of
-freedom (DOFs) from the simulated system. This leads to smaller
-systems resulting in a massive increase in performance, with some
-decrease in accuracy. Our algorithm falls into this category. Note,
-however, that numerical and reduction approaches need not be mutually exclusive.
+The second set of methods are reduction approaches.
+These algorithms attempt to intelligently decouple or remove degrees of
+freedom (DOFs) from the simulated system.
+The reduction leads to smaller systems, resulting in a massive increase in performance, with some decrease in accuracy.
+Our algorithm falls into this category.
+Note, however, that numerical and reduction approaches need not be mutually exclusive.
 For example, since our algorithm uses the same type of spatial discretization as the underlying FEM,
 faster numerical algorithms such as multigrid will improve the efficiency of our algorithm.
 Algorithms based on reduction approaches mitigate the inevitable increase in error using
-one or more of three approaches: Adaptive remeshing, higher-order
-shape functions, or by adapting the constitutive model.
+one or more of three approaches: adaptive remeshing, higher-order
+shape functions, or adaption of the constitutive model.
 
 Adaptive remeshing alters the resolution of the simulation discretization
-in response to various metrics (stress, strain etc.). Such methods
+in response to various metrics (stress, strain, etc.). Such methods
 seek to maintain an optimal number of elements and thus achieve
 reasonable performance. Adaptive remeshing has proven useful
 for simulating thin sheets such as cloth~\citep{Narain2012}, paper~\citep{Narain2013}, as well as elastoplastic solids~\citep{Wicke:2010} and solid-fluid mixtures~\citep{Clausen2013}.
@@ -118,13 +119,14 @@ Second, they introduce elements of varying size into the FEM discretization.
 This can lead to poor numerical conditioning if not done carefully.
 Finally, in order to maintain accuracy, it may still be necessary to introduce many
 fine elements, leading to slow performance.
-Alternatively, one can turn to P-Adaptivity for help.
-This refers to adaptively introducing higher-order basis functions 
-in order to increase accuracy during simulation~\citep{Szabo2004}.
+
+Alternatively, one can turn to P-adaptivity for help.
+P-adaptivity refers to introducing higher-order basis functions 
+to increase accuracy during simulation~\citep{Szabo2004}.
 Unfortunately, these methods suffer from requiring complicated mesh generation schemes and are not
 well-suited for iterative design problems.
 An alternative approach to remeshing is to use higher order shape
-functions in order to more accurately represent the object's motion
+functions to more accurately represent the object's motion
 using a small set of DOFs. Modal simulation techniques fall into
 this category~\citep{Shabana1991,Krysl2001,Barbic:subspace:2005}.
 Substructuring~\citep{Barbic2011} decomposes an input
@@ -137,33 +139,33 @@ the static configuration of a high resolution element mesh induced
 via a small deformation of each vertex.
 \cite{Faure2011} use skinning transformations as shape functions to simulate complex
 objects using a small number of frames.
-\cite{Gilles2011} show how to compute material aware shape functions for these framebased
+\cite{Gilles2011} show how to compute material-aware shape functions for these framebased
 models, taking into account the linearized object compliance.
 Both \cite{Nesme2009} and \cite{Faure2011} accurately capture
-material behavior in the linear regime, 
-but, because their shape functions cannot change with the deformed state of the material,
-they do not accurately capture the full, non-linear behavior of an
-elastic object.
+material behavior in the linear regime.
+However, because their shape functions cannot change with the deformed state of the material,
+they do not accurately capture the full, non-linear behavior of an elastic object.
 Our non-linear coarse material models rectify this problem.
-Computing material aware shape functions improves both the speed
+Computing material-aware shape functions improves both the speed
 and accuracy of the simulation. However, these methods require a
 precomputation step that assumes a fixed material distribution and geometry.
 If the material distribution changes, these shape functions
-must be recomputed, and this becomes a bottleneck in applications
+must be recomputed. This step becomes a bottleneck in applications
 that require constantly changing material parameters.
+
 The final coarsening technique involves reducing the degrees of freedom
 of a mesh while simultaneously augmenting the constitutive
 model at each element, rather than the shape functions.
-Numerical coarsening is an extension of analytical homogenization which seeks
+Numerical coarsening is an extension of analytical homogenization, which seeks
 to compute optimal,
 averaged material for heterogeneous structures~\citep{Guedes1990,farmer2002}.
 Numerical coarsening, for instance, has been applied to linearly
 (in terms of material displacement)
 elastic tetrahedral finite elements~\citep{Kharevych2009}.
 These methods require an expensive precomputation step (a series
-of static solves) that must be repeated when the material content, or
+of static solves) that must be repeated when the material content or
 the geometry of an object changes.
-This holds these methods back from being suitable for iterative design problems.
+This step holds these methods back from being suitable for iterative design problems.
 \section{Topology Optimization}
 Topology optimization is a class of methods for optimizing materials distributions
 within a design layout while satisfying given constraints~\citep{bendsoe2004topology}.
