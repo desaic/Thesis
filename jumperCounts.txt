@@ -1,0 +1,15 @@
+	Normal Flip			Small Flip			Large Flip			Wide Flip			Jumping Onto			Jump Over			Catapult					Catapult (MATLAB)						
+Total Measurements	5			1			2			1			5			5														
+	Initial	Optimized	Total	Initial	Optimized	Total	Initial	Optimized	Total	Initial	Optimized	Total	Initial	Optimized	Total	Initial	Success	Total	Initial (mean) (cm)	Variance(diameter around center excluding some outliers)	Optimized		Total	Initial (mean) (cm)	Std(X) 	Std(y)	Optimized	Std(X) 	Std(y)	Total
+Dave	0	19	20										0	15	20	0	17	20	-13	2	0	3		12.6	0.8	0.7	1.5	1	1.4	
+Desai	0	17	20										0	18	20	0	19	20	-12.8	4	0.5	4 in y	6.5 in x	12.8	1.1	1.4	2.1	1.1	1.9	
+1	0	18	20				11	18	20				0	16	20	0	18	20	-12.5	2	0.5	3.7		15.2	2.9	1.4	3.1	1.9	2.6	
+2	2	18	20	2	17	20	1	17	20				0	18	20	0	16	20	-14	3.8	0.25	3.5		12.7	0.69	0.56	1.7	1.4	0.85	
+3	1	16	20							0	17	20	0	19	20	0	18	20	-15	8	-0.2	4.5	9 in x	14.1	0.87	0.87	1.4	1	1.1	
+4																														
+																														
+																														
+																														
+																														
+																														
+Total	3	88	100	2	17	20	12	35	40	0	17	20	0	86	100	0	88	100												
