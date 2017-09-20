@@ -7,21 +7,20 @@ The function domain $\Omega$ is divided into a finite number of elements $E_k$.
 A polynomial function is defined over each element.
 These polynomials form a basis for finite-dimensional approximations to the solution.
 
-This thesis uses the eight-node hexahedron element defined in $\mathbb{R}^3$
-to perform all of the mechanical analysis.
+This thesis uses the eight-node hexahedron element to perform all of the mechanical analysis.
 The eight-node hexahedron element is the simplest of the hexahedron family.
-It represents continuous functions supported inside the element by trilinearly interpolating function values defined on its eight nodes.
-Each node $\mathbf{X}_i$ resides in $\mathbb{R}^3$ with a given real value $u(\mathbf{X}_i)$.
-The nodal positions must cooperate to guarantee that no point inside the hexahedron is inverted.
-This will be explained later.
-For now, suppose the element shape is well-defined and 
-consider a point $\mathbf{X}\in\mathbb{R}^3$ inside the element.
-The trilinear interpolation on $\mathbf{X}$ is given by
+An eight-node hexahedron element is embedded in $\mathbb{R}^3$ with its eight nodal positions given by $\mathbf{X}_i$.
+The nodal positions must cooperate to guarantee that the hexahedron is not inverted.
+In this work, most elements are cubes, and therefore inversion is not of much concern.
+An element represents continuous functions supported inside the element by trilinearly interpolating function values defined on its eight nodes.
+Each node $i$ is assigned a real value $u(\mathbf{X}_i)$ to define a continuously varying function.
+For any point $\mathbf{X}\in\mathbb{R}^3$ inside the element,
+the interpolated value on $\mathbf{X}$ is given by
 \[
-u(\mathbf{X})=\sum_i N_iu(\mathbf{X}_i),
+u(\mathbf{X})=\sum_i N_i(\mathbf{X})u(\mathbf{X}_i),
 \]
-for some weights $N_i$ that depends on the relative position between $\mathbf{X}$ 
-and $\mathbf{X}_i$. These weighting functions are called \textbf{shape functions}.
+for some location-dependent weighting functions $N_i$.
+These weighting functions are called \textbf{shape functions}.
 
 In order to write down the expression for $N_i$, we need to introduce the standard quadrilateral or hexahedral element (Figure~\ref{fig:standardEle}).
 The standard hexahedron is just a cube centered at the origin spanning $[-1,1]^3$.
