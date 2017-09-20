@@ -212,30 +212,32 @@ We then provide example energy functions for modeling coarse blocks made of hete
 To quickly find coarse material models for different designs, 
 we use a database to store combinations of fine blocks and their corresponding elastic potential energy functions.
 
-Chapter~\ref{ch3:topopt} proposes to represent the space of material properties as a level set.
-The level set representation can be used to sample the space of heterogeneous materials more efficiently.
-For this study, we restrict the coarse material blocks to be composed of linear base materials.
-The coarse material blocks are assumed to be tiled with the same or similar blocks in a periodic pattern.
-With these assumptions, we can sample the space of coarse blocks at a much higher resolution.
-These high resolution material blocks are called microstructures.
+Chapter~\ref{ch3:topopt} presents design optimization algorithms based on coarsening.
+Here the coarse blocks are called microstructures.
+Microstructures can achieve a much wider range of material properties than the range spanned by the base materials.
+To automatically explore the achievable material properties of microstructures, 
+we propose to represent the space of material properties as a level set.
+Based on the level set representation, we develop discrete and continuous sampling methods to explore the space of microstructures more efficiently.
 We computed the material property space of cubic-symmetric microstructures and discovered families of microstructures that achieves extremal elastic properties.
 In addition, the level set representation is incorporated into topology optimization algorithms to automatically design objects made of microstructures instead of homogeneous material blocks.
 This two-scale topology optimization method allows us to design high-resolution objects such as a functional gripping mechanism and a bridge model with maximum stiffness.
 
 Chapter~\ref{ch4:desdyn} investigates the possibility of designing real-world high-speed dynamic mechanism using coarsened simulations.
 We propose dynamics-aware coarsening (DAC) to model the dynamic elastic behavior using coarse elements.
-For impact modeling, we propose boundary-balancing impact (BBI) to model the inelastic impact of elastic objects.
+For impact modeling, we propose boundary-balancing impact (BBI) targeted at inelastic impact of elastic objects.
 With these methods, we optimize and fabricate jumping mechanisms that are challenging to design by hand.
 \section{Contributions}
 \begin{itemize}
 	\item DDFEM is the first algorithm for fast runtime coarsening of nonlinear elastic models that can handle changing geometry and material assignment.
-	DDFEM first precompute the material properties of coarse elements composed of fine elements with different materials.
-	This is done by computing the deformations of coarse elements under likely forces.
-	A compact material model is developed to represent the coarse element behavior in a compact form.
-	\item Two-scale topology optimization modifies the existing topology optimization methods to incorporate gamut constraints.
-	Instead of optimizing material mixture ratio at each cell, our approach optimizes the material properties at each cell within material property gamut.
-	This ensures that the final result is realizable by mapping each cell to a microstructure with the optimized material properties.
-	\item Efficient microstructure sampling methods lead to the computational discovery of microstructure families with extremal elastic properties.
+	The fast coarsening is implemented by precomputing the material properties of coarse elements composed of fine elements with different materials.
+	The material properties are inferred from the deformations of coarse elements under likely forces.
+	A compact material model is developed to represent the coarse element behavior using a small number of parameters.
+	\item Two-scale topology optimization extends existing topology optimization methods to work with microstructures.
+	The extension allows us to optimize structures made of one trillion voxels on a single computer.
+	The software pipeline first precomputes the achievable material properties of microstructures.
+	Instead of optimizing material mixture ratio at each cell, our algorithm optimizes the material properties at each cell while guaranteeing that all material properties are within the achievable range.
+	Our algorithm ensures that the final result is realizable since each cell contains a material property that can be mapped to a microstructure.
+	\item Our efficient microstructure sampling algorithm leads to the computational discovery of microstructure templates with extremal elastic properties.
 	Starting with voxel representation of microstructures,
 	our method automatically cluster similar structures into families and extract parametric templates from the families.
 	The templates are controlled by a small number of parameters to allow more efficient sampling and tweaking.
@@ -245,6 +247,7 @@ With these methods, we optimize and fabricate jumping mechanisms that are challe
 	of a coarse mesh matches the frequency of a high resolution mesh or a physical model.
 	This allows us to simulate dynamic trajectories of non-linear elastic objects at much faster rates while still matching the macroscopic behavior.
 	\item Boundary-balancing impact (BBI) improves state of the art impact models to more accurately model real-world inelastic impact.
-	The combination of DAC and BBI allows us to simulate and predict the behavior of elastic jumping mechanisms.
-	The simulation is predictive and efficient enough to be used in design optimization loops to improve the designs of real-world jumping mechanisms.
+	We use the combination of DAC and BBI to predict the behavior of elastic jumping mechanisms.
+	The simulation is predictive and efficient enough to be used in design optimization loops.
+	To show this, to improve the designs of real-world jumping mechanisms.
 \end{itemize}
