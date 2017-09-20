@@ -2,17 +2,17 @@
 \label{ch2:ddfem}
 \section{Background}
 \subsection{The Finite Element Method}
-The finite element method~\citep{ciarlet2002finite} is a way to numerically approximate solutions to partial differential equations.
+The finite element method (FEM)~\citep{ciarlet2002finite} is a numerical method to approximate solutions to partial differential equations.
 The function domain $\Omega$ is divided into a finite number of elements $E_k$.
-A polynomial function is defined over each element.
+In most common implementations, a polynomial function is defined over each element.
 These polynomials form a basis for finite-dimensional approximations to the solution.
 
 This thesis uses the eight-node hexahedron element to perform all of the mechanical analysis.
 The eight-node hexahedron element is the simplest of the hexahedron family.
-An eight-node hexahedron element is embedded in $\mathbb{R}^3$ with its eight nodal positions given by $\mathbf{X}_i$.
+An element is embedded in $\mathbb{R}^3$ with its eight nodal positions given by $\mathbf{X}_i$.
 The nodal positions must cooperate to guarantee that the hexahedron is not inverted.
-In this work, most elements are cubes, and therefore inversion is not of much concern.
-An element represents continuous functions supported inside the element by trilinearly interpolating function values defined on its eight nodes.
+In this work, most elements are cubes, and therefore inversion of the rest configuration is avoided by construction.
+An element represents continuous functions by trilinearly interpolating function values defined on its eight nodes.
 Each node $i$ is assigned a real value $u(\mathbf{X}_i)$ to define a continuously varying function.
 For any point $\mathbf{X}\in\mathbb{R}^3$ inside the element,
 the interpolated value on $\mathbf{X}$ is given by
@@ -26,9 +26,9 @@ In order to write down the expression for $N_i$, we need to introduce the standa
 The standard hexahedron is just a cube centered at the origin spanning $[-1,1]^3$.
 The axis are labeled with $\xi, \eta, \zeta$ to distinguish from the space that $\mathbf{X}$ resides in.
 This new coordinate system is known as the isoparametric hexahedral coordinates or more commonly referred to as \textbf{natural coordinates}.
-The nodal positions of the standard elements in the natural coordinates are listed in Table~\ref{tab:natCoord}.
+The nodal positions in the natural coordinates are listed in Table~\ref{tab:natCoord}.
 For a point $\chi=(\xi, \eta,\zeta)$ in the natural coordinates,
-its interpolation weights is defined as in Equation~\ref{eq:triWeight}.
+its interpolation weights are defined as in Equation~\ref{eq:triWeight}.
 \begin{equation}
 	N_i(\chi)=\frac{1}{8}(1+\xi_i\xi)(1+\eta_i\eta)(1+\zeta_i\zeta).
 	\label{eq:triWeight}
@@ -41,7 +41,7 @@ mass=\int_{-1}^{1}\int_{-1}^{1}\int_{-1}^{1}\sum_i w_i\cdot 1 \,d\xi \,d\eta\,d\
 \int_{-1}^{1}\int_{-1}^{1}\int_{-1}^{1} 1 \,d\xi \,d\eta\,d\zeta=8.
 \]
 This is simply the volume of the standard element multiplied by the density.
-This partition of unity property of the interpolation function is crucial for physical meanings of quantities defined on the element.
+The fact that the eight nodal basis functions form a partition of unity is crucial for physical meanings of quantities defined on the element.
 \begin{figure}
 \centering
 \includegraphics[width=0.8\textwidth]{figs/refEle.png}
@@ -74,21 +74,22 @@ This partition of unity property of the interpolation function is crucial for ph
 
 With the interpolation function fully defined in the natural coordinates, 
 we can use it to map a point $\chi$ in natural coordinates to a point
-$\mathbf{X}$ inside a general hexahedron element with nodal positions $\mathbf{X}_i$ as follows
+$\mathbf{X}$ inside a general hexahedron element with nodal positions $\mathbf{X}_i$.
+Note that the equation interpolates a vector-valued function with each coordinate interpolated independently.
 \begin{equation}
 	\mathbf{X}=\sum_i N_i(\chi)\mathbf{X}_i.
 	\label{eq:rest}
 \end{equation}
-
-Note here we are interpolating a vector-valued function where each coordinate is interpolated independently.
-\subsection{Modeling Elastic Objects}
-Elastic objects tend to return to its rest shape when deformed by external forces such as stretching, bending, twisting etc. The direction and strength of the tendency to restore to its rest shape is described by its elastic forces.
-To model the exact behavior of a small piece of material,
-we first use finite elements to approximate its deformations.
+\subsection{Modeling Elastic Materials}
+\label{sec:fem_elastic}
+An object made of elastic materials tend to return to its rest shape when deformed by external forces.
+The direction and strength of the tendency to restore is described by the elastic forces.
+To mathematically model the behavior of a small piece of material,
+we first use finite elements to approximate its deformed shapes.
 A hexahedron element models a piece of elastic material that can deform by changing its nodal positions.
 The internal volume deforms by following the nodal displacements using trilinear interpolation.
-Of course real materials do not have to deform this way.
-The trilinear interpolation is only an approximation.
+Of course real materials do not have to deform according to piece-wise trilinear interpolation.
+The interpolation is a way to approximate real deformations using a finite number of degrees of freedom (DOFs).
 More precisely, for an element with a rest configuration given by $\mathbf{X}_i$,
 its nodes can be moved to new positions $\mathbf{x}_i$ by displacements $\mathbf{u}_i$,
 i.e., $\mathbf{x}_i=\mathbf{X}_i+\mathbf{u}_i$.
@@ -97,13 +98,14 @@ For any point $\mathbf{X}$ inside the element with known natural coordinates $\c
 \mathbf{u}(\mathbf{X}) = \sum_iN_i(\chi)\mathbf{u}_i.
 \label{eq:disp}
 \end{equation}
-To make a clear distinction between $\mathbf{X}$ and $\mathbf{x}$,
+Note the distinction between $\mathbf{X}$ and $\mathbf{x}$.
 $\mathbf{X}$ is defined as a point in the \textbf{reference space} that represents the undeformed shape of an object. The lower case $\mathbf{x}$ lives in the \textbf{deformed space} that represents the deformed configuration of an object.
 
-From now on, to simplify notation, $N_i(\xi)$ will be written as $N_i$.
+To simplify notation, $N_i(\xi)$ will be written as $N_i$.
 The deformation of an object is quantified using strain measures,
 which is defined in terms of the difference in displacement between nearby points.
-Intuitively, if $\mathbf{u}(\mathbf{X})$ is constant, then the displacement field is just a translation. In this case the material is undeformed and should not contain any strain.
+Intuitively, if $\mathbf{u}(\mathbf{X})$ is constant, then the displacement field is just a translation.
+In this case, the material is undeformed and should not contain any strain.
 More generally, the difference of displacement between nearby points can be written using derivatives,
 \[
 \mathbf{F}=\frac{\partial \mathbf{u}}{\partial \mathbf{X}}+\mathbf{I}
@@ -114,7 +116,7 @@ More generally, the difference of displacement between nearby points can be writ
 \end{pmatrix}+\mathbf{I}.
 \]
 The matrix $\mathbf{F}$ is the \textbf{deformation gradient} and $\mathbf{I}$ is the identity matrix.
-While we do not have a closed-form expression of $\mathbf{u}$ written in terms of $\mathbf{X}$,
+While we do not have a closed-form expression relating $\mathbf{u}$ and $\mathbf{X}$,
 we have Equation~\ref{eq:rest} and~\ref{eq:disp} that relate $\mathbf{u}$ and $\mathbf{X}$ through $\chi$.
 The term $\frac{\partial \mathbf{u}}{\partial \mathbf{X}}$ can be re-written using the chain rule,
 \begin{equation}
@@ -134,8 +136,8 @@ The term $\mathbf{X}_i\frac{dN_i}{d\chi}$ is an outer product that produces a $3
 
 Given the full expression for the deformation gradient $\mathbf{F}$, we can now define elastic energy densities. 
 The elastic energy density function $\Psi(\mathbf{F})$ computes a non-negative energy value given a deformation gradient.
-This function fully defines the elastic behavior of a piece of material especially the elastic forces.
-Integrating $\Psi$ over the domain $\Omega$ of an element in the reference space yields the total elastic energy contained by that element.
+This function fully defines the elastic behavior of a piece of material.
+Integrating $\Psi$ over the domain $\Omega$ of an element in the reference space yields the total elastic energy contained in that element.
 \[
 E(\mathbf{x}_1,...,\mathbf{x}_8)=\int_{\Omega}\Psi dV.
 \]
@@ -177,12 +179,18 @@ For each quadrature point $j$, we evaluate the integrand and multiply by the qua
 \frac{dN_i}{d\chi}\det{\mathbf{J}}.
 \]
 
-$\Psi$ determines the constitutive model of elasticity, i.e. the relationship between strain measures and stress.
-This thesis primarily uses two kinds of constitutive models: linear elasticity and Neo-Hookean model. For the linear elasticity, we first define the infinitesimal strain tensor
+\subsection{Constitutive Models}
+In the above section, we defined the strain energy density function $\Psi$. 
+We also showed how to use it to compute elastic energy and nodal forces without providing concrete formulas for $\Psi$.
+The choice of $\Psi$ determines the constitutive model of elasticity, i.e. the relationship between strain measures and stress.
+Our work primarily uses two kinds of constitutive models: linear elasticity and Neo-Hookean model.
+For linear elasticity, we first define the infinitesimal strain tensor
 \[
 \epsilon = \frac{1}{2}(\mathbf{F}+\mathbf{F}^T)-I.
 \]
-This strain tensor is a symmetric matrix. The stress tensor derived from this strain measure is also a symmetric matrix. This property is a necessary condition for conservation of linear and angular momentum. 
+This strain tensor is a symmetric matrix.
+The stress tensor derived from this strain measure is also a symmetric matrix.
+Symmetry of the stress tensor is a necessary condition for conservation of linear and angular momentum.
 In other words, stress and internal elastic forces should not cause any change in total linear or angular momentum.
 The strain energy density function for isotropic linear elasticity is
 \[
@@ -303,14 +311,15 @@ The downside of linear elasticity is that it does not handle rotation properly.
 An elastic object undergoing a rigid rotation should contain zero elastic energy.
 If we let $\mathbf{F}=\mathbf{R}$ for some rotation matrix $\mathbf{R}$,
 the resulting energy measure is generally non-zero.
-This constitutive model is useful only when the deformation is small with respect to the overall size of the object.
-When an object undergoes buckling with many potential static equilibrium configurations,
+Because of this limitation, linear elasticity is useful only when the deformation is small with respect to the overall size of the object.
+When an object undergoes large deformations such as buckling, it often admits many potential static equilibrium configurations,
 linear elasticity always predict a single solution with little buckling since its elastic energy landscape is convex with a unique local minimum.
 Additionally, linear elasticity does not preserve volume according to the Poisson's ratio parameter. In fact, elements can easily invert into non-physical states.
 
 To address the rotation problem, non-linear elasticity models such as the corotated linear elasticity model and the Saint-Venant Kirchhoff model are developed to be rotation invariant.
 However, these models still allow an element to invert and do not preserve volume.
-We use the Neo-Hookean material model for non-linear elasticity. It resists inverting, and approximately preserves volume according to Poisson's ratio.
+We use the Neo-Hookean material model for non-linear elasticity.
+It resists inverting, and approximately preserves volume according to Poisson's ratio.
 The strain energy density of Neo-Hookean model is
 \[
 \Psi(\mathbf{F})=\frac{\mu}{2}(I_1-3) - \mu \log \det \mathbf{F} 
@@ -362,8 +371,7 @@ to the types of design problems discussed above.
 We divide an object into a set of deformable voxels using embedded finite
 elements and coarsen these voxels hierarchically.
 A custom coarse element database is populated with materials that minimize the error incurred by coarsening.
-This database is learned once in a completely offline fashion and depends only on the set of materials to be used by the deformable object and not on the actual material distribution
-and geometry.
+This database is learned once in a completely offline fashion and depends only on the set of materials to be used by the deformable object and not on the actual material distribution and geometry.
 At runtime we use the database to perform fast coarsening of an FEM mesh in a way that is agnostic to changes in geometry and material composition of the object.
 The key features of the algorithm are its ability to handle arbitrary, nonlinear elastic
 constitutive models as well as to avoid expensive precomputation
