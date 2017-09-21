@@ -11,3 +11,4 @@ thesis/main.toc
 *.gz
 thesis/main.lot
 *.bcf
+source/*
