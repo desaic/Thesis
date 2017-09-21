@@ -8,31 +8,34 @@ The accuracy and efficiency of our methods are demonstrated by designing and fab
 Traditionally, engineers improve the accuracy of FEM simulation by adaptively refining the mesh until some convergence test is satisfied.
 The elements must be small enough to capture the geometric and material variations.
 Moreover, to combat numerical stiffening, the element sizes must be a fraction of the geometric feature sizes.
-Because of such requirements, accurate simulation of a detailed design can take from minutes to hours on a desktop computer with a single CPU.
-In many design problems where efficiency is a concern, it is often sufficient to correct the material models without refining the coarse elements.
+Because many small elements are needed to represent a detailed design, accurate simulation can take from minutes to hours on a single computer.
+Iterative design processes often requires tens or hundreds of simulations, making it impractical to use accurate simulation in the design loop.
+To improve the efficiency, researchers have proposed to correct the material models instead of refining the coarse elements.
 Homogenization and numerical coarsening methods are examples of this strategy where they use different rules to compute new material models for the coarse elements.
-Our coarsening approach generalizes the previous methods to handle non-linear elastic materials and dynamic scenarios.
-The energy functions of coarse elements are compactly represented as scaling parameters of different basis terms.
-Our simulation relies on a precomputation stage that construct a database of fine element combinations and their corresponding material parameters.
-At runtime, our algorithm quickly finds the proper material parameters for a block of fine elements.
-Blocks of elements are replaced by corresponding coarse elements to reduce the problem size to only a fraction of the original problem size.
+Our coarsening approach generalizes the previous methods to handle non-linear elastic materials and dynamic simulations.
+The energy function of a coarse element is compactly represented as a weighted sum of basis terms.
+Our simulation relies on a precomputation stage that constructs a database of material combinations and their corresponding coarse energy function parameters.
+At runtime, our algorithm coarsens the high resolution mesh and then quickly finds the proper material parameters for each coarse element.
+Coarsening reduces the problem size to only a fraction of the original size.
 The coarse elements are simulated using precomputed material properties to maintain accuracy.
-Concretely, DDFEM achieved two-orders of magnitude speed up while still capturing the macroscopic behavior much more accurately than the baseline methods.
+In our experiments, DDFEM achieved two-orders of magnitude speed up while still capturing the macroscopic behavior much more accurately than the baseline methods.
 DAC achieved a 79x speed up of dynamic simulation while matching the trajectories of simulation and physical measurement.
 
 To apply our simulation to computational design algorithms, we developed a set of tools for the intermediate steps.
 The level set representation of the material property gamut is one such example.
 It enables efficient sampling and expansion of the material property gamut.
 With the gamut of 3D cubic-symmetric microstructures, we performed more analysis to identify similarities between structures with extremal properties.
-This study leads to the discovery of $5$ families of auxetic microstructures.
-The level set gamut is also used in our two-scale topology optimization algorithms to constrain the material parameters assigned to each cell.
-The modified topology optimization algorithm can optimize much more complex models since each cell now contains material parameters that can be mapped to precomputed microstructures.
+This study lead to the discovery of $5$ families of auxetic microstructures.
+The level set gamut has also been used in our two-scale topology optimization algorithm to constrain the material parameters at each cell.
+Out algorithm can optimize much more complex models since each cell now contains material parameters that can be mapped to precomputed microstructures.
 We can scale up our problem size and successfully optimize a bridge model with a trillion voxels, a resolution approaching 3D printer capabilities.
-Another example is our new impact model BBI.
+Another example is our new boundary-balancing impact (BBI) model.
 It corrects the overly energetic rebound behavior of objects undergoing inelastic impact.
 This makes the simulation algorithm to be predictive enough to produce the same qualitative landing behavior.
 
-In addition to being used in computational design algorithms, our simulation is extensively validated by experiments with fabricated objects.
+Our simulation algorithms have been used in computational design tools to generate elastic objects satisfying design goals
+such as using the minimum amount of material and achieving target deformed shapes.
+In addition to software validation, our simulation is extensively validated by physical experiments using fabricated objects.
 For static objects, we validated their Young's modulus and Poisson's ratio using compression tests.
 The fabricated compliant mechanisms also deform to target shapes.
 For dynamic mechanisms, our simulation replicates the behavior of hand-tuned and optimized jumping mechanisms.
@@ -40,13 +43,13 @@ The landing poses and rebound behavior are accurately predicted.
 Our experiments points the way forward for our simulations to be extended and tested for more complex deformable and dynamic systems.
 
 \section{Limitations and Future Work}
-Our method and application is only a first step towards efficient computational design of physical objects.
+Our work is only a first step towards efficient computational design of physical objects.
 There are many potential future directions for improvements, experiments and applications.
 \paragraph{More General Material Models}
-Our proposed material model still works with deformation gradients sampled at quadrature points.
-However, in general, the elastic energy function can be any function of the degrees of freedom satisfying conservation laws.
-This would allow more explicit modeling of higher order deformations such as bending and twisting.
+Our material model still works with deformation gradients sampled at quadrature points.
+However, in general, the elastic energy can be any function of the vertex positions that respects conservation laws.
 One can use a much broader class of functions such as a neural network that map from a vector of vertex displacements to an energy value.
+A more general function can capture the energy behavior of higher order deformations such as bending and twisting.
 \paragraph{More Physical Phenomena}
 Our experiments focused on modeling the elastic properties.
 Engineering design problems cover a much wider range of physical properties: structures with zero thermal expansion for space applications, 
