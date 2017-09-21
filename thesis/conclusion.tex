@@ -1,12 +1,13 @@
 \chapter{Conclusion}
 We presented a class of multiscale methods for efficient FEM simulation of elastic materials.
-Our goal is to be able to use simulation and computational design algorithms to improve real-world designs.
-To that end, we developed simulation tools for non-linear elastic materials that are efficient enough to be used in iterative design algorithms and also predictive enough to improve real-world designs.
-The accuracy and efficiency of our methods are demonstrated by designing and fabricating functional 3D prints with specified static and dynamic deformation properties.
+Our goal is to use simulation and computational design algorithms to improve real-world designs.
+To this end, we developed simulation tools for both linear and non-linear elastic materials.
+Our simulation algorithms are efficient enough to be used in iterative design algorithms and also predictive enough to improve real-world designs.
+The accuracy and efficiency of our methods are demonstrated by designing and fabricating functional 3D prints that meet specified static and dynamic deformation properties.
 
 Traditionally, engineers improve the accuracy of FEM simulation by adaptively refining the mesh until some convergence test is satisfied.
 The elements must be small enough to capture the geometric and material variations.
-Moreover, to combat numerical stiffening, the element sizes must be a fraction of the feature sizes.
+Moreover, to combat numerical stiffening, the element sizes must be a fraction of the geometric feature sizes.
 Because of such requirements, accurate simulation of a detailed design can take from minutes to hours on a desktop computer with a single CPU.
 In many design problems where efficiency is a concern, it is often sufficient to correct the material models without refining the coarse elements.
 Homogenization and numerical coarsening methods are examples of this strategy where they use different rules to compute new material models for the coarse elements.
