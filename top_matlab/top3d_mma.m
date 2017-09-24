@@ -15,7 +15,7 @@ nu = 0.4;         % Poisson's ratio
 il = 1;
 jl = 1;
 %kl = nelz/2;
-xwidth = floor(0.1*nelx);
+xwidth = max(1,floor(0.1*nelx));
 x1 = min(nelx, il+xwidth);
 loadnid = zeros( x1 * (nelz+1),1);
 cnt = 1;
@@ -25,6 +25,7 @@ for k = 1: (nelz+1)
   cnt = cnt + 1;
 end
 end
+
 %loadnid = kl*(nelx+1)*(nely+1)+il*(nely+1)+(nely+1-jl);
 loaddof = 3*loadnid(:) - 1;
 % USER-DEFINED SUPPORT FIXED DOFs
@@ -32,10 +33,11 @@ loaddof = 3*loadnid(:) - 1;
 %fixednid = kf*(nelx+1)*(nely+1)+iif*(nely+1)+(nely+1-jf); % Node IDs
 %fixeddof = [3*fixednid(:); 3*fixednid(:)-1; 3*fixednid(:)-2]; % DOFs
 %iif = [0 0 nelx nelx]; jf = [0 0 0 0]; kf = [0 nelz 0 nelz];
-fixWidth = max(2,1+xwidth);
+fixWidth = max(2,xwidth);
 fixednid = zeros(1, fixWidth*(1+nelz));
 cnt = 1;
-for i = 1:fixWidth
+i0 = max(2, floor(0.3*nelx));
+for i = i0:(i0+fixWidth)
     for k = 1: (nelz+1)
         iif = i-1;
         kf = k-1;
@@ -45,37 +47,70 @@ for i = 1:fixWidth
     end
 end
 
-fixeddof = [3*fixednid(:); 3*fixednid(:)-1; 3*fixednid(:)-2];
+fixeddof = 3*fixednid(:)-2;
+fixednid = zeros(1, (1+nelx)*(1+nelz));
+cnt =1;
+for i = 1:(nelx+1)
+    for k = 1:(nelz+1)
+        fixednid(cnt) = (k-1)*(nelx+1)*(nely+1) + (i-1)*(nely+1) + nely + 1;
+        cnt = cnt + 1;
+    end
+end
+fixeddof = [fixeddof;3*fixednid(:);3*fixednid(:)-1];
 % PREPARE FINITE ELEMENT ANALYSIS
 nele = nelx*nely*nelz;
 ndof = 3*(nelx+1)*(nely+1)*(nelz+1);
-F = sparse(loaddof,1,-0.0001,ndof,1);
+F = sparse(loaddof,1,-0.00001,ndof,1);
 U = zeros(ndof,1);
 
 Uhat = U;
 D = U;
 KinvU = U;
-xwidth = max(1,floor(0.2 * nelx));
+xwidth = max(1,floor(0.1 * nelx));
 ydist = 1 + floor(0.1*nely);
-for i = (nelx-xwidth+1) : nelx+1
+y0 = ceil(0.7*nely);
+i0 = (nelx-xwidth+1);
+for i = i0 : nelx+1
     for k = 0:nelz
-      y = min(nely, floor(nely/2) + ydist);
-      nid = k*(nelx+1)*(nely+1)+ (i-1)*(nely+1)+y+1;
-      dof = 3*nid-1;
-      Uhat(dof,1) = 0.5;
-      D(dof, 1) = 1;
+%       y = min(nely, floor(nely/2) + ydist);
+%       nid = k*(nelx+1)*(nely+1)+ (i-1)*(nely+1)+y+1;
+%       dof = 3*nid-1;
+%       Uhat(dof,1) = 0.5;
+%       D(dof, 1) = 1;
       
-      y = max(1, floor(nely/2) - ydist);
-      nid = k*(nelx+1)*(nely+1)+ (i-1)*(nely+1)+y+1;
+%       y = max(1, floor(nely/2) - ydist);
+%       nid = k*(nelx+1)*(nely+1)+ (i-1)*(nely+1)+y+1;
+%       dof = 3*nid-1;
+%       Uhat(dof,1) = -0.5;
+%       D(dof, 1) = 1;
+      
+      nid = k*(nelx+1)*(nely+1)+ (i-1)*(nely+1)+y0+1;
       dof = 3*nid-1;
       Uhat(dof,1) = -0.5;
       D(dof, 1) = 1;
     end
 end
+xwidth = max(1,floor(0.2 * nelx));
+i0 = (nelx-xwidth+1);
+constrainedVox=zeros(nelz * xwidth * (nely-y0+1), 3 );
+cnt = 1;
+for i = i0:nelx
+  for j = y0:nely
+      for k = 1:(nelz)
+          %vid = k*(nelx)*(nely)+ (i-1)*(nely+1)+j+1;
+          constrainedVox(cnt,1) = j;
+          constrainedVox(cnt,2) = i;
+          constrainedVox(cnt,3) = k;
+          cnt = cnt + 1;
+      end
+  end
+end
 
-% U(loaddof)=0.5;
-% uy = U(2:3:length(U));
-% uy = reshape(uy, [nelx+1 nely+1 nelz+1]);
+U(find(D)) = 0.5;
+U(loaddof)=0.5;
+U(fixeddof) = 0.5;
+ uy = U(1:3:length(U));
+ uy = reshape(uy, [nely+1,nelx+1,nelz+1]);
 
 freedofs = setdiff(1:ndof,fixeddof);
 KE = lk_H8(nu);
@@ -116,6 +151,14 @@ H = sparse(iH,jH,sH);
 Hs = sum(H,2);
 % INITIALIZE ITERATION
 x = repmat(volfrac,[nely,nelx,nelz]);
+    for i = 1:size(constrainedVox,1)
+        x(constrainedVox(i,1),constrainedVox(i,2),constrainedVox(i,3))=1e-3;
+    end
+    for i = 1: (x1-1)
+        for k = 1: (nelz)
+            x(1,i,k) = 1.0;
+        end
+    end
 xPhys = x; 
 loop = 0; 
 change = 1;
@@ -133,10 +176,20 @@ a     = zeros(m,1);       % Column vector with the constants a_i in the terms a_
 c_MMA = 1000*ones(m,1);   % Column vector with the constants c_i in the terms c_i*y_i.
 d     = zeros(m,1);       % Column vector with the constants d_i in the terms 0.5*d_i*(y_i)^2.
 % START ITERATION
-w_rho = 0.00001;
+w_rho = 1;
+m0 = 0.1;
 while change > tolx && loop < maxloop
     loop = loop+1;
     % FE-ANALYSIS
+    %set constrained voxel's value to 1e-3.
+    for i = 1:size(constrainedVox,1)
+        xPhys(constrainedVox(i,1),constrainedVox(i,2),constrainedVox(i,3))=1e-3;
+    end
+    for i = 1: (x1-1)
+        for k = 1: (nelz)
+            xPhys(1,i,k) = 1.0;
+        end
+    end
     sK = reshape(KE(:)*(Emin+xPhys(:)'.^penal*(E0-Emin)),24*24*nele,1);
     K = sparse(iK,jK,sK); K = (K+K')/2;
     U(freedofs,:) = K(freedofs,freedofs)\F(freedofs,:);
@@ -174,13 +227,25 @@ while change > tolx && loop < maxloop
  %   c = sum(sum(sum((Emin+xPhys.^penal*(E0-Emin)).*ce)));
  %   dc = -penal*(E0-Emin)*xPhys.^(penal-1).*ce;
     ce = reshape(sum((KinvU(edofMat)*KE).*U(edofMat),2),[nely,nelx,nelz]);
-    totalMass = sum(sum(sum(xPhys)))/(nelx*nely*nelz);
+    Nele = (nelx*nely*nelz);
+    totalMass = sum(sum(sum(xPhys)))/Nele - m0;
     c = 0.5*uuD'*(U-Uhat) + w_rho * 0.5 * totalMass * totalMass;
-    dc = -penal*(E0-Emin)*xPhys.^(penal-1).*ce + w_rho * totalMass * ones(nely,nelx,nelz);
+    dc = -penal*(E0-Emin)*xPhys.^(penal-1).*ce + w_rho * (totalMass/Nele) * ones(nely,nelx,nelz);
     dv = 0*ones(nely,nelx,nelz);
+    
     % FILTERING AND MODIFICATION OF SENSITIVITIES
-    dc(:) = H*(dc(:)./Hs);  
+    %dc(:) = H*(dc(:)./Hs);  
     %dv(:) = H*(dv(:)./Hs);
+    
+    %set constrained voxel's gradient to 0.
+    for i = 1:size(constrainedVox,1)
+        dc(constrainedVox(i,1),constrainedVox(i,2),constrainedVox(i,3))=1e-3;
+    end
+    for i = 1: (x1-1)
+        for k = 1: (nelz)
+            dc(1,i,k) = 0.0;
+        end
+    end
     % METHOD OF MOVING ASYMPTOTES
     xval  = x(:);
     f0val = c;
@@ -197,6 +262,15 @@ while change > tolx && loop < maxloop
     xold1    = x(:);
     change = max(abs(xnew(:)-x(:)));
     x = xnew;
+    
+    for i = 1:size(constrainedVox,1)
+        x(constrainedVox(i,1),constrainedVox(i,2),constrainedVox(i,3))=1e-3;
+    end
+    for i = 1: (x1-1)
+        for k = 1: (nelz)
+            x(1,i,k) = 1.0;
+        end
+    end
     % PRINT RESULTS
     fprintf(' It.:%5i Obj.:%11.4f Vol.:%7.3f ch.:%7.3f\n',loop,c,mean(xPhys(:)),change);
     % PLOT DENSITIES
