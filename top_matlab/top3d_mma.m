@@ -1,5 +1,5 @@
 % AN 169 LINE 3D TOPOLOGY OPITMIZATION CODE BY LIU AND TOVAR (JUL 2013)
-function xPhys=top3d_mma(nelx,nely,nelz,volfrac,penal,rmin)
+function [xPhys,xSeq]=top3d_mma(nelx,nely,nelz,volfrac,penal,rmin)
 % USER-DEFINED LOOP PARAMETERS
 maxloop = 100;    % Maximum number of iterations
 tolx = 0.01;      % Terminarion criterion
@@ -178,12 +178,13 @@ d     = zeros(m,1);       % Column vector with the constants d_i in the terms 0.
 % START ITERATION
 w_rho = 1;
 m0 = 0.1;
+xSeq = zeros(nely, nelx,nelz,maxloop);
 while change > tolx && loop < maxloop
     loop = loop+1;
     % FE-ANALYSIS
     %set constrained voxel's value to 1e-3.
     for i = 1:size(constrainedVox,1)
-        xPhys(constrainedVox(i,1),constrainedVox(i,2),constrainedVox(i,3))=1e-3;
+        xPhys(constrainedVox(i,1),constrainedVox(i,2),constrainedVox(i,3))=0;
     end
     for i = 1: (x1-1)
         for k = 1: (nelz)
@@ -261,6 +262,7 @@ while change > tolx && loop < maxloop
     xold2    = xold1(:);
     xold1    = x(:);
     change = max(abs(xnew(:)-x(:)));
+    xSeq(:,:,:,loop+1) = x(:,:,:);
     x = xnew;
     
     for i = 1:size(constrainedVox,1)
