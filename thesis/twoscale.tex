@@ -29,7 +29,7 @@ $\bu$ is an auxiliary vector for expressing elasticity equilibrium constraint an
 The equality constraint $\mathcal{F}=0$ requires $\bu$ to satisfy the elasticity equilibrium and the inequality constraint $\Phi\leq0$ guarantees that the material properties of each cell stay inside the precomputed gamut.
 The static equilibrium constraint is written as 
 \begin{equation}
-\mathcal{F}(\mathbf{e},\mathbf{u})=K(\mathbf{p})\mathbf{u}-\bf f_{ext}=0,
+\mathcal{F}(\mathbf{p},\mathbf{u})=K(\mathbf{p})\mathbf{u}-\bf f_{ext}=0,
 \end{equation}
 where $\bf f_{ext}$ are the external loads applied to the object and
 $K(\mathbf{p})$ is the stiffness matrix determined by the material parameters.
@@ -71,12 +71,33 @@ where $\hat{\mathbf{u}}$ is the vector of the target displacements, $\bf D$ is a
 We use $\bf D$ to define the subset of nodes that we are interested in.
 For example, we can set most entries of $\bf D$ to zero and focus on a portion of the domain (see Figure \ref{fig:gripper}).
 
+Topology optimization algorithms such as optimal criteria and MMA require the gradient of the objective function.
+The deformation objective can be differentiated using two simulations as follows.
+The first simulation computes the deformation of the design with the current material parameters.
+\[
+\mathbf{u} = K(\mathbf{p})^{-1}\bf f_{ext}.
+\]
+The second simulation computes
+\[
+K(\mathbf{p})^{-1}(\mathbf{u}-\hat{\mathbf{u}}).
+\]
+Putting these two equations together, we can compute the gradient with respect to material parameters.
+\[\frac{\partial \mathcal{C}_d(\mathbf{e})}{\partial \mathbf{e}}
+=(\mathbf{u}-\hat{\mathbf{u}})^{T}K(\mathbf{p})^{-1}\mathbf{u}\frac{\partial K}{\partial \mathbf{p}}.
+\]
 \paragraph{Minimum Compliance}\label{sec:compliance}
 We have experimented with the same objective as the one used in the standard topology optimization algorithm where the compliance $\mathcal{C}_c$ is defined as
 \begin{equation}
 \mathcal{C}_c(\mathbf{e},\mathbf{u})=\mathbf{u}^T \bK(\mathbf{e}) \mathbf{u}.
 \label{eq:mc}
 \end{equation}
+The gradient of this objective is
+\[
+\frac{\partial \mathcal{C}_c(\mathbf{e})}{\partial \mathbf{e}}
+=\mathbf{u}^T\frac{\partial K}{\partial \mathbf{e}}\mathbf{u}.
+\]
+This gradient needs only one simulation to be computed.
+
 In the commonly used SIMP formulation, the stiffness matrix $\bK_i$ of each cell $i$ depends on the artificial density value $\rho_i$
 through an analytical formula such as $\bK_i = \rho_i^3\bK_0$ where $\bK_0$ corresponds to the stiffness matrix of the base material.
 In contrast, the stiffness matrix in our objective function is directly computed from the material parameters of the material space and forced to correspond to a realizable material thanks to our gamut constraints.
