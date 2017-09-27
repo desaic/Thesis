@@ -17,13 +17,16 @@ However, many types of physical properties are still very challenging to optimiz
 problems such as high-resolution non-linear elasticity or dynamics with friction and impact.
 For simpler problems such as linear elasticity, where accurate simulation is available,
 the simulation resolution handled by desktop workstations is still orders of magnitudes below available printing resolutions.
+
 We propose to speed up simulation and inverse design process of fabricable objects by using multiscale methods.
-First, we construct a library of microstructures and their bulk material properties.
-Bulk material properties are represented by parametric material models with a small number of parameters.
-To use the microstructure library, the space of achievable bulk parameters called the material property gamut is represented as a level set.
-The level set implemented using a signed distance function supports efficient query of distance to the gamut boundary. It enables efficient sampling of the gamut by focusing on finding samples near and outside the currently sampled boundary. We use a combination of discrete and continuous sampling methods to push the structures to the limits of achievable material properties.
+First, we construct a library of microstructures and store their material properties such as Young's modulus and Poisson's ratio.
+To use the library, the space of achievable material properties called the material property gamut is represented as a level set.
+The level set enables efficient sampling of the gamut by focusing on finding samples near and outside the currently sampled boundary.
+We use a combination of discrete and continuous sampling methods to push the structures to the limits of achievable material properties.
 Next, with a pre-computed gamut, functional objects can be designed using microstructures instead of the base materials.
-This allows us to simulate and optimize complex objects at a much coarser scale to improve simulation efficiency. The speed improvement leads to the designs reaching a trillion voxels to match printer resolutions. It also enables computational design of dynamic properties that can be faithfully reproduced in reality.
+This allows us to simulate and optimize complex objects at a much coarser scale to improve simulation efficiency.
+The speed improvement leads to the designs reaching a trillion voxels to match printer resolutions.
+It also enables computational design of dynamic properties that can be faithfully reproduced in reality.
 In addition to efficient design optimization, 
 the gamut representation of the microstructure envelope provides a way to discover templates of microstructures with extremal physical properties.
 In contrast to work where such templates are constructed by hand,
