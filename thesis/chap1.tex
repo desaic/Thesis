@@ -228,7 +228,7 @@ For impact modeling, we propose boundary-balancing impact (BBI) targeted at inel
 With these methods, we optimize and fabricate jumping mechanisms that are challenging to design by hand.
 \section{Contributions}
 \begin{itemize}
-	\item DDFEM is the first algorithm for fast runtime coarsening of nonlinear elastic models that can handle changing geometry and material assignment.
+	\item DDFEM is the first algorithm for fast runtime coarsening of nonlinear elastic models that can handle changing geometry and material assignment. Given a detailed design, DDFEM coarsens the mesh at interactive rates to yield speed gains of up to two orders of magnitude.
 	The fast coarsening is implemented by precomputing the material properties of coarse elements composed of fine elements with different materials.
 	The material properties are inferred from the deformations of coarse elements under likely forces.
 	A compact material model is developed to represent the coarse element behavior using a small number of parameters.
@@ -243,11 +243,12 @@ With these methods, we optimize and fabricate jumping mechanisms that are challe
 	The templates are controlled by a small number of parameters to allow more efficient sampling and tweaking.
 	They also reveal the underlying structural similarity that are crucial achieving the extremal physical properties.	
 	\item Dynamics-aware coarsening (DAC) computes coarse material properties geared towards dynamic scenarios.
+	DAC achieves a $70x$ simulation speed gain while preserving the overall dynamic motion of designs.
 	The material parameters are computed such that the primary modal frequency
 	of a coarse mesh matches the frequency of a high resolution mesh or a physical model.
 	This allows us to simulate dynamic trajectories of non-linear elastic objects at much faster rates while still matching the macroscopic behavior.
 	\item Boundary-balancing impact (BBI) improves state of the art impact models to more accurately model real-world inelastic impact.
-	We use the combination of DAC and BBI to predict the behavior of elastic jumping mechanisms.
-	The simulation is predictive and efficient enough to be used in design optimization loops.
-	To show this, to improve the designs of real-world jumping mechanisms.
+	We use the combination of DAC and BBI to predict the behavior of elastic mechanisms with loading, contact, friction and impact.
+	For the first time, the simulation of elastic dynamics is predictive and efficient enough to be used in designing physical objects.
+	To show this, we used our simulation in an optimization loop to improve the designs of real-world jumping mechanisms.	
 \end{itemize}

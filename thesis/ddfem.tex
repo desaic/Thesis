@@ -190,15 +190,27 @@ In this paper, we provide a more general method to draw samples for a material m
 Initially, we attempted sampling by applying a random deformation to the corners of $\mathit{E}^1$; however, this led to many infeasible samples for very stiff materials.
 In order to alleviate this problem we perform sampling in the force space.
 
-For each element $\mathit{E}^0\in \, \set{E}^0$ we apply a set of randomly generated forces.
-We solve an elastostatic problem to compute the deformation of $\set{E}^0$, using constraints to remove rigid motion. Recall that this is fast because $^0\set{E}$ consists of just 8 elements.
+\begin{figure}
+	\centering
+	\includegraphics[height=0.15\columnwidth]{images/cube_stretch.png}
+	\includegraphics[height=0.15\columnwidth]{images/cube_shear.png}
+	\includegraphics[height=0.15\columnwidth]{images/cube_bend.png}
+	\includegraphics[height=0.15\columnwidth]{images/cube_twist.png}
+	\caption{Example of forces used in our force-based sampling method. The forces here are stretching, shearing, bending and twisting.}
+	\label{fig:sample_forces}
+\end{figure}
+For each element $\mathit{E}^0\in \, \set{E}^0$ we apply a set of pre-defined forces including stretching,
+shearing, bending, and twisting(\autoref{fig:sample_forces}). Each force is sampled at $5$ magnitudes in the positive and negative directions.
+In addition to the above four kinds of forces, we added a pinching force along each of the twelve cube edges.
+We solve an elastostatic problem to compute the deformation of $\set{E}^0$, using constraints to remove rigid motion.
+Recall that this is fast because $^0\set{E}$ consists of just 8 elements.
 Each sample is then a tuple $\left\{\vr{u}^0, \, V^0\right\}$ (\autoref{fig:sampling}) 
 where $^0\vr{u}$ are the nodal displacements of $\set{E}^0$,
 and $V^0$ is the strain energy density value of this deformed configuration.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\columnwidth]{images/sampling.pdf}
-	\caption{ We sample the energy function of a 2$\times$2$\times$2 block of hexahedra by applying random forces and deforming the block using FEM. Each set of forces results in a deformation-energy tuple which is used during fitting.}
+	\caption{ We sample the energy function of a 2$\times$2$\times$2 block of hexahedra by applying forces and deforming the block using FEM. Each set of forces results in a deformation-energy tuple which is used during fitting.}
 	\label{fig:sampling}
 \end{figure}
 
